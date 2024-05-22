@@ -1,0 +1,267 @@
+<!DOCTYPE HTML>
+
+[%settitle 符合性规则%]
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+[%file newheader%]
+</head>
+<body>
+[%file newnavbar%]
+
+
+
+<a name="conformance"></a>
+<h2>一致性</h2>
+<table class="colsn"><tr><td id="wg"><a _target="blank" href="[%wg fhir%]">[%wgt fhir%]</a> 工作组</td><td id="fmm"><a href="versions.html#maturity">成熟度级别</a>：规范</td><td id="ballot"><a href="versions.html#std-process">标准状态</a>：<!--!ns!--><a href="versions.html#std-process">规范</a><!--!ns!--></td></tr></table>
+[%normative page infrastructure%]
+
+<p>
+FHIR规范描述了一组<a href="resource.html">资源</a>和用于在不同系统之间交换资源的几种不同框架。
+由于其通用性和广泛适用性，该规范的规则相对宽松。因此，该规范允许不同的应用程序由于使用可选功能的方式不同而无法互操作。声称符合此规范的应用程序是针对特定的交换框架以及关于其对这些框架和资源内容的使用的具体细节进行声明的。
+</p>
+<p>
+应用程序声称符合以下一个或多个交换框架：
+</p>
+<ul>
+ <li>“RESTful FHIR”： <a href="http.html">RESTful API</a></li>
+ <li>“FHIR消息”： <a href="messaging.html">基于消息的交换</a></li>
+ <li>“FHIR文档”： <a href="documents.html">基于文档的交换</a></li>
+</ul>
+<p>
+为了提供关于框架和资源内容的具体使用细节，FHIR提供了一个<a href="profiling.html">一致性层</a>，供实施者、国家/地区计划和其他配置文件组织（如IHE）使用，以提供关于如何使用资源及其交换范式解决特定用例的可计算语句。
+一致性层本身使用以下关键资源实现：
+</p>
+<table class="grid">
+ <tr> <td><a href="valueset.html">值集</a></td> <td>定义一组编码值（有关详细信息，请参见“<a href="terminologies.html">使用代码</a>”）</td>  </tr>
+ <tr> <td><a href="structuredefinition.html">结构定义</a></td> <td>规定资源（或类型）及其数据元素在特定上下文中的使用规则，包括定义扩展的使用方式。结构定义引用值集以对资源中的编码元素进行编码</td>  </tr>
+ <tr> <td><a href="capabilitystatement.html">能力声明</a></td> <td>描述应用程序提供和/或使用的资源和操作类型。能力声明引用配置文件以描述应用程序对资源的具体使用</td>  </tr>
+ <tr> <td><a href="implementationguide.html">实施指南</a></td> <td>一组互操作应用程序的一致性能力声明、配置文件、扩展、值集和文档的单一一致集合</td>  </tr>
+</table>
+<p>
+该规范还<a href="validation.html">提供了一些工具，可用于强制执行技术一致性</a>。
+</p>
+<p>
+FHIR是一个<i>封闭的</i>规范。该规范定义了希望声明自己符合FHIR的API或交换框架的部分的可能性和要求，包括符合本规范所述要求的交换资源。系统可以选择支持超出FHIR定义的功能（例如通过添加其他名称的附加终点/服务），但是其接口超出FHIR明确允许的部分不能被视为或描述为“符合FHIR”。
+</p>
+<p>
+符合本规范并不保证患者或数据的安全性。然而，选择不符合本规范会增加额外的风险，具体体现在以下两个方面：
+</p>
+<ul>
+ <li>FHIR已经经过了一定程度的审查和验证，而非符合规范的变体不太可能接受这种审查；变体可能导致引入未检测到的风险</li>
+ <li>类似FHIR的解决方案（基于FHIR，但不符合规范）可能会根据交易伙伴的期望进行设置，但由于系统的不符合，这些未满足的期望也可能导致风险</li>
+</ul>
+<p>
+系统只能声明对适用的<a href="capabilitystatement.html">能力声明</a>中描述的功能符合FHIR。RESTful服务器需要根据请求提供一个<code>CapabilityStatement</code>。其他希望断言符合FHIR的系统或应用程序可以选择发布一个定义其符合性的CapabilityStatement。在没有CapabilityStatement的情况下，对FHIR符合性的断言几乎没有意义，因为无法进行测试/验证。
+</p>
+
+<a name="conflang"></a>
+<h3>一致性语言</h3>
+<p>本规范使用RFC 2119中定义的一致性动词SHALL、SHOULD和MAY。然而，与RFC 2119不同的是，本规范允许不同的应用程序由于使用可选功能的方式不同而无法互操作。特别是：</p>
+
+<ol>
+<li>SHALL（必须）：对所有实现都是绝对要求</li>
+<li>SHALL NOT（不得）：对所有实现都是绝对禁止</li>
+<li>SHOULD/SHOULD NOT（应该/不应该）：在特定实现的上下文中，供实施者考虑的最佳实践或建议；可能有合理的理由忽略某个项目，但在选择不同的方案之前，必须充分理解和权衡其全部影响</li>
+<li>MAY（可以）：这是一个实现中真正可选的语言；实施者可以选择包含或省略，没有任何影响</li>
+</ol>
+
+<a name="baseconf"></a>
+<h3>基本一致性规则</h3>
+<p>
+资源的内容和用于表示资源的格式应符合本规范中描述的规则，如规范的叙述中所定义，并受下面定义的一致性属性的控制。
+</p>
+
+<p>
+在资源和数据类型中定义的数据元素具有与一致性直接相关的3个属性：基数、是否修改器和必须支持。它们相互作用，对实现施加一致性要求。
+</p>
+
+<a name="cardinality"></a>
+<h3>基数</h3>
+<p>
+FHIR中定义的所有属性都包含基数作为其定义的一部分 - 最小出现次数和最大出现次数。这些数字指定了属性在资源类型的任何实例中可以出现的次数。本规范仅定义以下基数：0..1、0..*、1..1和1..*。描述特定用例的配置文件可能在基本资源定义的基础上使用其他基数值。
+</p>
+<p>
+请注意，当存在时，元素不能是空的 - 它们必须具有值属性、子元素或扩展。元素的值属性/属性永远不能是空的。它要么不存在，要么存在并具有至少一个非空白内容的字符。这意味着将元素设置为最小基数为1并不能确保数据存在；需要特定的FHIRPath约束来确保所需的数据存在。
+</p>
+<p>
+在本规范中，很少有元素的最小基数为1。资源在许多上下文中使用，通常与其主要用例相去甚远，有时甚至基本信息也非常不完整。因此，只有在对资源或包含它们的元素的任何理解中它们是必需的情况下，才有最小基数为1的元素。最小基数不应被视为在任何特定资源的使用中预期存在哪些元素的指南，包括它们的正常/主要用途。
+在某些情况下，本规范发布了额外的配置文件，定义了在特定情况下哪些元素是必需的。类似的配置文件由司法管辖区、供应商、配置文件组织或项目发布。如果父元素的最小基数为1，并且其所有子元素的最小基数为0，则意味着至少一个子元素必须存在。
+</p>
+<p>
+对于基数大于1的元素，它们出现的顺序可能具有意义。除非元素定义（无论是在本规范中还是在扩展中）明确定义了顺序的含义（使用<a href="elementdefinition.html">ElementDefinition.orderMeaning</a>），否则顺序的含义未定义，实现允许重新排序元素。请注意，使用<a href="structuredefinition.html">StructureDefinition</a>无法定义元素顺序的含义。当没有定义顺序的含义时，需要从元素列表中选择单个元素的实现应基于重复元素内容的语义进行选择。配置文件和实施指南通常会对此选择过程制定规则。
+</p>
+<p>
+客户端不应依赖于服务器维护元素的顺序，除非检索到的资源符合要求维护顺序的配置文件。如果服务器无法维护顺序，则必须删除需要维护顺序的已知配置文件标签，并删除未知配置文件（因为它们可能需要维护顺序）。
+</p>
+
+<a name="mustUnderstand"></a>
+<a name="ismodifier"></a>
+<a name="isModifier"></a>
+<h3>是否为修饰符</h3>
+<p>
+是否为修饰符（Is-Modifier）是一个布尔属性，当一个元素被定义时，会分配给它，无论是作为基本资源内容的一部分，还是在本规范中定义<a href="structuredefinition.html">扩展</a>时。
+</p>
+<p>
+只有当一个元素的值或者它的<a href="elementdefinition.html#missing">缺失时的含义</a>可能导致包含元素或其后代元素的解释不再符合元素的规定定义时，该元素才被标记为修饰符。常见的被标记为“是否为修饰符”的元素包括“状态”、“活动”、“驳斥”或“确定性”等，它们颠倒或否定了包含它们的资源（或元素）的含义。
+</p>
+<p>
+修饰符并不表示某个特定信息的重要程度，也不表示在常见用例中使用资源时是否应该忽略该元素。如果忽略一个元素，可能会错过一个重要的可计算含义。
+</p>
+<p>
+例如，考虑观察（Observation）：
+</p>
+<ul>
+ <li><code>Observation.status</code> 是一个修饰符。该元素允许使用<code>entered-in-error</code>代码，表示根本没有进行任何观察。观察的定义表明它是一个已经进行的测量，不允许存在未进行的测量。因此，如果忽略状态元素，并根据其定义直接解释观察，系统或用户会推断出已经进行了观察，这是错误的。</li>
+ <li><code>Observation.subject</code> 不是一个修饰符。如果应用程序忽略该元素，它将不知道观察的对象是谁或是什么，这将使剩余的信息在大多数情况下几乎无用。然而，任何忽略主题的系统在不了解观察的对象的情况下，仍然能够理解进行了何种类型的观察，何时进行的观察以及发现了什么，只是不知道观察的对象是谁。</li>
+<li>
+即使像<code>Observation.code</code>这样关键的元素也不是一个修饰符元素。虽然没有代码的观察几乎没有用处，但是当忽略该元素时，对于“某个”在指定主题和指定日期时间上进行了观察的理解仍然是正确的，当重新引入该元素时也是如此。唯一的例外是，如果在Observation.code元素中表达的值能够传达出观察未发生或以其他方式导致实例与忽略该元素时的Observation的定义含义不一致。</li>
+</ul>
+
+<p>
+<code>is-modifier</code>的定义有一个必然的推论：任何满足要求的元素，如果它可能导致包含元素或其后代的解释与它们的定义不一致，必须明确声明如何发生这种差异，并且必须标记为修饰符元素。
+任何未标记为<code>is-modifier</code>且没有该解释的元素，不得由实施者以使元素行为像修饰符的方式使用。例如，在患者的特殊“名称”上使用以指示主题不是真实患者，而是用于非患者测试的人工结构，这与FHIR不符合，因为Patient.name不是修饰符元素。
+</p>
+<p>
+当在约束的<a href="structuredefinition.html">结构定义</a>中描述元素使用时，元素是否为修饰符不能更改。
+当一个元素被标记为Is-Modifier时，文档必须明确说明为什么它是一个修饰符。
+</p>
+<p>
+修饰符元素的典型示例是否定包含它的元素。例如，在以下资源定义片段中：
+</p>
+<table style="border: 0px; font-size: 11px; font-family: verdana; vertical-align: top;" cellpadding="0" border="0" cellspacing="0"><tbody><tr style="border: 1px #F0F0F0 solid; font-size: 11px; font-family: verdana; vertical-align: top;"><th style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><a title="The logical name of the element" href="formats.html#table">Name</a></th><th style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><a title="Information about the use of the element" href="formats.html#table">Flags</a></th><th style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><a title="Minimum and Maximum # of times the element can appear in the instance" href="formats.html#table">Card.</a></th><th style="width: 100px" class="hierarchy"><a title="Reference to the type of the element" href="formats.html#table">Type</a></th><th style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><a title="Additional information about the element" href="formats.html#table">Description &amp; Constraints</a><span style="float: right"><a title="Legend for this format" href="formats.html#table"><img style="background-color: inherit" alt="doco" src="help16.png"/></a></span></th></tr><tr style="border: 0px; padding:0px; vertical-align: top; background-color: white;"><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck1.png)" class="hierarchy"><img style="background-color: inherit" alt="." class="hierarchy" src="tbl_spacer.png"/><img title="Resource" style="background-color: white; background-color: inherit" alt="." class="hierarchy" src="icon_resource.png"/> <a title="AllergyIntolerance : Risk of harmful or undesirable, physiological response which is unique to an individual and associated with exposure to a substance." href="allergyintolerance-definitions.html#AllergyIntolerance">AllergyIntolerance</a><a name="AllergyIntolerance"></a></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><a href="domainresource.html">DomainResource</a></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy">过敏或不耐受（通常：对物质的不良反应风险）</td></tr>
+<tr style="border: 0px; padding:0px; vertical-align: top; background-color: white;"><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img style="background-color: inherit" alt="." class="hierarchy" src="tbl_spacer.png"/><img style="background-color: inherit" alt="." class="hierarchy" src="tbl_vjoin.png"/><img title="Primitive Datatype" style="background-color: white; background-color: inherit" alt="." class="hierarchy" src="icon_primitive.png"/> <a title="AllergyIntolerance.onset : Record of the date and/or time of the onset of the Allergy or Intolerance." href="allergyintolerance-definitions.html#AllergyIntolerance.onset_x_">onset</a><a name="AllergyIntolerance.onset_x_"></a></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><span title="This element is included in summaries">Σ</span></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy">0..1</td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#dateTime">dateTime</a></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy">表现出现的日期(/时间)</td></tr>
+<tr style="border: 0px; padding:0px; vertical-align: top; background-color: white;"><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img style="background-color: inherit" alt="." class="hierarchy" src="tbl_spacer.png"/><img style="background-color: inherit" alt="." class="hierarchy" src="tbl_vjoin.png"/><img title="Reference to another Resource" style="background-color: white; background-color: inherit" alt="." class="hierarchy" src="icon_reference.png"/> <a title="AllergyIntolerance.patient : The patient who has the allergy or intolerance." href="allergyintolerance-definitions.html#AllergyIntolerance.patient">patient</a><a name="AllergyIntolerance.patient"></a></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><span title="This element is included in summaries">Σ</span></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy">1..1</td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><a href="references.html">Reference</a>(<a href="patient.html">Patient</a>)</td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy">敏感性所属的人</td></tr>
+<tr style="border: 0px; padding:0px; vertical-align: top; background-color: white;"><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img style="background-color: inherit" alt="." class="hierarchy" src="tbl_spacer.png"/><img style="background-color: inherit" alt="." class="hierarchy" src="tbl_vjoin.png"/><img title="Primitive Datatype" style="background-color: white; background-color: inherit" alt="." class="hierarchy" src="icon_primitive.png"/> <a title="AllergyIntolerance.verificationStatus : Assertion about certainty associated with the propensity, or potential risk, of a reaction to the identified Substance." href="allergyintolerance-definitions.html#AllergyIntolerance.verificationStatus">verificationStatus</a><a name="AllergyIntolerance.verificationStatus"></a></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><span title="This element is a modifier element">?! </span><span title="This element is included in summaries">Σ</span></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy">0..1</td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#CodeableConcept">CodeableConcept</a></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy">unconfirmed | confirmed | refuted | entered-in-error<br/><a title="Assertion about certainty associated with a propensity, or potential risk, of a reaction to the identified Substance" href="valueset-allergyintolerance-verification.html">AllergyIntoleranceVerificationStatus</a> (<a title="To be conformant, the data element SHALL contain one of the values in the expansion of the bound value set" href="terminologies.html#required">Required</a>)</td></tr>
+<tr style="border: 0px; padding:0px; vertical-align: top; background-color: white;"><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img style="background-color: inherit" alt="." class="hierarchy" src="tbl_spacer.png"/><img style="background-color: inherit" alt="." class="hierarchy" src="tbl_vjoin.png"/><img title="Primitive Datatype" style="background-color: white; background-color: inherit" alt="." class="hierarchy" src="icon_primitive.png"/> <a title="AllergyIntolerance.criticality : Estimate of the potential clinical harm, or seriousness, of the reaction to the identified Substance." href="allergyintolerance-definitions.html#AllergyIntolerance.criticality">criticality</a><a name="AllergyIntolerance.criticality"></a></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><span title="This element is included in summaries">Σ</span></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy">0..1</td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#code">code</a></td><td style="vertical-align: top; text-align : left; background-color: white; padding:0px 4px 0px 4px" class="hierarchy">CRITL | CRITH | CRITU<br/><a title="Estimate of the potential clinical harm, or seriousness, of a reaction to an identified Substance" href="valueset-allergy-intolerance-criticality.html">AllergyIntoleranceCriticality</a> (<a title="To be conformant, the data element SHALL contain one of the values in the expansion of the bound value set" href="terminologies.html#required">Required</a>)</td></tr>
+</tbody></table>
+
+<p>
+对于AllergyIntolerance的定义是包含有关“对个体独特且与物质暴露相关的有害或不良生理反应的风险”的信息。
+如果'verificationStatus'元素的值设置为<code>entered-in-error</code>，则整个资源实际上不包含任何有关暴露风险的有效信息，
+应用程序忽略此元素是不安全的。因此，它被标记为'is modifier = true'。在资源的表格表示中，这显示为标记'?!'。
+<a href="json.html">JSON</a>和<a href="xml.html">XML</a>表示
+资源定义具有自己的'is modifier = true'状态的表示，并且直接在<a href="elementdefinition-definitions.html#ElementDefinition.isModifier">ElementDefinition</a>中定义。
+</p>
+<p>
+如果存在摘要概述，并且状态为<code>generated</code>，则Is-Modifier元素应在资源的摘要概述中表示。
+如果存在其他状态的摘要，则应表示Is-modifier元素。
+</p>
+<p>
+如果实例中的修饰符元素的值不明确或上下文中不知道，可能无法安全地理解资源。
+在可能的情况下，“Is-Modifier = true”的元素还具有最小基数为1，以确保其处理的确定性。然而，有时这是不可能的 - 许多旧数据没有很好地
+描述。生成资源的实现应始终提供适当的isModifier元素值。
+</p>
+<p>
+处理资源中的数据的实现在使用数据时应理解元素的影响。
+实现不需要以任何有意义的方式“支持”元素 - 它们
+可以通过拒绝包含不支持的值的实例（例如，
+应用程序可能拒绝接受状态不是“final”的观察）来实现此理解。或者，
+由于实现环境的原因，实现可能能够确保此类值
+永远不会发生。但是，无论如何，应用程序始终应检查该值。
+</p>
+<p>
+请注意，处理资源数据通常意味着
+将数据从资源中复制或过滤以在另一个
+上下文中使用（向人类显示，决策支持，以另一种格式交换其中不包含所有信息或将其存储以供此类使用）。
+仅仅移动整个资源的服务器和后台进程
+不是“处理资源数据”，因此这些应用程序
+不需要检查Is-Modifier元素。
+</p>
+<p>
+基本资源中的每个元素都具有Is-Modifier标志的“true”或“false”值。
+标志的值不能通过资源上的配置文件进行更改，无论是向前还是向后。
+当StructureDefinition定义扩展时，它使用Is-Modifier标志标记扩展，其他配置文件无法更改此标志。
+请注意，具有is-Modifier = true的扩展
+在资源实例中以不同的方式表示（使用“modifierExtension”而不是“extension”），
+并且有关如何处理它们的<a href="extensibility.html#modifierExtension">其他规则</a>。
+</p>
+<p>
+由于存在<code>entered-in-error</code>状态，大多数<code>status</code>元素被标记为修饰符。
+其他修饰符的定义如下：
+</p>
+
+<ul style="-moz-column-count: 3; -moz-column-gap: 10px; -webkit-column-count: 3; -webkit-column-gap: 10px; column-count: 3; column-gap: 10px">
+<%modifier-list%>
+</ul>
+
+<a name="mustSupport"></a>
+<h3>应用程序的义务（MustSupport）</h3>
+<p>
+FHIR规范主要关注各种类型的有效接口（API、消息传递等）以及应用程序之间交换的资源实例中的内容规则。
+描述特定实现解决方案和<a href="actordefinition.html">应用程序角色</a>的实施指南也关注应用程序行为 - 在什么条件下必须提供什么信息，并对特定数据元素的处理方式设定期望。
+</p>
+<p>
+实施指南可以通过在配置文件中使用<code>mustSupport</code>属性和<%extension http://hl7.org/fhir/StructureDefinition/obligation%>扩展来制定应用程序行为规则。
+有关更多信息，请阅读<a href="obligations.html">实施义务</a>。
+</p>
+<p>
+请注意，由于基本规范仅描述接口和资源，而不是任何特定解决方案，因此基本应用程序在资源定义中不指定任何应用程序义务。
+</p>
+
+<a name="constraints"></a>
+<h3>约束</h3>
+<p>
+所有元素都可以附加约束（也称为“不变量”）。
+在元素上定义的约束具有以下属性：
+</p>
+<table class="grid">
+ <tr><td><b>关键字</b></td><td>在上下文中唯一标识约束，通常用于在错误消息中引用约束</td></tr>
+ <tr><td><b>要求</b></td><td>解释为什么应用了约束-避免了哪些有害条件</td></tr>
+ <tr><td><b>严重程度</b></td><td>不变量的严重程度-见下文</td></tr>
+ <tr><td><b>抑制</b></td><td>允许在派生配置文件中抑制警告或最佳实践指南</td></tr>
+ <tr><td><b>人类描述</b></td><td>规则的人类描述，用于在约束未满足时作为消息解释显示</td></tr>
+ <tr><td><b>表达式</b></td><td>在元素上运行时必须评估为true的<a href="fhirpath.html">FHIRPath</a>表达式</td></tr>
+ <tr><td><b>来源</b></td><td>定义约束的配置文件的URL（这有助于将错误接收者指向正确的位置以了解原因）</td></tr>
+</table>
+<p>
+基本规范中定义了许多约束。此外，还可以在适用于资源的<a href="profiling.html">配置文件</a>中定义其他约束。
+系统不需要评估约束，就像它们不需要检查一致性或模式的有效性一样。但是，系统应始终确保所有资源针对所有适用的约束都是有效的。
+</p>
+<p>
+约束具有严重程度级别：
+</p>
+<a name="best-practice"> </a><a name="rule"> </a><a name="warning"> </a>
+<table>
+ <tr> <td><b>错误（规则）</b></td>  <td>所有资源都必须符合的规则。如果违反规则，验证器应将其报告为错误，并且处理内容的应用程序可以将其拒绝为无效资源</td> </tr>
+ <tr> <td><b>警告</b></td>  <td>将其报告为可能存在问题的警告，但被视为有效资源并可以正常处理</td> </tr>
+ <tr> <td><b>指南</b></td>  <td>带有扩展标记的警告（<a href="[%extensions-location%]StructureDefinition-elementdefinition-bestpractice.html">http://hl7.org/fhir/StructureDefinition/elementdefinition-bestpractice</a>），如果实现上下文要求验证器执行最佳实践规则，则应将其视为错误。有关完整列表，请参见<a href="best-practices.html">最佳实践</a></td> </tr>
+</table>
+
+<p>
+元素还可以明确与在其他地方定义的约束相关联。这是对实施者的通知，该元素受到约束的影响。当评估约束时，它没有任何意义。
+</p>
+<p>
+<a href="profiling.html">配置文件</a>可以定义适用于元素的其他约束，但不能修改或删除已经应用的约束。
+</p>
+<p>
+约束具有用于标识约束的键，例如在错误消息中。当声明约束时，约束键必须是唯一的。然而，约束在配置文件中多次重复出现，无论原始元素定义在哪里，这意味着没有简单的方法来确保键是唯一的。FHIR验证器将验证约束键是否具有有意义的唯一性。
+</p>
+
+<a name="summary"></a>
+<a name="default"></a>
+<a name="meaning-when-missing"></a>
+<h3>其他元数据</h3>
+<p>
+除了符合性元数据之外，每个元素还具有在<a href="elementdefinition.html">ElementDefinition</a>中定义的其他元数据属性：
+</p>
+<ul>
+ <li><b>isSummary</b> - 元素在<a href="search.html#summary">摘要搜索</a>中的行为</li>
+ <li><b>meaningWhenMissing</b> - 元素缺失时的<a href="elementdefinition.html#missing">含义</a></li>
+ <li><b>maxLength</b> - 元素的原始值表示允许的最大长度（不包括XML或JSON转义）</li>
+</ul>
+
+<a name="examples"></a>
+<h3>示例和参考实现</h3>
+<p>
+本规范包含许多示例。尽管已经尽力确保示例与规范完全符合，但如果示例与规范不一致，则规范被视为正确和规范性的，而不是示例。相同的规则也适用于参考实现。
+</p>
+<p>
+本规范中的示例*不*代表实际人物。与真实人物（无论是活着还是已故）的任何相似之处纯属巧合。在某些情况下，示例可能来自真实的临床数据。
+但是，如果发生这种情况，内容已经经过处理，以删除任何识别信息。
+</p>
+
+[%file newfooter%]
+</body>
+</html>
+
