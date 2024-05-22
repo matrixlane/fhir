@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+
+
+
+[%settitle FHIR概述%]
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh" lang="zh">
+<head>
+[%file newheader%]
+</head>
+<body>
+[%file newnavbar%]
+
+
+
+<a name="root"></a>
+<h2>FHIR概述</h2>
+<table class="colsi"><tr><td id="wg"><a _target="blank" href="[%wg fhir%]">[%wgt fhir%]</a> 工作组</td><td id="fmm"><a href="versions.html#maturity">成熟度级别</a>: N/A</td><td id="ballot"><a href="versions.html#std-process">标准状态</a>:<!--!ns!--><a href="versions.html#std-process">信息性</a></td></tr></table>
+
+<p>
+欢迎来到FHIR（快速医疗互操作性资源）规范，这是一种用于电子交换医疗信息的标准。
+本页面提供了该标准的概述，并作为规范的初次读者的路线图，帮助您快速了解FHIR。
+</p>
+
+<a name="Background"></a>
+<h3>背景</h3>
+<p>
+医疗记录越来越多地数字化。随着患者在医疗生态系统中的流动，他们的电子健康记录必须是可用的、可发现的和可理解的。此外，为了支持自动化的临床决策支持和其他基于机器的处理，数据还必须是结构化和标准化的。（参见<a href="change.html">医疗保健中即将面临的数字化挑战</a>）
+</p>
+<p>
+<a href="http://hl7.org">HL7</a>已经在过去20多年中通过制定医疗数据交换和信息建模标准来解决这些挑战。FHIR是一项基于新兴行业方法的新规范，但它也借鉴了通过定义和实施<a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=185">HL7 V2</a>、<a href="https://www.hl7.org/implement/standards/product_brief.cfm?product_id=186">HL7 v3</a>和RIM以及<a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=7">CDA</a>所获得的多年需求、成功和挑战的经验。FHIR可以作为独立的数据交换标准使用，但也可以与现有广泛使用的标准合作使用。（参见<a href="comparison.html">将FHIR与其他HL7标准进行比较</a>）
+</p>
+<p>
+FHIR旨在简化实施过程，同时不损害信息的完整性。它利用现有的逻辑和理论模型，为医疗应用程序之间的数据交换提供一种一致、易于实施和严格的机制。FHIR内置了与HL7 RIM和其他重要内容模型的可追溯性机制。这确保了与HL7先前定义的模式和最佳实践的一致性，而不需要实施者对RIM或任何<a href="https://www.hl7.org/implement/standards/product_brief.cfm?product_id=186">HL7 v3</a>的派生有深入的了解。（参见<a href="comparison.html">将FHIR与其他HL7标准进行比较</a>）
+</p>
+
+<a name="Components"></a>
+<h3>组件</h3>
+<p>
+FHIR中的基本构建块是一个<a href="resource.html">资源</a>。所有可交换的内容都被定义为资源。资源都共享以下一组特征：
+</p>
+<ul>
+ <li>一种<a href="formats.html">定义</a>和<a href="resource-formats.html">表示</a>它们的常见方式，通过从<a href="datatypes.html">数据类型</a>构建它们，这些数据类型定义了常见的可重用元素模式</li>
+ <li>一组共同的<a href="resource.html#metadata">元数据</a></li>
+ <li>一个<a href="narrative.html">可读的</a>部分</li>
+</ul>
+
+<a name="Approach"></a>
+<h3>方法</h3>
+<a name="modeling"></a>
+<h4>信息建模方法</h4>
+<p>
+FHIR的理念是构建一组基本资源，这些资源可以单独使用或者组合使用，以满足大多数常见的使用情况。FHIR资源旨在定义大多数实现共享的核心信息集的信息内容和结构。对于剩余的内容，FHIR提供了内置的扩展机制来进行覆盖。
+</p>
+<p>
+FHIR建模采用组合方法。相比之下，HL7 v3建模基于“约束模型”（参见<a href="comparison.html">比较FHIR与其他HL7标准</a>）。在FHIR中，通常通过使用<a href="references.html">资源引用</a>将资源组合在一起来实现特定的使用情况。虽然单个资源在特定的使用情况下可能是有用的，但更常见的是将资源组合并定制以满足特定的使用情况要求。有两种特殊类型的资源用于描述资源的定义和使用方式：
+</p>
+<ul>
+ <li><a href="capabilitystatement.html">能力声明</a> - 描述实现用于数据交换的接口</li>
+ <li><a href="structuredefinition.html">结构定义</a> - 提供额外的规则，用于约束实现中使用的资源的可选性、基数、术语绑定、数据类型和扩展</li>
+</ul>
+
+<a name="Specification"></a>
+<h3>规范</h3>
+<p>
+广义上，FHIR规范被分为一组模块：<a href="modules.html#modules">模块集</a>：
+</p>
+[%file modules-list%]
+
+<p>
+资源具有广泛的用途，从纯粹的临床内容，如<a href="careplan.html">护理计划</a>和<a href="diagnosticreport.html">诊断报告</a>，到纯粹的基础设施，如<a href="messageheader.html">消息头</a>和<a href="capabilitystatement.html">能力声明</a>。它们都共享共同的技术特征（更正式的定义请参见下文），但它们在完全不同的方式中使用。请注意，您不必使用REST来使用资源。
+</p>
+
+<a name="Start"></a>
+<h3>从哪里开始</h3>
+<p>
+开始的最佳位置是快速阅读<a href="resourcelist.html">资源</a>列表，了解存在哪些资源，然后查看<a href="patient.html">患者资源</a>定义，了解资源定义的样式，然后阅读以下背景页面：
+</p>
+<ul>
+  <li><a href="resource.html">资源定义</a> - 关于如何定义资源的基本背景</li>
+  <li>关于资源：<a href="narrative.html">叙述</a>以及资源之间的<a href="references.html">引用关系</a></li>
+  <li><a href="resource-formats.html">格式</a>： <a href="xml.html">XML</a> 和 <a href="json.html">JSON</a></li>
+  <li>关于<a href="extensibility.html">可扩展性</a>：这是规范保持简单的关键方式</li>
+  <li>如果您具有其他HL7标准（<a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=185">HL7 V2</a>，<a href="https://www.hl7.org/implement/standards/product_brief.cfm?product_id=186">HL7 v3</a> 或 <a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=7">CDA</a>）的背景，<a href="comparison.html">FHIR与其他HL7标准的关系</a>也可能会有所帮助</li>
+</ul>
+
+<a name="Headers"></a>
+<h4>标头选项卡</h4>
+<p>
+这些在规范中找到的标头选项卡非常重要，但很多读者都会忽略它们：
+</p>
+<p>
+<img src="header-tabs.png" style="float: none; clear: both"/>
+<br/>
+</p>
+<p>
+资源及其使用的<a href="datatypes.html">数据类型</a>以简洁易读的类似XML的格式呈现，但它们也有详细的内容描述。此外，大多数资源都映射到多种不同的格式，包括<a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=185">HL7 V2</a>、<a href="https://www.hl7.org/implement/standards/product_brief.cfm?product_id=186">HL7 v3</a> RIM、<a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=7">CDA</a>、DICOM等。此外，所有资源都至少附带一个示例（有时还有更多），并且在适当的情况下，还附带描述其在特定情况下使用的配置文件。最后，一些资源包含有助于实施者理解其设计原理的注释。
+</p>
+
+<a name="Feedback"></a>
+<h3>查找更多信息和提供反馈</h3>
+<p>虽然FHIR规范旨在为各种受众提供可消化的内容，但其目标是面向实施社区 - 那些实际编写使用该规范的软件的人员。为了满足实施社区的需求，编辑们努力使规范简洁，以减少在编写有用代码之前必须阅读的内容。因此，本规范中省略了与实施过程无关的信息，例如考虑的替代方案、争议点、未来计划等。此外，实施者可能会遇到规范不清晰或不完整的情况。最后，可能会出现规范错误或需要进行更改以更好地满足实施者的需求的情况。</p>
+<p>因此，HL7提供了多种机制，可以寻求和维护有关FHIR的其他信息，并通过这些机制提供支持和请求更改。</p>
+
+<a name="Wiki"></a>
+<h4>FHIR Confluence页面</h4>
+<p>
+FHIR项目团队还维护着一组<a href="https://confluence.hl7.org/display/FHIR">Confluence页面</a>，其中记录了开发过程、方法论和设计决策。实施者和其他人也可以在Confluence上贡献意见，提供额外的指导和补充信息，这些信息在规范中找不到。请注意，Confluence内容不具有权威性，不能用于确定符合FHIR规范的情况。此外，某些Confluence内容可能与最新版本的FHIR规范不一致。
+</p>
+<p>
+定义的页面包括<a href="https://confluence.hl7.org/display/FHIR/Guide+to+Designing+Resources">FHIR方法论</a>、
+使用<a href="https://confluence.hl7.org/display/FHIR/Resource+Authoring">FHIR设计工具</a>等。要
+浏览FHIR Confluence页面，您可以从<a href="https://confluence.hl7.org/display/FHIR">根页面</a>开始。
+</p>
+
+<a name="Change"></a>
+<h4>正式变更请求</h4>
+<p>
+可以在<a href="http://hl7.org/fhir-issues">此处</a>提交正式的变更请求。
+（每个页面底部也有一个链接。）这些请求将由相应的工作组进行审查，并决定是否将其纳入规范中，以及它们将成为哪个版本的一部分（如果有）。
+</p>
+
+<a name="Engagement"></a>
+<h4>其他信息来源/参与机制</h4>
+<p>
+除了上述机制外，HL7还提供了Stack Overflow标签、邮件列表和在线聊天系统，以提供不同级别的实施者支持和参与。有关访问这些其他机制的说明（以及如何最好地利用它们的说明）可以在<a href="https://confluence.hl7.org/display/FHIR/Implementer+Support">支持链接</a>中找到。
+</p>
+
+[%file newfooter%]
+
+</body>
+</html>
+

@@ -1,0 +1,173 @@
+<!DOCTYPE HTML>
+
+
+
+[%settitle 文档索引%]
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+[%file newheader%]
+</head>
+<body>
+[%file newnavbar%]
+
+
+
+<h1>文档索引</h1>
+
+<table class="colsi"><tbody><tr><td id="wg"><a href="http://www.hl7.org/Special/committees/fiwg/index.cfm" _target="blank">FHIR基础设施</a>工作组</td><td id="fmm"><a href="versions.html#maturity">成熟度级别</a>：N/A</td><td id="ballot"><a href="versions.html#std-process">标准状态</a>：<!-- !ns! --><a href="versions.html#std-process">信息性</a></td></tr></tbody></table>
+
+<p>
+本页面提供了FHIR常用背景文档页面的索引。此外，还可以查看由FHIR定义的<%res-type-count%>个资源的<a href="resourcelist.html">列表</a>。
+</p>
+
+<table width="100%" style="table-layout: fixed">
+ <tr>
+
+<td style="border-left: 1px solid #eeeeee" width="33%">
+<p><b>框架</b></p>
+<ul>
+  <li><a href="conformance-rules.html">一致性规则</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="lifecycle.html">资源生命周期</a></li>
+  <li><a href="references.html">资源之间的引用</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="compartmentdefinition.html">分区</a></li>
+  <li><a href="narrative.html">叙述</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="extensibility.html">可扩展性</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="terminologies.html">术语</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a>
+    <ul>
+      <li><a href="terminologies-systems.html">代码系统</a></li>
+      <li><a href="terminologies-valuesets.html">值集</a></li>
+      <li><a href="terminology-service.html">术语服务</a></li>
+    </ul></li>
+  <li><a href="packages.html">FHIR NPM 包</a></li>
+  <li><a href="fhirpath.html">FHIRPath</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a>, <a href="fhirpatch.html">Patch</a>, &amp; <a href="fhir-xquery.html">X-FHIR-Query</a></li>
+  <li><a href="mappings.html">与其他标准的映射</a></li>
+</ul>
+<p><b>版本管理</b></p>
+<ul>
+  <li><a href="versions.html">变更管理与版本控制</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="versioning.html">管理多个 FHIR 版本</a></li>
+  <li><a href="history.html">版本历史</a></li>
+  <li><a href="diff.html">与 Release 4 的差异</a></li>
+  <li><a href="r4maps.html">Release 4 与 Release 5 之间的转换</a></li>
+</ul>
+<p><b>背景</b></p>
+<ul>
+  <li>概述：<a href="overview.html">总览</a>，<a href="overview-dev.html">开发人员</a>，
+    <br/><a href="overview-clinical.html">临床</a>，<a href="overview-arch.html">架构师</a></li>
+  <li><a href="summary.html">1 页摘要</a>（<a href="fhir-glossy.pdf">精美版</a>）</li>
+  <li><a href="help.html">术语表</a>（<a href="glossary.html">多语言</a>） </li>
+  <li><a href="license.html">许可证和法律条款</a></li>
+  <li><a href="credits.html">社区与致谢</a></li>
+  <li><a href="todo.html">待解决问题</a></li>
+  <li><a href="change.html">附录：医疗保健面临的挑战</a></li>
+</ul>
+<p><b>ANSI 文档</b></p>
+<ul>
+  <li><a href="ansi.html">HL7、ANSI 和 FHIR 标准</a></li>
+<!-- 
+  <li><a href="ansi-infrastructure.html">FHIR 基础设施标准</a></li>
+  <li><a href="ansi-conformance.html">FHIR 一致性标准</a></li>
+  <li><a href="ansi-patient.html">FHIR 患者标准</a></li>
+  <li><a href="ansi-observation.html">FHIR 观察标准</a></li>
+-->
+</ul>
+
+</td>
+
+<td>
+<p><b><a href="exchanging.html">资源交换</a></b>（以及如何选择）</p>
+<ul>
+  <li><a href="http.html"><b>RESTful API（HTTP）</b></a>  <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a>
+    <ul>
+      <li><a href="search.html">搜索</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a>（<a href="searchparameter-registry.html">搜索参数注册表</a>）</li>
+      <li><a href="operations.html">操作</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+      <li><a href="async.html">异步使用</a></li>
+      <li><a href="graphql.html">使用GraphQL</a></li>
+      <li><a href="operations-for-large-resources.html">大型资源的操作</a></li>
+    </ul>
+  </li>
+  <li><a href="documents.html">文档</a></li>
+  <li><a href="messaging.html">消息</a></li>
+  <li><a href="services.html">服务</a></li>
+  <li><a href="storage.html">持久化/数据库</a></li>
+  <li><a href="subscriptions.html">订阅框架</a></li>
+</ul>
+<p><a href="formats.html"><b>资源定义：</b></a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></p>
+<ul>
+  <li><a href="resource-formats.html">资源格式：</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="uml.html">UML定义</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="xml.html">XML格式</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="json.html">JSON格式</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="nd-json.html">ND-JSON格式</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="rdf.html">RDF定义</a></li>
+</ul>
+<p><b><a href="datatypes.html">数据类型</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></b></p>
+<ul>
+  <li><a href="metadatatypes.html">元数据类型</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="elementdefinition.html">元素定义</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="dosage.html">剂量</a></li>
+  <li><a href="marketingstatus.html">营销状态</a></li>
+  <!--li><a href="population.html">人口</a></li-->
+  <li><a href="productshelflife.html">产品保质期</a></li>
+</ul>
+<p><b><a href="types.html">类型框架</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></b></p>
+<ul>
+  <li><a href="resource.html">资源</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="domainresource.html">领域资源</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="canonicalresource.html">规范资源</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="metadataresource.html">元数据资源</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+</ul>
+</td>
+
+<td style="border-left: 1px solid #eeeeee">
+<p><b>采用和使用FHIR</b></p>
+<ul>
+  <li><a href="profiling.html">FHIR配置文件</a> <a href="versions.html#std-process" title="规范内容" class="normative-flag">N</a></li>
+  <li><a href="obligations.html">实施义务</a></li>
+  <li><a href="workflow.html">FHIR工作流程</a></li>
+  <li><a href="downloads.html">下载 - 模式、代码、工具</a></li>
+  <li><a href="versioning.html">管理多个FHIR版本</a></li>
+  <li><a href="validation.html">验证资源</a></li>
+  <li><a href="logical.html">逻辑模型</a></li>
+  <li><a href="best-practices.html">实施者最佳实践</a></li>
+  <li><a href="mapping-language.html">映射语言</a> (<a href="mapping-tutorial.html">教程</a>)</li>
+  <li><a href="testing.html">测试实施</a></li>
+</ul>
+<hr/>
+<div  style="background-color: #ffe6e6">
+<p><b>安全性与保密性</b></p>
+<ul>
+  <li><a href="security.html">安全性</a>，<a href="security-labels.html">安全标签</a>和<a href="signatures.html">签名</a></li>
+  <li><a href="safety.html">临床安全性</a></li>
+</ul>
+</div>
+<p><b>实施建议</b></p>
+<ul>
+  <li><a href="managing.html">管理资源标识</a></li>
+  <li><a href="resourceguide.html">资源指南</a></li>
+  <li><a href="languages.html">多语言支持</a></li>
+  <li><a href="updates.html">提交数据与检索数据之间的差异</a></li>
+  <li><a href="pushpull.html">推送与拉取</a></li>
+  <li><a href="integrated-examples.html">集成示例</a></li>
+  <li><a href="usecases.html">常见用例</a></li>
+</ul>
+<p><a href="comparison.html"><b>与其他标准的关系</b></a></p>
+<ul>
+ <li><a href="comparison-v2.html">v2消息</a></li>
+ <li><a href="comparison-v3.html">v3消息</a></li>
+ <li><a href="comparison-cda.html">CDA</a>（另请参阅<a href="cda-intro.html">CDA on FHIR</a>）</li>
+ <li><a href="comparison-other.html">其他规范</a></li>
+</ul>
+</td>
+</tr>
+</table>
+
+<p>
+注意：链接中的<a href="versions.html#std-process" title="Normative Content" class="normative-flag">N</a>符号表示链接的目标包含<a href="versions.html#std-process">规范内容</a>。
+</p>
+
+[%file newfooter%]
+
+</body>
+</html>
+

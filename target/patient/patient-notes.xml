@@ -1,0 +1,234 @@
+<div xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/1999/xhtml ../../schema/fhir-xhtml.xsd" xmlns="http://www.w3.org/1999/xhtml">
+
+<p>
+注意：
+</p>
+<ul>
+<li>multipleBirth可以表示为布尔值（仅指示患者是否为多胞胎）或整数，表示实际的出生顺序。</li>
+<li>患者记录只能处于两种状态之一：使用中（active=true）和未使用（active=false）。
+正常记录是活动的，即正在使用中。当记录被创建为重复或错误时，active设置为'false'。
+记录不需要链接即可停用。</li>
+<li><i>link</i>元素用于断言两个或多个患者资源都与同一个实际患者相关。
+请参阅下面的进一步讨论。</li>
+<li>每种表达方式应只有一种首选语言（Language.preference = true）。</li>
+<li>患者的联系人具有<i>organization</i>元素，这适用于监护人或与业务相关的联系人，只有组织机构是相关的。</li>
+</ul>
+
+<a name="ids"></a>
+<h2>患者ID和患者资源ID</h2>
+<p>患者记录的<a href="resource.html#id">资源ID</a>永远不会改变。因此，与人类相关的标识符（通常称为MRN - 医疗记录号码或UR - 单位记录）不应用于资源的ID，因为MRN可能会发生变化，例如由于存在相同患者的重复记录。相反，它们应该在<i>患者标识符</i>列表中表示，以便进行管理。这对于因为机构在不同时间段内合并患者记录系统而获得多个编号的情况也很有用。</p>
+<p>如果需要为患者记录实现自动创建的MRN标识符，可以通过在患者中提供一个带有适当分配者、MRN类型和/或系统的标识符，但不分配任何值来实现。然后，内部业务规则可以检测到这一点，并用一个或多个标识符（根据需要）替换/填充此标识符。</p>
+
+<a name="merge"></a>
+<h2>合并记录 <a style="padding-left: 3px; padding-right: 3px; border: 1px grey solid; font-weight: bold; color: black; background-color: #fff5e6" href="versions.html#std-process" title="标准状态 = 试用">试用</a></h2>
+<p>解决重复患者记录有两种常见方法：合并和链接。链接重复患者在<a href="#links">链接患者</a>部分中有描述，合并重复患者在<a href="patient-operation-merge.html">$merge</a>操作页面中有描述。</p>
+
+<a name="links"></a>
+<h2>链接患者</h2>
+<p>使用<i>link</i>元素来断言患者资源引用同一患者。该元素用于支持存在多个患者记录的以下场景：</p>
+
+<a name="dup-records"></a>
+<h3>重复患者记录</h3>
+<p>管理患者注册是一个众所周知的难题。大约有2%的注册存在错误，主要是重复记录。有时候重复记录会很快被发现并删除，不会积累太多数据。而在其他情况下，可能会积累大量数据。<br/>
+解决重复患者记录的常见方法有两种：合并和链接。合并重复患者记录的方法在<a href="patient-operation-merge.html">$merge</a>操作页面中有描述。<br/>
+通过使用类型为“replaced-by”的链接，可以实现重复记录的链接。包含此类链接的记录被标记为重复记录，链接指向应该使用的另一条记录。需要注意的是，所指向的记录可能被认定为错误创建的，并且进一步指向另一个患者资源。替代另一条记录的记录<i>可以</i>使用指向旧记录的“replaces”链接类型。</p>
+
+<a name="rec-ind"></a>
+<h3>患者记录在患者索引中</h3>
+<p>患者记录可能存在于充当患者索引的系统中：它维护着（概要的）患者数据和一个已知持有同一患者更全面和/或权威记录的一个或多个服务器的列表。链接类型'refer'用于表示这样的链接。请注意，链接的记录可能包含矛盾的信息。被引用的记录不会指向引用它的记录。</p>
+
+<a name="distributed"></a>
+<h3>分布式患者记录</h3>
+<p>在分布式架构中，多个系统分别维护关于同一患者的独立患者记录。这些记录不被视为重复，而是包含了患者数据的分布式、潜在重叠的视图。每个记录可能有自己的关注点或维护组织，并不需要一个记录比另一个记录更完整或更权威的概念。在这种情况下，可以使用“另请参阅”类型的链接指向其他患者记录。这些链接不一定是双向的要求。</p>
+
+<a name="linking"></a>
+<h2>患者 vs. 个人 vs. 患者链接 vs. 链接</h2>
+<p>
+在表面上，个人资源看起来与患者资源非常相似，并且使用方式也非常相似，类似于使用患者链接功能。<br/>
+个人资源的目的是能够将被认为是同一人的资源实例链接在一起。这包括跨资源类型，如相关人员、从业人员、患者，甚至其他个人资源。
+</p>
+<p>
+个人资源的主要用例是支持不一定具有医疗背景的个人注册表，并能够识别和量化对于这个人是同一人的置信水平。<br/>
+这可能包括消费者门户，其中个人信息的维护者是实际的个人本人。<br/>
+一个系统可以使用个人条目来交叉检查应用于记录的一部分的信息变更与另一个系统中的值；例如，当一个消费者搬家时，他在个人记录中更新他的联系电话和地址，然后患者管理系统能够看到这些数据已经更改，并提示组织与与个人记录链接的患者跟进，询问他们是否希望更新详细信息，或者如果他们不再需要服务，是否应该取消，因为他们已经搬离该地区。
+</p>
+<p>
+<a href="linkage.html">链接</a>资源和患者.link属性在FHIR中在概念上执行类似的功能，都提供了多个资源实例之间引用同一基础个体的链接断言。<br/>
+当患者资源被链接/合并时，它需要有一个内部指示，表明存在另一个应在引用其他记录时考虑的患者资源，这是通过使用患者.link属性实现的。<br/>
+不检测/检查潜在的链接可能意味着相关的临床记录无法被发现，可能影响患者的安全。（这就是为什么在这种情况下使用链接资源是不合适的，因为它的使用将强制使用另一个查询来潜在地定位其他患者资源以供考虑，或者使用_revinclude）
+</p>
+
+<a name="contact"></a>
+<h2>Patient.contact vs. RelatedPerson</h2>
+<p>
+Patient资源上的contact元素应该用于存储联系人的详细信息。这些信息始终随着Patient资源一起传输，并且不能用作引用的目标。
+
+在需要引用其他资源的相关人员（例如CarePlan.participant、Encounter.participant、DocumentReference.author、Appointment.participant）的情况下，必须使用RelatedPerson资源。
+</p>
+<p>不应该将这些记录用于记录主要的医疗服务提供者；这些信息应该存储在Patient.generalPractitioner字段中。</p>
+
+<a name="gender"></a>
+<h2>患者性别和性别</h2>
+
+<p>
+许多系统和组织只提供一个属性，试图用一个值来表示患者性别和性别的所有方面。然而，关于性别和性别文档和互操作性有许多考虑因素。下面列出了在医疗保健环境中相关的各种社会和生物属性，以及如何传达每个属性的信息。每个属性可能对应不同的用例有用，实施者需要确定哪个属性或属性组合最合适。
+</p>
+<ul>
+	<li>
+		<b>行政性别</b> - 为了与使用单个通用属性的系统进行互操作，基本的<a href="patient-definitions.html#Patient.gender">Patient.gender</a>属性表示行政性别：患者在行政和记录保留目的上被认为具有的性别。该属性通常用作患者匹配算法的输入。系统不应在没有与交换伙伴预协调的情况下推断Patient.gender的任何特定临床含义。
+	</li>
+	<li>
+		<b>性别认同</b> - 患者表示他们认为自己是什么性别。性别认同可以影响患者希望医护人员和其他人称呼自己的方式。标准的<a href="[%extensions-location%]StructureDefinition-individual-genderIdentity.html">genderIdentity</a>扩展可以用于传达此属性。在确定如何称呼患者时，<a href="[%extensions-location%]StructureDefinition-individual-pronouns.html">pronouns</a>扩展也可能适用。
+	</li>
+	<li>
+		<b>临床使用的性别参数（SPCU）</b> - 提供有关如何应用来自可观察信息（如器官清单、最近的激素实验室检测、基因检测、月经状态、产科史等）的设置或参考范围的指导。此属性旨在用于临床决策，并指示治疗或诊断测试应考虑与相关参考人群相关的最佳实践。标准的<a href="[%extensions-location%]StructureDefinition-patient-sexParameterForClinicalUse.html">sexParameterForClinicalUse</a>扩展可以用于传达此属性。
+	</li>
+	<li>
+		<b>关于性特征的临床观察</b> - 关于患者生物属性的可测试观察。这可能包括核型性别、遗传性别、染色体性别、性腺性别、导管性别、激素水平或其他各种表型属性。关于性特征的临床观察应使用<a href="observation.html">Observation</a>表示，并使用LOINC、SNOMED或其他相关临床术语的适当临床代码进行限定。这些观察可以作为支持性信息，用于临床使用的性别参数的分类。
+	</li>
+	<li>
+		<b>记录的性别或性别（RSG）</b> - 记录的性别或性别信息包括通常在现有系统中使用但已知不代表性别认同、临床使用的性别参数或与性取向、性活动或性吸引力相关的属性的各种性别和性别概念。记录的性别或性别概念的示例包括行政性别、行政性别、法定性别和出生时指定的性别。在交换这些概念时，请参考<a href="http://hl7.org/xprod/ig/uv/gender-harmony/">Gender Harmony Implementation Guide</a>中的指导。
+	</li>
+	<li>
+		<b>法定性别</b> - 记录在法律文件（如护照、驾驶执照、出生证明或其他文件）上的性别值。地区和国家实体通常使用单个法定性别值对公民进行分类。患者的法定性别可能因地区和国家而异。同一患者在不同司法管辖区可能同时具有多个法定性别值，甚至在同一司法管辖区的不同法律文件中也可能如此。在Patient.gender行政属性不足以传达法定性别的情况下，请参考<a href="http://hl7.org/xprod/ig/uv/gender-harmony/">Gender Harmony Implementation Guide</a>中的指导。
+	</li>
+	<li>	
+		<b>出生时指定的性别</b> - 出生时指定的性别是在患者出生时分配给患者的性别或性别值。这个值通常在出生登记上记录。一些司法管辖区允许变化，如尚未确定、未知或未分化，而其他司法管辖区则不允许。一些司法管辖区还允许更新出生登记信息。出生时指定的性别对于成年患者来说，通常是对其当前临床使用性别的一个较差的近似值。参见<a href="[%extensions-location%]StructureDefinition-patient-sexParameterForClinicalUse.html">sexParameterForClinicalUse</a>作为传达患者当前临床使用性别的一种方式。有关交换此概念的选项，请参考<a href="http://hl7.org/xprod/ig/uv/gender-harmony/">Gender Harmony Implementation Guide</a>中的指导。
+	</li>		
+</ul>
+<p>
+对于兽医用途，动物扩展还包括genderStatus，指示不育信息。
+</p>
+
+<a name="maternity"></a>
+<h2>母亲和新生儿的关系</h2>
+<p>
+有几种表示母亲和孩子之间关系的方式。
+这种变化是由于记录的时间和记录的目的不同造成的：
+</p>
+	<ul>
+		<li>为了表达家庭关系和法律责任，以进行行政目的：使用Patient/RelatedPerson结构。<br/>
+		这种结构在时间上是一致的。</li>
+		<li>为了在产科就诊中关联母亲和婴儿的就诊，以进行行政和计费目的：使用<a href="encounter-definitions.html#Encounter.partOf">encounter.partof</a>属性</li>
+		<li>为了收集与患者的医疗状况相关的亲属信息：使用<a href="familymemberhistory.html">FamilyMemberHistory</a>资源</li>
+	</ul>
+<p>
+在产科就诊期间，母亲的Patient和Encounter资源将存在。
+婴儿出生后，将创建新的Patient、Encounter和RelatedPerson（用于母亲）记录。
+儿童的就诊应该使用partOf属性引用母亲的就诊。<br/>
+Patient/RelatedPerson结构也应该被创建以供后续使用，如下例所示：
+</p>
+<pre>
+&lt;Patient&gt;
+	&lt;id value="child"/&gt;
+	&lt;!-- 孩子的详细信息 --&gt;
+&lt;/Patient&gt;
+&lt;RelatedPerson&gt;
+	&lt;id value="rp-mom"/&gt;
+	&lt;patient&gt;
+		&lt;reference value="Patient/child"/&gt;
+	&lt;/patient&gt;
+&lt;/RelatedPerson&gt;
+&lt;Patient&gt;
+	&lt;id value="pat-mom"/&gt;
+	&lt;!-- 母亲的详细信息 --&gt;
+	&lt;link&gt;
+		&lt;other value="rp-mom"/&gt;
+		&lt;type value="see-also"/&gt;
+	&lt;/link&gt;
+&lt;/Patient&gt;
+&lt;Encounter&gt;
+	&lt;id value="mom-enc"/&gt;
+	&lt;status value="in-progress"/&gt;
+	&lt;class value="inpatient"/&gt;
+	&lt;patient&gt;
+		&lt;reference value="Patient/mom"/&gt;
+	&lt;/patient&gt;
+&lt;/Encounter&gt;
+&lt;Encounter&gt;
+	&lt;id value="child-enc"/&gt;
+	&lt;status value="in-progress"/&gt;
+	&lt;class value="inpatient"/&gt;
+	&lt;patient&gt;
+		&lt;reference value="Patient/child"/&gt;
+	&lt;/patient&gt;
+	&lt;partOf&gt;
+		&lt;reference value="Encounter/mom-enc"/&gt;
+	&lt;/partOf&gt;
+&lt;/Encounter&gt;
+</pre>
+
+<a name="match"></a>
+<h2>使用MPI进行患者匹配</h2>
+<p>
+主患者索引（<a href="http://en.wikipedia.org/wiki/Enterprise_master_patient_index">MPI</a>）是一种用于管理患者身份识别的服务，
+在存在多个患者数据库的情况下使用。医疗应用程序和中间件使用MPI在数据库之间匹配患者，并在遇到新的患者详细信息时使用。
+MPI是高度专业化的应用程序，通常根据机构的特定患者组合进行大量定制。MPI也可以在区域和国家范围内运行。
+</p>
+<p>
+要求MPI匹配患者，客户端调用患者的<a href="patient-operation-match.html">$match</a>操作，
+该操作处理一个包含完整或部分患者资源以及其他控制参数的参数资源。<br/>
+提供的患者资源不需要通过完整的验证（强制字段或不变式），因为该资源不会被存储，
+但它需要是可解析的实例。<br/>
+MPI可以使用资源的属性作为MPI输入，并使用某种内部MPI算法处理它们，以确定患者集中最合适的匹配项。
+它不必使用提供的所有属性，并且可以静默地忽略其他属性。<br/>
+可以使用特定的配置文件（具有所需的字段/不变式）来定义MPI算法所需的参数。
+</p>
+<pre>
+  POST [base]/Patient/$match
+  [包括内容类型为xml或json的一些标头]
+  [包含患者资源的参数主体]
+</pre>
+<p>
+MPI $match操作的响应是一组患者记录，按最可能到最不可能的顺序排列。如果没有患者匹配，MPI应返回
+一个空的搜索集，没有错误，但可能包含一个<a href="operationoutcome.html">操作结果</a>以及
+进一步的建议。所有患者记录应具有从0到1的分数，其中
+1是最确定的匹配，还应包含一个<a href="extensibility.html">扩展</a>
+<a href="[%extensions-location%]StructureDefinition-match-grade.html">"match-grade"</a>，表示MPI在匹配质量上的位置：
+</p>
+<pre>
+  &lt;entry&gt; 
+    &lt;resource&gt;
+      &lt;Patient&gt;
+        &lt;!-- 患者详细信息 --&gt;
+      &lt;/Patient&gt;
+    &lt;/resource&gt;
+    &lt;search&gt;
+      &lt;extension url=&quot;http://hl7.org/fhir/StructureDefinition/match-grade&quot;&gt;
+        &lt;valueCode value=&quot;probable&quot;/&gt;
+      &lt;/extension&gt;
+      &lt;score value=&quot;0.80&quot;/&gt;
+    &lt;/search&gt;
+  &lt;/entry&gt; 
+</pre>
+<p>
+match-grade扩展具有以下<a href="[%extensions-location%]ValueSet-match-grade.html">代码</a>之一：
+</p>
+[%codelist-nh http://terminology.hl7.org/CodeSystem/match-grade%]
+<p>
+使用MPI搜索与常规搜索的目的是MPI搜索真正旨在定位和
+查找特定的单个患者以记录有关其信息，以减少通过错误选择
+错误的患者而产生的错误。通常，如果没有足够的搜索参数数据，例如部分姓氏，MPI将不返回数据。<br/>
+这与常规搜索相比，常规搜索可用于查找患者列表，例如查找具有共同属性的患者组，
+例如居住在特定位置或符合进行人口分析的年龄范围的患者。
+</p>
+<!--<p>
+MPI匹配操作的一个可选参数是“userid”，用于从受信任的客户端传递用户详细信息给MPI。这可能
+由MPI用于根据用户的权限限制返回的可能匹配项。例如，受政策等约束的员工可能会得到与试图找到自己记录的患者不同的结果。
+请注意，此参数用于用户不会预期直接登录MPI的情况；是否适用取决于部署选择。
+</p>-->
+<p>
+MPI $match操作的<a href="operation-patient-match.html">正式定义</a>已发布。
+</p>
+
+<a name="veterinary"></a>
+<h2>兽医护理</h2>
+<p>
+兽医护理完全符合FHIR的范围，患者资源可以用于传达有关动物患者的信息。为了支持这一点，有一个标准的<a href="[%extensions-location%]StructureDefinition-patient-animal.html">patient-animal扩展</a>，可以用于记录有关物种、品种和性别状态的详细信息。该扩展不打算涵盖兽医护理的所有相关属性，预计在实验室、动物园和畜牧护理等领域使用其他领域相关的扩展。
+</p>
+<p>
+兽医客户（“所有者”）使用RelatedPerson资源来表示。
+</p>
+
+</div>
+

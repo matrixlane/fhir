@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+
+
+
+[%settitle 概述（亮面）%]
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh" lang="zh">
+<head>
+[%file newheader%]
+</head>
+<body>
+[%file newnavbar%]
+
+
+
+<a name="glossy"></a>
+
+<h1>介绍HL7 FHIR</h1>
+<table class="colsi"><tr><td id="wg"><a _target="blank" href="[%wg fhir%]">[%wgt fhir%]</a> 工作组</td><td id="fmm"><a href="versions.html#maturity">成熟度级别</a>: N/A</td><td id="ballot"><a href="versions.html#std-process">标准状态</a>:<!--!ns!--><a href="versions.html#std-process">信息性</a></td></tr></table>
+
+<p>
+FHIR®（Fast Healthcare Interoperability Resources，hl7.org/fhir）是由HL7创建的下一代标准框架。FHIR结合了HL7的v2、HL7 v3和CDA产品线的最佳特点，同时利用了最新的Web标准，并专注于可实施性。
+</p>
+<p>
+FHIR解决方案是由一组名为“资源”的模块化组件构建的。这些资源可以轻松组装成解决实际临床和行政问题的工作系统，而成本仅为现有替代方案的一小部分。
+FHIR适用于各种上下文环境，包括手机应用程序、云通信、基于EHR的数据共享、大型医疗机构的服务器通信等等。
+</p>
+
+<h2>FHIR的优势</h2>
+<p>
+FHIR相比现有标准有许多改进之处：
+</p>
+<ul>
+<li>强调实施：快速且易于实施（多个开发者在一天内就能实现简单的接口）</li>
+<li>多个实现库，提供许多示例以加速开发</li>
+<li>规范免费使用，无限制</li>
+<li>开箱即用的互操作性：基本资源可以直接使用，也可以根据需要进行适应 - 使用配置文件、扩展、术语等满足本地需求</li>
+<li>从HL7版本2和CDA演进而来的发展路径：标准可以共存并相互利用</li>
+<li>基于Web标准的坚实基础：XML、JSON、HTTP、OAuth等</li>
+<li>支持RESTful架构，通过消息或文档实现无缝信息交换，以及基于服务的架构</li>
+<li>简洁且易于理解的规范</li>
+<li>面向开发者的可读性强的序列化格式</li>
+<li>基于本体的分析，具备正确性的形式映射（正在开发中）</li>
+</ul>
+
+<a name="flex"></a>
+
+<h2>灵活性/适应性</h2>
+<p>
+医疗标准面临的一个核心挑战是如何处理由多样化的医疗流程引起的广泛变异性。随着时间的推移，规范中会逐渐添加更多的字段和可选项，从而增加了实现的成本和复杂性。另一种选择是依赖于自定义扩展，但这些也会带来许多实现问题。
+</p>
+<p>
+FHIR通过定义一个简单的框架来扩展现有资源并使用配置文件描述其使用方式来解决这个挑战。所有系统都可以读取所有资源，但应用程序可以使用配置文件添加更多的控制和含义。许多医疗环境需要广泛的本地协议。
+</p>
+<p>
+此外，每个资源都携带一个使用html作为备选显示选项的人类可读的文本表示。这对于复杂的临床信息尤为重要，因为许多系统采用简单的文本/基于文档的方法。
+</p>
+
+<h2>示例资源：患者</h2>
+<p>
+这个简单的示例展示了资源的重要部分：本地扩展、人类可读的HTML展示和标准定义的数据内容。
+</p>
+<img src="shot.png"/>
+
+<p>
+FHIR具有用于管理概念的资源，例如患者、提供者、组织和设备，以及涵盖问题、药物、诊断、护理计划、财务问题等各种临床概念。
+</p>
+
+<a name="status"></a>
+<h2>FHIR开发过程</h2>
+<p>
+FHIR以混合标准的形式发布，其中包含规范部分，这些部分对于实施者来说是稳定的，还有部分仍在试用阶段。HL7积极监测实施情况，以便不断改进规范以满足实施者的需求。
+由于FHIR提供了许多优势，因此在全球范围内广泛使用，并且实施社区正在迅速增长。
+</p>
+
+<p>
+<a href="http://hl7.org/fhir">http://hl7.org/fhir</a>。关注我们的Twitter，使用<a href="https://twitter.com/search?q=%23FHIR">#FHIR</a>
+</p>
+
+[%file newfooter%]
+
+</body>
+</html>
+

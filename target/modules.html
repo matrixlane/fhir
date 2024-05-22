@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+
+
+
+[%settitle 开始使用FHIR%]
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh" lang="zh">
+<head>
+[%file newheader%]
+  <link rel="stylesheet" href="./assets/css/modules.css"/>
+</head>
+<body>
+[%file newnavbar%]
+
+
+
+
+
+<a name="root"></a>
+<h2>开始使用FHIR</h2>
+<table class="colsi"><tr><td id="wg"><a _target="blank" href="[%wg fhir%]">[%wgt fhir%]</a> 工作组</td><td id="fmm"><a href="versions.html#maturity">成熟度级别</a>: N/A</td><td id="ballot"><a href="versions.html#std-process">标准状态</a>:<!--!ns!--><a href="versions.html#std-process">信息性</a></td></tr></table>
+
+<p>
+FHIR是一个平台规范，定义了一组在医疗过程中使用的能力，适用于所有司法管辖区和许多不同的环境。虽然FHIR规范的基础相对简单（参见概述：<a href="overview.html">总览</a>、<a href="overview-dev.html">开发人员</a>、<a href="overview-clinical.html">临床</a>和<a href="overview-arch.html">架构师</a>），但在基于FHIR实施解决方案时仍然很难知道从何处开始。
+</p>
+<p>
+本页面提供一些指导，以帮助新的实施者开始他们成功实施的道路。除了阅读概述（前一段），实施者应该从哪里开始？一般来说，实施者需要解决以下问题：
+</p>
+<ul>
+ <li>信息如何交换？（参见<a href="foundation-module.html#uses">基础模块</a>）</li>
+ <li>术语如何使用？（参见<a href="terminology-module.html#uses">术语模块</a>）</li>
+ <li>信息如何保护？（参见<a href="secpriv-module.html#uses">安全和隐私模块</a>）</li>
+ <li>何时交换信息？（参见<a href="workflow-module.html">工作流模块</a>）</li>
+ <li>要交换哪些信息？</li>
+ <li>信息如何符合FHIR规范和实施指南？（参见<a href="conformance-module.html#uses">一致性模块</a>）</li>
+</ul>
+<p>
+其余部分提供了有关特定领域的指导（基础、实施者支持、安全和隐私、一致性、术语、管理、临床、诊断、药物、工作流、财务和临床推理）。
+</p>
+<p>
+所有实施者都应了解FHIR规范中的版本控制方式。请参阅以下两个链接：
+</p>
+<ul>
+ <li><a href="versioning.html">管理多个FHIR版本</a></li>
+ <li><a href="versions.html">规范版本管理政策</a></li>
+</ul>
+
+<a name="modules"></a>
+<h3>模块</h3>
+<p>
+为了帮助实施者理解规范并回答这些问题，规范被组织成一组“模块”。每个模块代表规范的不同功能领域，并包含以下内容：
+</p>
+<ul>
+ <li><b>范围和索引</b>：描述模块涵盖的内容，并提供重要内容的索引</li>
+ <li><b>用例</b>：针对模块的常见用途和处理方法的指导。这是实施者熟悉FHIR规范的重要资源</li>
+ <li><b>安全/隐私</b>：安全和隐私模块描述如何保护FHIR服务器，如何记录用户授予的权限，以及如何记录已执行的事件。</li>
+ <li><b>路线图</b>：描述模块涵盖的内容在整体进展中的位置（有关一般信息，请参见：<a href="versions.html">FHIR时间线</a>）</li>
+</ul>
+
+<p>
+总体而言，这些模块分为3个组：
+</p>
+<ul>
+ <li>基础设施（Level 1和Level 2）</li>
+ <li>内容（Level 3和Level 4）</li>
+ <li>推理（Level 5）</li>
+</ul>
+
+[%file modules-fragment%]
+
+<p>
+模块之间的依赖关系主要是向下的，还有一些水平的依赖关系。
+实施者应根据自己的需求选择要参与的内容模块，只有在需要进行临床决策支持和/或质量措施时才应参与推理模块。
+</p>
+
+<p>
+除了模块中基于用例的帮助之外，这些额外的文档页面可能会有用：
+</p>
+<ul>
+ <li><a href="usecases.html">常见用例</a>：个人健康记录、文档共享（XDS）和决策支持</li>
+ <li><a href="resourceguide.html">资源指南</a>：关于资源和它们之间关系的更多信息</li>
+</ul>
+
+<p>
+最后，一个重要的地方是查看<a href="http://www.fhir.org/guides/registry">实施指南的注册表</a>，以查看是否已满足类似（或相同）的要求。
+</p>
+
+[%file newfooter%]
+
+</body>
+</html>
+
