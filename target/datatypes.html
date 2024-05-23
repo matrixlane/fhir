@@ -1,0 +1,1685 @@
+<!DOCTYPE HTML>
+
+[%settitle 数据类型%]
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+[%file newheader%]
+</head>
+<body>
+[%file newnavbar%]
+
+
+
+<%dtheader base%>
+
+<h1>数据类型</h1>
+<table class="colsn"><tr><td id="wg"><a _target="blank" href="[%wg mnm%]">[%wgt mnm%]</a> 工作组</td><td id="fmm"><a href="versions.html#maturity">成熟度级别</a>：规范</td><td id="ballot"><a href="versions.html#std-process">标准状态</a>：<!--!ns!--><a href="versions.html#std-process">部分规范</a></td></tr></table>
+
+[%normative page infrastructure%]
+
+<p>类型框架交叉引用：
+  <a href="types.html">基本类型</a>
+  |
+  <span style="padding-left: 3px; padding-right: 3px; border: 1px #b7b7b7 solid; color: #000000; background-color: #eeeeee">数据类型</span>
+  |
+  <a href="resourcelist.html">资源</a>
+  |
+  <a href="patterns.html">模式</a>
+</p>
+
+<p>
+FHIR规范定义了一组用于资源元素的数据类型。有五个数据类型的类别：
+</p>
+<ol>
+  <li>基本抽象类型，为所有类型提供<a href="types.html">基础</a></li>
+  <li>简单/原始类型，是具有原始值的单个元素（见<a href="#primitive">下文</a>）</li>
+  <li>通用复杂类型，是可重用的元素集合（见<a href="#complex">下文</a>）</li>
+  <li><a href="metadatatypes.html">元数据类型</a>：用于元数据资源的一组类型</li>
+  <li>特殊用途的数据类型 - 在规范的其他地方定义，用于特定的用途：
+    [%dtref Reference%]，[%dtref Meta%]，[%dtref Narrative%]，[%dtref Extension%]，[%dtref xhtml%]，[%dtref ElementDefinition%]和[%dtref Dosage%]。
+  </li>
+</ol>
+<p>
+本页面描述了通用数据类型（类别1和2）。
+</p>
+
+<p><b>数据类型摘要</b>。
+</p>
+<p>图例：参见<a href="versions.html#std-process">标准状态颜色</a></p>
+<div class="row">
+    <div class="col-6" style="width: auto; border: #efefef 1px solid"><b>原始类型</b><br />[%diagram datatypes/allprimitivetypes.diagram 1dt%]</div>
+    <div class="col-6" style="width: auto; border: #efefef 1px solid; padding-right: 0px; margin-right: -25px;"><b>通用数据类型</b><br />[%diagram datatypes/alltypes.diagram 2dt%]</div>
+</div>
+<div class="row">
+    <div class="col-6" style="width: auto; border: #efefef 1px solid"><b>元数据类型</b><br />[%diagram datatypes/metadatatypes.diagram 3dt%]</div>
+    <div class="col-6" style="width: auto; border: #efefef 1px solid; padding-right: 0px; margin-right: -25px;"><b>特殊用途数据类型</b><br />[%diagram datatypes/specialtypes.diagram 4dt%]</div>
+</div>
+<a name="modifiers"></a>
+<p>
+这些数据类型的<a href="extensibility.html#list">有限集合</a>可以出现在扩展中。所有数据类型（包括原始类型）都可以有扩展，但只有以下数据类型可以包含<a href="extensibility.html#modifier">修饰符扩展</a>：
+</p>
+<ul>
+ <li><a href="datatypes.html#timing">Timing</a></li>
+ <li><a href="dosage.html#Dosage">Dosage</a></li>
+ <li><a href="elementdefinition.html#ElementDefinition">ElementDefinition</a></li>
+</ul>
+
+<a name="primitive"></a>
+<h2>原始类型</h2>
+
+[%diagram datatypes/primitives.diagram 3dt%]
+
+<a name="imports"></a>
+<p>
+下表描述了在本规范中使用的原始类型。原始类型是指那些专门化<a href="types.html#PrimitiveType">PrimitiveType</a>的类型，具有一个值，并且没有额外的子元素（尽管，像所有类型一样，它们有<code>id</code>和<a href="extensibility.html">extensions</a>）。另请参阅<a href="datatypes-examples.html#primitives">示例</a>。
+</p>
+
+<table class="list">
+ <tr>
+   <td colspan="4"><b>原始类型</b></td>
+ </tr>
+ <tr>
+   <th>FHIR名称</th>
+   <th>值域</th>
+   <th>XML表示</th>
+   <th>JSON表示</th>
+ </tr>
+
+<tr>
+  <td>base64Binary<a name="base64Binary"></a><a name="base64binary"></a></td>
+  <td>一串字节流，使用base64编码（<a href="http://tools.ietf.org/html/rfc4648">RFC 4648</a>）。
+    base64Binary内容不包括任何空格或换行符，但读取应用程序应忽略空格字符（根据<a href="http://tools.ietf.org/html/rfc4648">RFC 4648</a>的规定）。
+  </td>
+  <td>xs:base64Binary</td>
+  <td>一个JSON字符串 - base64内容</td>
+</tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式: <code>[%regex base64Binary%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="base64binary.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="base64binary.profile.json.html">JSON定义</a></td>
+</tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">没有指定二进制大小的上限，但系统必须根据其支持的大小实施一些基于实现的限制。这应该明确记录，尽管目前没有可计算的方法来确定这个限制。</td>
+</tr>
+
+<tr>
+   <td>布尔型<a name="boolean"></a></td>
+   <td>true | false</td>
+   <td>xs:boolean，但<b>0和1不是有效值</b></td>
+   <td>JSON布尔型（true或false）</td>
+ </tr>
+ <tr>
+   <td style="border-top: 0px silver solid"></td>
+   <td style="border-top: 0px silver solid">正则表达式：<code>[%regex boolean%]</code></td>
+   <td style="border-top: 0px silver solid"><a style="color: grey" href="boolean.profile.xml.html">XML定义</a></td>
+   <td style="border-top: 0px silver solid"><a style="color: grey" href="boolean.profile.json.html">JSON定义</a></td>
+ </tr>
+
+<tr>
+  <td>canonical<a name="canonical"></a></td>
+  <td>一个指向<a href="references.html#canonical">资源的规范URL</a>的URI（具有<code>url</code>属性的资源）。
+    <code>canonical</code>类型与<code>uri</code>类型不同，它在本规范中具有特殊含义，并且可能会附加版本，用竖线（|）分隔。
+    注意，<code>canonical</code>类型不用于这些引用的实际规范URL的目标，而是用于引用它们的URI，并且可能在其中附加版本后缀。
+    像其他URI一样，<code>canonical</code>类型的元素也可以有#fragment引用。与其他URI不同，规范URL永远不是相对的 - 它们要么是绝对URI，要么是片段标识符</td>
+   <td>xs:anyURI</td>
+  <td>一个JSON字符串 - 一个规范URL</td>
+</tr>
+<tr>
+ <td style="border-top: 0px silver solid"></td>
+ <td style="border-top: 0px silver solid">正则表达式: <code>[%regex canonical%]</code></td>
+ <td style="border-top: 0px silver solid"><a style="color: grey" href="canonical.profile.xml.html">XML定义</a></td>
+ <td style="border-top: 0px silver solid"><a style="color: grey" href="canonical.profile.json.html">JSON定义</a></td>
+</tr>
+
+<tr>
+  <td>code<a name="code"></a></td>
+  <td>表示该值来自其他地方定义的一组受控字符串（详见<a href="terminologies.html">使用代码</a>进行进一步讨论）。从技术上讲，代码限制为至少有一个字符且没有前导或尾随空格的字符串，并且内容中除了单个空格之外没有其他空格。</td>
+  <td>xs:token</td>
+  <td>JSON字符串</td>
+ </tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex code%]</code><br/>
+      此数据类型可以与<a href="terminologies.html#string">值集</a>进行<a href="valueset.html">绑定</a></td>
+   <td style="border-top: 0px silver solid"><a style="color: grey" href="code.profile.xml.html">XML定义</a></td>
+   <td style="border-top: 0px silver solid"><a style="color: grey" href="code.profile.json.html">JSON定义</a></td>
+ </tr>
+
+<tr>
+  <td>日期<a name="date"></a></td>
+  <td>日期，或者部分日期（例如仅年份或年份+月份），用于人类交流。格式是<a href="https://www.iso.org/iso-8601-date-and-time-format.html">[ISO8601]</a>的子集：YYYY、YYYY-MM或YYYY-MM-DD，例如2018、1973-06或1905-08-23。<b>不应包含时区偏移</b>。日期应为有效日期。</td>
+  <td>xs:date、xs:gYearMonth、xs:gYear的联合</td>
+  <td>JSON字符串 - xs:date、xs:gYearMonth、xs:gYear的联合</td>
+ </tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex date%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="date.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="date.profile.json.html">JSON定义</a></td>
+</tr>
+<tr>
+  <td>日期时间<a name="dateTime"></a><a name="datetime"></a></td>
+  <td>日期、日期时间或部分日期（例如仅年份或年份+月份），用于人类交流。格式是<a href="https://www.iso.org/iso-8601-date-and-time-format.html">[ISO8601]</a>的子集：YYYY、YYYY-MM、YYYY-MM-DD或YYYY-MM-DDThh:mm:ss+zz:zz，例如2018、1973-06、1905-08-23、2015-02-07T13:28:17-05:00或2017-01-01T00:00:00.000Z。
+   如果指定了小时和分钟，则应填充时区偏移。如果需要，可以使用<%extension http://hl7.org/fhir/StructureDefinition/timezone%>扩展来发送实际的时区代码。
+   由于模式类型的限制，必须提供秒，但可以用零填充，并且可以根据接收者的选择忽略。可选允许毫秒。日期应为有效日期。<b>不允许时间为"24:00"</b>。允许闰秒 - 请参阅下文</td>
+  <td>xs:dateTime、xs:date、xs:gYearMonth、xs:gYear的联合</td>
+  <td>JSON字符串 - xs:dateTime、xs:date、xs:gYearMonth、xs:gYear的联合</td>
+ </tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex dateTime%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="datetime.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="datetime.profile.json.html">JSON定义</a></td>
+</tr>
+
+<tr>
+  <td>decimal<a name="decimal"></a></td>
+  <td>具有十进制表示的有理数。FHIR中的十进制数不能超过18位数字和一个小数点。有关数字精度的限制，请参见下文</td>
+  <td>xs:decimal和xs:double的并集（有关限制，请参见下文）</td>
+  <td>JSON数字（有关限制，请参见下文）</td>
+</tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex decimal%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="decimal.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="decimal.profile.json.html">JSON定义</a></td>
+</tr>
+
+<tr>
+  <td>id<a name="id"></a></td>
+  <td>由大小写字母（'A'..'Z'和'a'..'z'）、数字（'0'..'9'）、'-'和'.'的任意组合构成，长度限制为64个字符。（这可以是整数、无前缀的OID、UUID或满足这些约束条件的任何其他标识符模式。）</td>
+  <td>xs:string</td>
+  <td>JSON字符串</td>
+</tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex id%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="id.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="id.profile.json.html">JSON定义</a></td>
+</tr>
+
+<tr>
+  <td>即时<a name="instant"></a></td>
+  <td>时间的一瞬间，格式是<a href="https://www.iso.org/iso-8601-date-and-time-format.html">[ISO8601]</a>的子集：YYYY-MM-DDThh:mm:ss.sss+zz:zz（例如2015-02-07T13:28:17.239+02:00或2017-01-01T00:00:00Z）。时间必须至少精确到秒，并且必须包含时区偏移量。
+    如果需要，可以使用[[[http://hl7.org/fhir/StructureDefinition/timezone extension]]]发送实际的时区代码。
+    注意：这适用于需要精确观察时间的情况（通常是系统日志等），而不是人工报告的时间 - 对于这些情况，请使用date或dateTime（可以与<code>instant</code>一样精确，但不是必需的）。<code>instant</code>是一个更受限制的dateTime</td>
+  <td>xs:dateTime</td>
+  <td>一个JSON字符串 - xs:dateTime</td>
+</tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">注意：此类型适用于系统时间，而不是人工时间（请参见下面的date和dateTime）。</td>
+</tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex instant%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="instant.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="instant.profile.json.html">JSON定义</a></td>
+</tr>
+
+<!-- leading 0s -->
+ <tr>
+   <td>整数<a name="integer"></a></td>
+   <td>范围在-2,147,483,648到2,147,483,647之间的有符号整数（32位；对于更大的值，请使用十进制）</td>
+   <td>xs:int，但<b>不允许有前导的0位数</b></td>
+   <td>JSON数字（没有小数点）</td>
+ </tr>
+ <tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex integer%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="integer.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="integer.profile.json.html">JSON定义</a></td>
+ </tr>
+
+<tr>
+   <td>integer64<a name="integer64"></a></td>
+   <td>范围在-9,223,372,036,854,775,808到+9,223,372,036,854,775,807之间的有符号整数（64位）。<br/>此类型定义用于记录/时间计数器，可以非常大</td>
+   <td>xs:long，但<b>不允许前导0位</b></td>
+   <td>JSON字符串（由于浮点数库中的精度问题）</td>
+ </tr>
+ <tr>
+   <td style="border-top: 0px silver solid"></td>
+   <td style="border-top: 0px silver solid">正则表达式：<code>[%regex integer64%]</code></td>
+   <td style="border-top: 0px silver solid"><a style="color: grey" href="integer64.profile.xml.html">XML定义</a></td>
+   <td style="border-top: 0px silver solid"><a style="color: grey" href="integer64.profile.json.html">JSON定义</a></td>
+ </tr>
+
+<tr>
+  <td>markdown<a name="markdown"></a></td>
+  <td>一个FHIR的<code>string</code>（见下文），可以包含markdown语法，供markdown演示引擎进行可选处理，格式为GFM扩展的CommonMark格式（见下文）</td>
+  <td>xs:string</td>
+  <td>JSON字符串</td>
+</tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex markdown%]</code>（无法在正则表达式中设置大小限制 - 太大了）</td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="markdown.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="markdown.profile.json.html">JSON定义</a></td>
+</tr>
+
+<tr>
+  <td>oid<a name="oid"></a></td>
+  <td>表示为URI的OID（<a href="http://www.ietf.org/rfc/rfc3001.txt">RFC 3001</a>）；例如 urn:oid:1.2.3.4.5</td>
+  <td>xs:anyURI</td>
+  <td>JSON字符串 - uri</td>
+ </tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex oid%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="oid.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="oid.profile.json.html">JSON定义</a></td>
+</tr>
+
+<tr>
+   <td>字符串<a name="string"></a></td>
+   <td>一系列Unicode字符</td>
+   <td>xs:string</td>
+   <td>JSON字符串</td>
+ </tr>
+ <tr>
+   <td style="border-top: 0px silver solid"></td>
+   <td style="border-top: 0px silver solid">注意，字符串的大小不得超过1,048,576（1024*1024）个字符。由于UTF-8字符可以用多个字节表示，所以字符串的大小可能超过1MB。字符串不应包含低于32的Unicode字符点，除了u0009（水平制表符）、u000D（回车符）和u000A（换行符）。
+	   允许存在前导和尾随空格，但在使用XML格式时，应该<a href="xml.html#whitespace">移除</a>。
+     注意：这意味着只包含空格的字符串可能会被修剪为空，这将被视为无效的元素值。因此，字符串应始终包含非空格内容</td>
+ </tr>
+ <tr>
+   <td style="border-top: 0px silver solid"></td>
+   <td style="border-top: 0px silver solid">此数据类型可以与<a href="terminologies.html#string">值集</a>进行<a href="valueset.html">绑定</a></td>
+ </tr>
+ <tr>
+   <td style="border-top: 0px silver solid"></td>
+   <td style="border-top: 0px silver solid">正则表达式：<code>[%regex string%]</code>（见下面的注释）</td>
+   <td style="border-top: 0px silver solid"><a style="color: grey" href="string.profile.xml.html">XML定义</a></td>
+   <td style="border-top: 0px silver solid"><a style="color: grey" href="string.profile.json.html">JSON定义</a></td>
+ </tr>
+
+<tr>
+  <td>positiveInt<a name="positiveInt"></a></td>
+  <td>范围在1到2,147,483,647之间的任何正整数</td>
+  <td>xs:positiveInteger</td>
+  <td>JSON数字</td>
+</tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex positiveInt%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="positiveint.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="positiveint.profile.json.html">JSON定义</a></td>
+</tr>
+
+<tr>
+  <td>时间<a name="time"></a></td>
+  <td>一天中的时间，格式为hh:mm:ss（[ISO8601]的子集）。没有指定日期。由于模式类型的限制，必须提供秒，但可以用零填充，并且可以在接收方自行决定是否忽略。
+  <b>不得使用时间"24:00"。不得包含时区偏移量</b>。时间可以转换为自午夜以来的持续时间。</td>
+  <td>xs:time</td>
+  <td>一个JSON字符串 - xs:time</td>
+ </tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex time%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="time.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="time.profile.json.html">JSON定义</a></td>
+</tr>
+
+<tr>
+  <td>unsignedInt<a name="unsignedInt"></a></td>
+  <td>范围在0到2,147,483,647之间的非负整数</td>
+  <td>xs:nonNegativeInteger</td>
+  <td>JSON数字</td>
+</tr>
+<tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex unsignedInt%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="unsignedint.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="unsignedint.profile.json.html">JSON定义</a></td>
+</tr>
+
+<tr>
+   <td>uri<a name="uri"></a></td>
+   <td>统一资源标识符引用（<a href="http://tools.ietf.org/html/rfc3986">RFC 3986</a>）。注意：URI区分大小写。对于UUID（urn:uuid:53fefa32-fcbb-4ff8-8a92-55ee120877b7），请使用全部小写字母</td>
+    <td>xs:anyURI</td>
+   <td>一个JSON字符串 - 一个URI</td>
+ </tr>
+ <tr>
+   <td style="border-top: 0px silver solid"></td>
+   <td style="border-top: 0px silver solid">正则表达式：<code>[%regex uri%]</code>（此正则表达式非常宽松，但URI必须有效。实施者可以在特定上下文中使用更具体的正则表达式语句来表示URI）</td>
+   <td style="border-top: 0px silver solid"><a style="color: grey" href="uri.profile.xml.html">XML定义</a></td>
+   <td style="border-top: 0px silver solid"><a style="color: grey" href="uri.profile.json.html">JSON定义</a></td>
+ </tr>
+ <tr>
+   <td style="border-top: 0px silver solid"></td>
+   <td style="border-top: 0px silver solid">URI可以是绝对的或相对的，并且可以具有可选的片段标识符<br/>
+   此数据类型可以与<a href="terminologies.html#string">ValueSet</a>进行<a href="valueset.html">绑定</a></td>
+ </tr>
+
+<tr>
+   <td>url<a name="url"></a></td>
+   <td>统一资源定位符（<a href="http://tools.ietf.org/html/rfc1738">RFC 1738</a>）。注意，URL是通过指定的协议直接访问的。常见的URL协议有<code>http{s}:</code>、<code>ftp:</code>、<code>mailto:</code>和<code>mllp:</code>，但还定义了许多其他协议</td>
+    <td>xs:anyURI</td>
+   <td>一个JSON字符串 - 一个URL</td>
+ </tr>
+ <tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex url%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="url.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="url.profile.json.html">JSON定义</a></td>
+ </tr>
+
+<tr>
+  <td>uuid<a name="uuid"></a></td>
+  <td>作为URI表示的UUID（也称为GUID）（<a href="http://www.ietf.org/rfc/rfc4122.txt">RFC 4122</a>）；例如 urn:uuid:c757873d-ec9a-4326-a141-556f43239520</td>
+  <td>xs:anyURI</td>
+  <td>JSON字符串 - uri</td>
+ </tr>
+ <tr>
+  <td style="border-top: 0px silver solid"></td>
+  <td style="border-top: 0px silver solid">正则表达式：<code>[%regex uuid%]</code></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="uuid.profile.xml.html">XML定义</a></td>
+  <td style="border-top: 0px silver solid"><a style="color: grey" href="uuid.profile.json.html">JSON定义</a></td>
+</tr>
+
+</table>
+
+<p>
+注意事项：
+</p>
+<ul>
+ <li>对于所有类型，原始值的XML、JSON和Turtle表示形式是相同的，只是在XML和JSON中的转义方式不同</li>
+ <li>对于字符串内容，解析器和序列化器可以保留、转义或删除未转义的不支持的UNICODE字符。如果保留了这些字符，则后续的应用层处理可以根据上下文确定适当的处理方式。</li>
+ <li>对于十进制值，XML特殊值<code>INF</code>、<code>-INF</code>和<code>NaN</code>是不允许的，而JSON则受限于<a href="https://www.w3.org/TR/xmlschema-2/">XML模式中xs:double和xs:decimal的精度限制</a></li>
+ <li>十进制值的精度具有重要意义：<a name="precision"></a>
+    <ul>
+      <li>例如，0.010被视为与0.01不同，应保留原始精度</li>
+      <li>实现应以保留和尊重值的精度为目标处理十进制值，以便用于呈现目的。</li>
+      <li>实现不需要以不同方式执行这些数字的计算，尽管可以选择这样做（即保留有效位数）。</li>
+      <li>有关<a href="xml.html#schema-gen">XML</a>、<a href="json.html#decimal">JSON</a>和<a href="rdf.html#decimal">RDF</a>的实现注释，请参见。</li>
+      <li>在对象代码中，可能满足此约束的实现是GMP实现或实现任意精度的Java BigDecimal，或者将（64位）浮点值与精度字段组合。</li>
+      <li>请注意，在医学中，大型和/或高精度的值非常罕见。可能会遇到高精度小数的一个元素是<a href="location.html">Location</a>坐标。无论如何，XML模式中记录的限制仍然适用。</li>
+    </ul>
+ </li>
+ <li>布尔值也可以使用编码值（例如<a href="v2/0136/index.html">HL7 V2 Table 0136</a>）表示。有关此类用法，请参见<a href="observation.html#valuex">Observation</a>。</li>
+ <li>指定的正则表达式存在问题：
+   <ul>
+     <li>正则表达式提供了工具支持，但仅供参考，<b>不是规范</b>。正则表达式存在一些问题。</li>
+     <li>字符串正则表达式在Unicode方面存在问题-具体而言，它可能允许或不允许某种程度的Unicode空格，具体取决于所使用的正则表达式引擎对Unicode的支持程度。
+        表达字符串约束的正则表达式<code>[\r\n\t\x{0020}-\x{FFFF}]*</code>或<code>[\r\n\t\u0020-\uFFFF]*</code>更好，但支持较差（有关详细信息，请参见<a href="https://www.regular-expressions.info/unicode.html">正则表达式教程</a>）。
+        字符串正则表达式也适用于<code>markdown</code>。该正则表达式不强制执行长度限制</li>
+     <li>Unicode问题也适用于<code>code</code>的正则表达式。</li>
+     <li>根据所使用的正则表达式实现（例如JavaScript、POSIX、XML和XPath的插入符号'^'和美元符号'$'；.NET、Java、Python和其他语言的'\A'和'\Z'），正则表达式应该限定为字符串的开始和结束锚点，请验证这些定义与所使用的正则表达式实现。</li>
+     <li>正则表达式可能允许比实际有效的值更广泛的值（例如闰年），因此始终需要进行额外的验证。</li>
+   </ul>
+ </li>
+ <li>日期时间、即时和时间类型中允许使用闰秒。但请注意，许多系统和库不支持闰秒。读取时间的应用程序应优雅地接受和处理闰秒，而生成时间的应用程序可以选择避免编码闰秒。</li>
+ <li>关于id数据类型：
+   <ul>
+     <li>Id区分大小写。UUID应使用小写字母发送。</li>
+     <li>ID类型包括与<a href="http://www.iso.org/iso/home/store/catalogue_tc/catalogue_detail.htm?csnumber=38610">ISO 18232</a>一致的标识符，但还包括其他标识符格式，并且不像ISO 18232那样不区分大小写。</li>
+     <li>在典型的FHIR URL中，例如<code>http://example.com/fhir/Patient/<span style="color: maroon">1234</span></code>，最后部分“1234”（红色突出显示）是id数据类型的部分。</li>
+     <li>完整的UUID是一个<code>uri</code>，而不是<code>id</code>。在URI中，UUID也应以小写表示（urn:uuid:59bf0ef4-e89c-4628-9b51-12ae3fdbe22b）。</li>
+   </ul>
+ </li>
+ <li>关于<code>uri</code>、<code>url</code>和<code>canonical</code>数据类型：
+   <ul>
+     <li>它们都包含URI，但在应用程序解析引用时有所不同。</li>
+     <li>尽管<code>url</code>和<code>canonical</code>是<code>uri</code>的特殊化，但它们永远不会相互替代。</li>
+     <li>它们在比较时都区分大小写。应用程序不应创建仅通过大小写区分的URI。</li>
+     <li>通用URI可以是URL、规范URL或其他类型的URI。</li>
+   </ul>
+ </li>
+ <li>关于markdown数据类型：
+   <ul>
+     <li>Markdown是一个字符串，遵循相同的规则（例如长度限制、有效字符）</li>
+     <li>此规范要求并使用<a href="https://github.github.com/gfm/">GFM（Github Flavored Markdown）</a>扩展
+         在<a href="http://spec.commonmark.org/0.28/">CommonMark</a>格式上，但不支持内联HTML。</li>
+     <li>处理器应将嵌入的XML标记视为字符串内容，而不是标记。这可以通过预处理并转义处理内容之前的任何<code>"&gt;"</code>
+        字符（<code>"&gt;"</code>变为<code>"\&gt;"</code>）或使用特定于markdown处理器的标志来实现相同的效果。这意味着无法嵌入HTML内容以影响呈现。</li>
+     <li>系统不需要支持markdown，因此字符串的内容应该在没有markdown处理的情况下可读，符合markdown的理念。</li>
+		 <li>在将类型为<code>string</code>的元素转换为<code>markdown</code>时，对于单一类型的元素来说，这被视为非破坏性的更改。对于多类型/选择元素来说，这是一个破坏性的更改，因为类型名称反映在元素名称中。（将<code>markdown</code>作为多类型元素的附加选择不是破坏性的更改）。从字符串到markdown的更改对现有字符串数据的安全呈现的影响应在评估从字符串到markdown的更改时予以考虑-请参见下一个项目符号。</li>
+     <li>警告：由于markdown渲染器将解释某些字符作为格式化字符并从显示中删除它们，因此在将纯字符串数据传输到markdown字段时，系统应采取适当的转义步骤，以避免在人类显示时丢失信息。</li>
+   </ul>
+ </li>
+</ul>
+[%impl-note%]
+将纯文本转换为安全的markdown的简单方法是在字符*、&amp;、#、[、&lt;、>和`之前添加反斜杠（\）。
+在将markdown呈现为纯文本时，实现者可能希望反转此转换。
+[%end-note%]
+
+<a name="representations"></a>
+<h3>XML、JSON和Turtle中的表示</h3>
+
+<p>
+所有使用这些原始类型的元素可以具有一个或多个值，如上所述，一个内部标识（例如xml:id）和扩展。
+举个例子，假设有一个名为"count"，类型为"integer"的元素。
+</p>
+<p><b>XML</b></p>
+<p>
+该值在XML中表示为名为"value"的属性：
+</p>
+<pre class="xml">
+  &lt;count value="2"/&gt;
+</pre>
+<p>
+完整的表示，包括id、扩展和值：
+</p>
+<pre class="xml">
+  &lt;count id="a1" value="2"&gt;
+    &lt;extension url="..."&gt;
+      &lt;valueXX.../&gt;
+    &lt;/extension&gt;
+  &lt;/count&gt;
+</pre>
+<p><b>JSON</b></p>
+<p>
+在JSON中，为了方便起见，该值表示为属性本身：
+</p>
+<pre class="json">
+  "count" : 2
+</pre>
+<p>
+完整的表示，包括id、扩展和值，显示在兄弟属性中的id和扩展：
+</p>
+<pre class="json">
+  "count" : 2
+  "_count" : {
+    "id" : "a1",
+    "extension" : [{
+      "url" : "...",
+      "valueXXX" : "...."
+    }]
+  }
+</pre>
+<p><b>RDF</b></p>
+<p>
+该值在RDF中表示为与URI "http://hl7.org/fhir/value" 的关系。使用正常的前缀，变成：
+</p>
+<pre class="rdf">
+  fhir:Type.count [ fhir:value "2"^^xsd:integer ]
+</pre>
+<p>
+对于日期和日期时间类型，必须明确指定类型。
+对于所有其他类型，是可选的。完整的表示，包括id、扩展和值：
+</p>
+<pre class="rdf">
+  fhir:Type.count [
+    Element.id "a1";
+    fhir:value "2"^^xsd:integer;
+    Element.extension [
+      fhir:Extension.url "..";
+      fhir:Extension.valueXX...
+    ]
+  ]
+</pre>
+<p>
+有关详细信息，请参见<a href="xml.html">XML</a>、<a href="json.html">JSON</a>和<a href="rdf.html">Turtle</a>格式定义。
+当值缺失时，并且没有扩展时，元素根本不会被表示。这意味着在xml中，属性永远不会以长度为0（value=""）的形式存在，而在JSON中，属性永远不会是长度为0的字符串或null（"name" : ""是无效的）。
+（注意：在JSON表示中有一个特定的<a href="json.html#null">null的用法</a>）。
+</p>
+<p>
+根据XML模式，对于布尔、整数、小数、base64Binary、instant、uri、date、dateTime、oid和uri类型，值属性中的前导和尾随空格将被忽略。请注意，这意味着当读取XML实例时，基于模式的XML库与非基于模式的库会给出不同的属性值。因此，对于这些类型，值属性不应该有前导和尾随空格。
+如果字符串值是值内容的一部分，那么只有在字符串值的前导和尾随空格才是有效的。在JSON和Turtle中，字符串值中的空格始终是有意义的。除了字符串之外的原始类型不得具有前导或尾随空格。
+</p>
+
+
+
+<!--
+boolean: 布尔型
+integer: 整数型
+decimal: 十进制型
+base64Binary: Base64二进制型
+base64binary: Base64二进制型
+instant: 时间戳型
+string: 字符串型
+uri: URI型
+date: 日期型
+dateTime: 日期时间型
+datetime: 日期时间型
+time: 时间型
+code: 代码型
+id: 标识符型
+-->
+<hr/>
+
+<a name="Types"></a><a name="complex"></a>
+<h2>复杂类型</h2>
+
+<p>
+在XML中，这些类型被表示为具有定义元素名称的子元素的XML元素。元素的名称在使用类型的地方定义。
+在JSON中，数据类型由一个具有与XML元素相同名称的属性的对象表示。由于JSON表示几乎完全相同，
+只有第一个<a href="datatypes-examples.html#Attachment">示例</a>有一个额外的显式JSON表示。
+</p>
+<p>
+复杂的数据类型可以进行“配置文件化”。一个<a href="structuredefinition.html">结构定义</a>或类型“约束”制定了
+一组关于哪些元素必须具有值以及可能的值是什么的规则。
+</p>
+
+<p><b>数据类型的UML图</b></p>
+
+[%diagram datatypes/types.diagram 4dt%]
+<hr/>
+[%diagram datatypes/types2.diagram 5dt%]
+
+<a name="Attachment"></a>
+<a name="attachment"></a>
+<h2 style="margin-bottom: 1px">附件</h2>
+[%dtstatus Attachment%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Attachment-->另请参阅<a no-external="true" href="datatypes-examples.html#Attachment">示例</a>，<a no-external="true" href="datatypes-definitions.html#Attachment">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Attachment">映射</a>，<a no-external="true" href="datatypes-profiles.html#Attachment">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Attachment">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Attachment">R4转换</a>
+</p>
+
+<p>
+该类型用于包含或引用附件 - 在其他格式中定义的附加数据内容。该类型最常见的用途是在某些报告格式（如PDF）中包含图像或报告。然而，它可以用于任何具有MIME类型的数据。
+</p>
+[%dt 附件 1%]
+<p>
+附件的实际内容可以直接使用<code>data</code>元素传达，或者可以提供<code>URL</code>引用。如果两者都提供，则引用应指向与数据中找到的内容相同的内容。引用永远不能重用来指向不同的数据（即引用是特定版本的）。<code>URL</code>引用应指向解析为实际数据的位置；一些URI（如cid:）满足此要求。如果URL是相对引用，则解释方式与<a href="references.html#references">资源引用</a>相同。
+</p>
+<p>
+当附件包含<code>data</code>时，<code>contentType</code>元素应始终填充，并且当存在<code>url</code>时可以填充。它可以包含字符集信息和其他适当的MIME类型扩展。如果<code>contentType</code>中没有字符集，则正确的操作未定义，尽管某些媒体类型可能定义了默认字符集和/或可以通过检查内容来确定正确的字符集。
+</p>
+<p>
+包含<code>hash</code>是为了应用程序能够验证URL返回的内容是否已更改。<code>hash</code>和<code>size</code>与以base64形式表示之前的数据相关。哈希不用于支持数字签名。在保护免受恶意威胁的情况下，应考虑使用数字签名，请参见<a href="provenance-definitions.html#Provenance.signature">Provenance.signature</a>以了解使用数字签名保护资源的机制。
+</p>
+<p>
+附件的<code>data</code>未受限制，因此可以是任何内容类型和编码。因此，需要特别注意验证内容是否针对恶意或格式错误的内容。有关详细信息，请参见<a href="security.html#narrative">Narrative的安全性</a>。
+</p>
+<p>
+在许多使用附件的情况下，基数大于1。重复使用的有效用途是以不同的MIME类型和语言传达相同的内容。关于重复元素的含义的指导应在引用此类型的重复资源元素或扩展的定义中提供。语言元素使用<a href="http://tools.ietf.org/html/bcp47">BCP 47中定义的代码</a>描述附件的语言。
+</p>
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints 附件%]
+<p>
+如果既未提供<code>data</code>也未提供<code>URL</code>，则应理解该值为对于<code>language</code>和<code>contentType</code>的组合，指定的<mimeType>和/或<code>language</code>没有可用的内容的断言。
+</p>
+<p>
+使用上下文可能经常对可以使用的附件的类型（因此，可以使用的MIME类型的类型）制定规则。
+</p>
+[%tx 附件%]
+</div>
+
+<p>
+附件在以下位置中使用：[%dtusage Attachment%]
+</p>
+
+<a name="Coding"></a>
+<a name="coding"></a>
+<a name="codesystem"></a>
+<h2 style="margin-bottom: 1px">编码</h2>
+[%dtstatus Coding%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Coding-->另请参阅<a no-external="true" href="datatypes-examples.html#Coding">示例</a>，<a no-external="true" href="datatypes-definitions.html#Coding">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Coding">映射</a>，<a no-external="true" href="datatypes-profiles.html#Coding">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Coding">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Coding">R4转换</a>
+</p>
+
+<p>
+编码是使用来自定义的“代码系统”的符号表示定义概念的一种方式
+- 有关详细信息，请参见<a href="terminologies.html">在资源中使用编码</a>。
+</p>
+<p>
+此数据类型可以<a href="terminologies.html#Coding">绑定</a>到<a href="valueset.html">值集</a>。
+</p>
+
+[%dt Coding 2%]
+
+<p>
+Coding的含义由code定义。system提供了code定义的来源，还可以包含可选的版本引用。display是系统定义的文本的人类可读显示，不用于计算。
+</p>
+<p>
+system是一个绝对URI，用于标识定义code的代码系统。选择正确的system非常重要；有关代码系统URI的更多信息，请阅读<a href="terminologies.html#system">管理术语系统URI</a>。
+如果code来自CodeSystem资源，则CodeSystem.url是system元素的正确值。通常，实施者更喜欢可解析的URL而不是不可解析的URN，特别是不透明的URN，如OID（urn:oid:）或UUID（urn:uuid:）。
+system URI不应包含对值集的引用（例如ValueSet.url），因为值集仅定义了在特定上下文中使用的代码集，而不是代码本身的含义。
+</p>
+<p>
+还可以提供代码系统的版本。如果代码在代码系统中的含义在不同版本之间保持一致，则不需要提供版本。
+当系统在不同版本之间不保持一致的定义时，应交换版本。请注意，以下系统应始终指定版本：
+</p>
+<ul>
+ <li>SNOMED CT的国家发布（定义的一致性在不同司法管辖区之间有所变化，某些司法管辖区可能会制定自己的规则）</li>
+ <li>ICD的各个版本（注意：主要版本被标记为完全不同的代码系统，但版本内部存在差异）</li>
+</ul>
+<p>
+更一般地说，任何分类（例如，包含具有相对定义的概念的代码系统，如“未编码其他”）都需要一个版本。有关版本化的进一步讨论，请参阅<a href="codesystem.html#versioning">代码系统资源中关于代码系统版本的讨论</a>。
+</p>
+
+<p>
+如果存在，<code>code</code>应该是由<code>system</code>定义的语法正确的符号。
+在一些代码系统（如SNOMED CT）中，该符号可以是由其他预定义符号（例如后协调）组成的表达式。
+请注意，除非代码系统另有规定，否则代码是区分大小写的。 <code>display</code>
+是由<code>system</code>定义的代码的文本表示，用于显示不了解<code>system</code>的应用程序中的代码含义。
+</p>
+<p>
+如果填充了'display'元素，则<code>display</code>中使用的字符串应该是代码系统为该代码定义的显示字符串之一。代码系统可以通过以下方式定义单个代码的多个显示字符串：
+</p>
+<ul>
+  <li><code>CodeSystem.concept.display</code></li>
+  <li><code>CodeSystem.concept.designation.value</code>（包括补充材料中的定义）</li>
+</ul>
+<p>请注意，值集中定义的显示（<code>ValueSet.include.concept.display</code>和<code>ValueSet.include.concept.designation.value</code>）
+不允许在<code>Coding.display</code>中使用。
+</p>
+<p>
+如果其中一个可用的显示字符串被标记为首选项，应该使用它（请注意，如果填充了基本资源语言的<code>CodeSystem.concept.display</code>，则它是首选项，
+但其他显示字符串可能在其他语言或其他用途中首选）。如果代码系统没有为显示定义文本表示（例如SNOMED CT表达式），则无法填充'display'元素，
+并且不了解代码表达式的系统将无法访问代码的含义。
+</p>
+
+<p>
+在某些情况下，可能只知道代码而不知道系统。
+在这种情况下，除非可以通过上下文安全地推断出系统，否则无法对代码进行有用的处理。
+在可能的情况下，应避免使用这种做法，因为在更广泛的上下文中很可能会出现信息共享，而在没有已知系统的情况下无法使用代码。
+</p>
+<p>
+如果系统存在，但没有代码，则理解为系统中没有适合表示该概念的代码。这意味着，除非这是预期的含义，并且适用于代码系统和版本，否则实施者不应提供没有代码的系统。 （例如，代码系统没有“其他”概念。）如果代码系统中可能存在适当的代码但不存在于绑定的值集中，则无法使用此方法。
+</p>
+<p>
+如果两个编码具有相同的<code>system</code>、<code>version</code>和<code>code</code>，则它们具有相同的含义。
+如果缺少版本信息，或者<code>system</code>、<code>version</code>或<code>code</code>元素不同，则只能通过查阅系统的定义和任何可用的<a href="conceptmap.html">映射</a>来确定代码之间的关系。
+</p>
+<p>
+如果某个编码被标记为“userSelected”，则表示用户在用户界面中选择了特定的编码值（例如，用户在选择列表中选择了一个项目）。如果存在用户选择的编码，则它是执行翻译等操作的首选选择。
+</p>
+
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints Coding%]
+<p>
+使用上下文（如资源或适用的配置文件中定义的）通常通过将元素绑定到值集来规定在特定上下文中允许或要求使用哪些代码和系统。
+</p>
+</div>
+
+<p>
+编码在以下位置使用：[%dtusage 编码%]
+</p>
+[%impl-note%]
+本规范定义了两种类型来表示编码值：
+</p>
+<ul>
+ <li><b>编码（Coding）</b>：对由代码系统定义的代码的简单直接引用</li>
+ <li><b>可编码概念（CodeableConcept）</b>：文本描述和/或编码的列表（即对由代码系统定义的代码的引用列表）</li>
+</ul>
+<p>
+<code>编码（Coding）</code>数据类型对应于从代码列表中选择单个代码的简单情况。然而，在FHIR规范中很少使用此类型；在HL7中交换编码值的长期经验表明，在一般情况下，系统需要能够交换多个翻译代码和/或原始文本。
+</p>
+<p>
+当确信该值必须直接从可用代码中选择，并且所有参与者都同意可能的代码列表时，直接使用<code>编码（Coding）</code>数据类型。这通常不是FHIR - 一般互操作性的情况，因此编码主要用于扩展，这些扩展通常用于定义受控的使用上下文。
+[%end-note%]
+
+<a name="CodeableConcept"></a>
+<a name="codeableconcept"></a>
+<h2 style="margin-bottom: 1px">CodeableConcept</h2>
+[%dtstatus CodeableConcept%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:CodeableConcept-->另请参阅<a no-external="true" href="datatypes-examples.html#CodeableConcept">示例</a>，<a no-external="true" href="datatypes-definitions.html#CodeableConcept">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#CodeableConcept">映射</a>，<a no-external="true" href="datatypes-profiles.html#CodeableConcept">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#CodeableConcept">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#CodeableConcept">R4转换</a>
+</p>
+
+<p>
+CodeableConcept表示一个通常通过提供一个或多个术语或本体的引用来提供的值，但也可以通过提供文本来定义。这是医疗数据中常见的模式。
+</p>
+<p>
+此数据类型可以与<a href="terminologies.html#CodeableConcept">ValueSet</a>进行<a href="valueset.html">绑定</a>。
+</p>
+[%dt CodeableConcept 3%]
+<p><b>附加代码</b></p>
+<p>
+在<code>CodeableConcept</code>中可以使用多个代码。该概念可以在不同的代码系统中多次编码（甚至可以在同一代码系统中多次编码，其中可能存在多种形式，例如SNOMED CT）。每个<code>coding</code>（也称为“翻译”）都是上述概念的表示，并且由于底层代码定义的差异，可能具有稍微不同的粒度。在<code>CodeableConcept</code>中，没有与<code>coding</code>的排序相关的含义。
+<code>CodeableConcept</code>的典型用途是发送用于对概念进行编码的本地代码，以及一个或多个翻译到公共定义的代码系统，例如LOINC或SNOMED CT。发送本地代码对于调试和完整性审核非常有用和重要。
+</p>
+	<p>例如，许多定性实验室测试结果通常用编码的存在/不存在概念表示。使用具有标准SNOMED CT代码翻译的编码值为“negative”，<code>valueCodeableConcept</code>将如下所示：</p>
+	<pre class="json">
+
+	"valueCodeableConcept": {
+		"coding": [
+			{
+				"system": "http://snomed.info/sct",
+				"code": "260385009",
+				"display": "阴性"
+			}, {
+				"system": "https://acme.lab/resultcodes",
+				"code": "NEG",
+				"display": "阴性"
+			}
+		],
+		"text": "阴性：沙眼衣原体rRNA"
+	}
+
+	</pre>
+
+<p>请注意，这些概念可以使用<a href="conceptmap.html">ConceptMap</a>资源进行交叉映射，而不是直接在<code>CodeableConcept</code>中表示为翻译，或者可以同时使用交叉映射和直接翻译。</p>
+
+<p><b>在CodeableConcept中使用文本</b></p>
+
+<p>
+<code>text</code>是用户输入或选择的概念的表示形式，它最接近用户或概念的预期含义。很多时候，<code>text</code>与其中一个编码的<code>display</code>相同。一个或多个编码可以被标记为用户选择的代码 - 用户实际上直接选择的代码或概念。需要注意的是，在除了少数情况下，只能有一个编码被标记为<code>coding.userSelected = true</code> - 用户实际上直接选择的代码或概念。如果有多个代码被标记为用户选择的，这意味着用户明确选择了多个代码。当没有任何<code>coding</code>元素被标记为用户选择时，文本（如果存在）是首选的含义来源。即使编码被标记为用户选择，将用户选择的具体文本放在CodeableConcept.text中也是一个好的实践。
+</p>
+<p>如果没有适当的代码，只有自由文本可用（且不被实现所禁止），则允许仅使用自由文本表示概念，而不包含任何<code>coding</code>元素。例如，使用仅文本，<code>Observation.valueCodeableConcept</code>元素将是：</p>
+<pre class="json">
+
+	"valueCodeableConcept": {
+		"text": "未编码的自由文本结果"
+	}
+
+			</pre>
+
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints CodeableConcept%]
+<p>
+通常，使用环境会通过将元素绑定到值集来规定在特定环境中允许或要求使用哪些代码和系统。
+</p>
+</div>
+
+<p>
+CodeableConcept在以下位置使用：[%dtusage CodeableConcept%]
+</p>
+
+<a name="Quantity"></a>
+<a name="quantity"></a>
+<h2 style="margin-bottom: 1px">数量</h2>
+[%dtstatus Quantity%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Quantity-->另请参阅<a no-external="true" href="datatypes-examples.html#Quantity">示例</a>，<a no-external="true" href="datatypes-definitions.html#Quantity">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Quantity">映射</a>，<a no-external="true" href="datatypes-profiles.html#Quantity">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Quantity">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Quantity">R4转换</a>
+</p>
+
+<p>
+一个已测量的数量（或者是一个可以被测量的数量）。
+</p>
+<p>
+这个数据类型可以与<a href="terminologies.html#Quantity">数量</a>的<a href="valueset.html">值集</a>进行绑定。
+</p>
+
+[%dt 数量 4%]
+
+<p>
+<code>value</code>包含数量的数值，包括隐含的精度。
+如果未指定比较器，则该值为点值（即'='）。<code>comparator</code>元素永远不能被忽略。
+</p>
+<p>
+<code>unit</code>元素包含一个可显示的单位，用于定义所测量的内容。
+该单位还可以使用<code>code</code>和<code>system</code>以某种形式进行编码
+（有关如何使用<code>system</code>元素的更多信息，请参见<a href="#Coding">Coding</a>）。
+</p>
+<p>
+如果单位可以使用UCUM进行编码，并且提供了一个代码，则应该是UCUM代码。
+如果在<code>code</code>中提供了一个UCUM单位，则可以为了比较数量而生成一个规范值。
+请注意，<code>unit</code>元素通常包含一个有效的UCUM单位的文本，但不能假设该单位实际上包含一个有效的UCUM单位。
+</p>
+
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints Quantity%]
+<p>
+使用环境经常会定义这是什么类型的测量数量，因此可以使用什么类型的单位。使用环境还可能需要来自特定系统的<code>code</code>，或者一个<code>value set</code> - 有关将Quantity绑定到<code>value set</code>以约束单位代码的信息，请参阅<a href="terminologies.html">使用术语</a>。使用环境还可以限制<code>value</code>或<code>comparator</code>的值。
+</p>
+[%tx Quantity%]
+</div>
+<p>
+Quantity在以下位置使用：[%dtusage Quantity%]
+</p>
+
+<a name="QuantityVariations"></a>
+<h3>
+数量的定义变体
+</h3>
+<p>
+有几种额外的数据类型是数量的特化，它们只对作为数量数据类型的一部分定义的现有元素引入新的限制。
+</p>
+<div class="draft-content">
+<p>
+年龄（Age）、距离（Distance）和计数（Count）类型被标记为试用，因为它们在本规范中没有使用（尽管它们可能在扩展中使用）。这些类型可以转换回配置文件（参见<a href="http://hl7.org/fhir/DSTU2/datatypes.html#quantity">R2定义</a>）。
+</p>
+</div>
+
+<a name="Distance"> </a>
+<h4>距离</h4>
+<table class="list">
+ <tr>
+   <td><b>类型名称</b></td>
+   <td><b>规则</b></td>
+   <td><b>正式定义</b></td>
+ </tr>
+ <tr>
+   <td>距离<a name="Distance"></a></td>
+   <td>[%dt.constraints Distance%][%tx Distance%]</td>
+   <td><a href="distance.profile.xml.html">XML</a>, <a href="distance.profile.json.html">JSON</a></td>
+ </tr>
+ <tr>
+   <td></td>
+   <td colspan="2">用法：[%dtusage Distance%]</td>
+ </tr>
+ <tr>
+   <td></td>
+   <td colspan="2">
+   [%impl-note%]
+    如果持续时间值被指定为整数（例如1个月），那么当将持续时间添加或减去给定的日期（时间）时，结果应该四舍五入到最近的自然日历分割 - 例如2月1日+1个月=3月1日，而不是3月2日或3日
+    （因为1个月在UCUM中定义为30天）。
+   [%end-note%]
+   </td>
+ </tr>
+</table>
+
+<a name="Distance"> </a>
+<h4>距离</h4>
+<table class="list">
+ <tr class="draft-content">
+   <td>年龄<a name="Age"></a></td>
+   <td>[%dt.constraints Age%] [%tx Age%]</td>
+   <td><a href="age.profile.xml.html">XML</a>, <a href="age.profile.json.html">JSON</a></td>
+ </tr>
+ <tr class="draft-content">
+   <td colspan="2">注：年龄有意地承载了一个生物体（或过程）存在的时间段的语义。</td>
+ </tr>
+ <tr class="draft-content">
+   <td></td>
+   <td colspan="2">用法：[%dtusage Age%]</td>
+ </tr>
+</table>
+
+<a name="Count"> </a>
+<h4>计数</h4>
+<table class="list">
+ <tr class="draft-content">
+   <td>计数<a name="Count"></a></td>
+   <td>[%dt.constraints Count%]</td>
+   <td><a href="count.profile.xml.html">XML</a>, <a href="count.profile.json.html">JSON</a></td>
+ </tr>
+ <tr class="draft-content">
+   <td></td>
+   <td colspan="2">用法：[%dtusage Count%]</td>
+ </tr>
+</table>
+
+<a name="Duration"> </a>
+<h4>持续时间</h4>
+<table class="list">
+ <tr class="draft-content">
+   <td>持续时间<a name="Duration"></a></td>
+   <td>[%dt.constraints Duration%] [%tx Duration%]</td>
+   <td><a href="duration.profile.xml.html">XML</a>, <a href="duration.profile.json.html">JSON</a></td>
+ </tr>
+ <tr class="draft-content">
+   <td colspan="2">注意：持续时间有意传达时间长度的语义。</td>
+ </tr>
+ <tr class="draft-content">
+   <td></td>
+   <td colspan="2">用法：[%dtusage Duration%]</td>
+ </tr>
+</table>
+
+<p>除了特定的专业化之外，Quantity在多个资源中还有一个约束：</p>
+<a name="SimpleQuantity"> </a>
+<h4>简单数量</h4>
+<table class="list">
+ <tr>
+   <td><b>配置文件名称</b></td>
+   <td><b>规则</b></td>
+   <td><b>正式定义</b></td>
+ </tr>
+ <tr>
+   <td>简单数量<a name="SimpleQuantity"></a></td>
+   <td>[%dt.constraints SimpleQuantity%]</td>
+   <td><a href="simplequantity.profile.xml.html">XML</a>, <a href="simplequantity.profile.json.html">JSON</a></td>
+ </tr>
+ <tr>
+   <td></td>
+   <td colspan="2">用法：[%dtusage SimpleQuantity%]</td>
+ </tr>
+</table>
+
+<p>
+请注意，该约束与Quantity的其他特化不同，因为它不是一个类型，而是应用于使用Quantity类型的规则。还有另一个约束-请参见下面的Money。
+</p>
+
+<a name="Money"></a>
+<a name="Money"></a>
+<h2 style="margin-bottom: 1px">货币</h2>
+[%dtstatus Money%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Money-->另请参阅<a no-external="true" href="datatypes-examples.html#Money">示例</a>，<a no-external="true" href="datatypes-definitions.html#Money">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Money">映射</a>，<a no-external="true" href="datatypes-profiles.html#Money">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Money">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Money">R4转换</a>
+</p>
+
+<p>
+货币金额。
+</p>
+
+[%dt Money 4%]
+
+<p>
+<code>value</code>包含了货币的金额，包括隐含的精度。
+对于金融金额来说，精度总是很重要的。<code>currency</code>元素包含了货币的ISO 4217代码。
+</p>
+
+<p>
+货币在以下地方使用：[%dtusage Money%]
+</p>
+
+<a name="MoneyVariations"></a>
+<h3>
+备用表示
+</h3>
+<p>
+还有一些情况下，需要将金融金额表示为比率的分子或分母，其中类型为货币。在这种情况下，金钱金额被表示为一个<a href="#Quantity">数量</a>，使用<code>MoneyQuantity</code>约束：
+</p>
+
+<table class="list">
+ <tr>
+   <td><b>配置文件名称</b></td>
+   <td><b>规则</b></td>
+   <td><b>正式定义</b></td>
+ </tr>
+ <tr>
+   <td>货币数量<a name="MoneyQuantity"></a></td>
+   <td>[%dt.constraints MoneyQuantity%]</td>
+   <td><a href="moneyquantity.profile.xml.html">XML</a>, <a href="moneyquantity.profile.json.html">JSON</a></td>
+ </tr>
+ <tr>
+   <td></td>
+   <td colspan="2">用法：[%dtusage MoneyQuantity%]</td>
+ </tr>
+</table>
+<p>
+请注意，该配置文件与其他专业化配置文件不同，因为它不是一种类型，而是应用于使用Quantity类型表示货币金额的规则。
+</p>
+
+<a name="Range"></a>
+<a name="range"></a>
+<h2 style="margin-bottom: 1px">范围</h2>
+[%dtstatus Range%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Range-->另请参阅<a no-external="true" href="datatypes-examples.html#Range">示例</a>，<a no-external="true" href="datatypes-definitions.html#Range">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Range">映射</a>，<a no-external="true" href="datatypes-profiles.html#Range">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Range">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Range">R4转换</a>
+</p>
+
+<p>
+一组由低限和高限定义的有序数量值。
+</p>
+<p>
+范围指定了一组可能的值；通常情况下，范围中的一个值适用（例如，“给患者服用2到4片药片”）。
+范围通常用于指示。
+</p>
+[%dt 范围 5%]
+<p>
+<code>low</code>或<code>high</code>元素的<code>unit</code>和<code>code</code>/<code>system</code>元素必须匹配。
+如果<code>low</code>或<code>high</code>元素缺失，则意味着低限或高限未知，因此整个范围也未知。
+</p>
+<p>
+<code>low</code>或<code>high</code>元素上的<code>comparator</code>标志不能存在。请注意，范围类型不应用于表示超出范围的测量值：应改用带有比较器元素的数量类型。
+</p>
+<p>
+低限和高限的值是包含的，并且假定具有任意高精度；例如，范围1.5到2.5包括1.50和2.50，但不包括1.49或2.51。
+</p>
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints 范围%]
+</div>
+<p>
+范围在以下位置使用：[%dtusage 范围%]
+</p>
+
+<a name="Ratio"></a>
+<a name="ratio"></a>
+<h2 style="margin-bottom: 1px">比例</h2>
+[%dtstatus Ratio%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Ratio-->另请参阅<a no-external="true" href="datatypes-examples.html#Ratio">示例</a>，<a no-external="true" href="datatypes-definitions.html#Ratio">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Ratio">映射</a>，<a no-external="true" href="datatypes-profiles.html#Ratio">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Ratio">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Ratio">R4转换</a>
+</p>
+
+<p>
+两个数量值之间的关系，以分子和分母表示。
+</p>
+<p>
+Ratio数据类型只应在无法使用Quantity和公共单位适当表示关系时使用两个数字之间的关系。如果分母值已知为固定值"1"，则应使用Quantity而不是Ratio。
+</p>
+[%dt Ratio 6%]
+<p>
+通常使用Quantity的示例包括速率、密度、浓度。通常使用Ratio的示例包括：滴度（例如1:128）；分母具有重要意义的浓度比（例如5mg/10mL）；观察频率（例如2次重复/8小时）；以及分子或分母是货币金额的情况（没有$等的UCUM代码）。
+</p>
+<p>
+分子和分母中的公共因素不会自动取消。Ratio不仅仅是"结构化数字" - 例如，血压测量（例如"120/60"）不是比率。
+</p>
+<p>
+正确的比率必须具有分子和分母；然而，这些并非强制要求，以允许具有进一步信息的扩展的无效比率。
+</p>
+
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints Ratio%]
+<p>
+使用环境可能需要特定类型的分子或分母的数量。
+</p>
+</div>
+
+<p>
+比率在以下位置使用：[%dtusage Ratio%]
+</p>
+
+<a name="RatioRange"></a>
+<a name="ratiorange"></a>
+<h2 style="margin-bottom: 1px">RatioRange</h2>
+[%dtstatus RatioRange%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:RatioRange-->另请参阅<a no-external="true" href="datatypes-examples.html#RatioRange">示例</a>，<a no-external="true" href="datatypes-definitions.html#RatioRange">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#RatioRange">映射</a>，<a no-external="true" href="datatypes-profiles.html#RatioRange">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#RatioRange">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#RatioRange">R4转换</a>
+</p>
+
+<p>
+作为两个数量值的范围，以低分子、高分子和分母表示的比率。
+</p>
+<p>
+如果关系不能适当地使用范围和公共单位来表示，则应仅使用RatioRange数据类型来表示比率范围。如果分母值已知为固定值"1"，则应使用范围（Range）而不是RatioRange。
+</p>
+[%dt RatioRange 6%]
+<p>
+分子和分母中的公共因素不会自动消除。比率不仅仅是"结构化数字" - 例如，血压测量（例如"120/60"）不是比率。
+</p>
+<p>
+正确的比率范围具有一个分子和一个分母；然而，这些并不是强制性的，以允许具有进一步信息的无效比率的扩展。
+</p>
+
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints RatioRange%]
+<p>
+使用环境可能需要特定类型的数量作为分子或分母。
+</p>
+</div>
+
+<p>
+RatioRange在以下位置使用：[%dtusage RatioRange%]
+</p>
+
+<a name="Period"></a>
+<a name="period"></a>
+<h2 style="margin-bottom: 1px">Period</h2>
+[%dtstatus Period%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Period-->另请参阅<a no-external="true" href="datatypes-examples.html#Period">示例</a>，<a no-external="true" href="datatypes-definitions.html#Period">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Period">映射</a>，<a no-external="true" href="datatypes-profiles.html#Period">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Period">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Period">R4转换</a>
+</p>
+
+<p>
+由开始日期/时间和结束日期/时间定义的时间段。
+</p>
+<p>
+时间段指定了一段时间范围。使用上下文将指定整个范围是否适用（例如，“患者在此时间范围内是医院的住院患者”）或者范围内的一个值是否适用（例如，“在2013年6月24日下午2点到4点之间给予患者”）。
+</p>
+[%dt Period 7%]
+<p>
+如果缺少<code>start</code>元素，则表示不知道时间段的开始时间。如果缺少<code>end</code>元素，则表示时间段正在进行中。或者，可以通过将未来的明确结束时间来表示，这意味着时间段预计/计划在指定时间结束。
+</p>
+<p>
+结束值包括与之匹配的任何日期/时间。例如，时间段2011-05-23到2011-05-27包括从5月23日开始到5月27日结束的所有时间。
+</p>
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints Period%]
+</div>
+
+<p>
+Period在以下位置使用：[%dtusage Period%]
+</p>
+
+<a name="SampledData"></a>
+<a name="sampleddata"></a>
+<h2 style="margin-bottom: 1px">SampledData</h2>
+[%dtstatus SampledData%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:SampledData-->另请参阅<a no-external="true" href="datatypes-examples.html#SampledData">示例</a>，<a no-external="true" href="datatypes-definitions.html#SampledData">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#SampledData">映射</a>，<a no-external="true" href="datatypes-profiles.html#SampledData">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#SampledData">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#SampledData">R4转换</a>
+</p>
+<p>
+SampledData提供了一种简洁的方式来处理设备以高频率采样特定物理状态产生的数据。
+这通常用于心电图（ECG）或心电图（EKG）设备的输出。该数据类型包括一系列原始的十进制值（大部分是简单的整数）或代码，以及用于比例和因子的调整。这些被解释为
+</p>
+<pre>
+原始测量值[i] = SampledData.data[i] * SampledData.factor + SampledData.origin.value
+</pre>
+
+[%dt SampledData 8%]
+
+<p>
+SampledData支持多维数据，其中每个时间点有多个测量值。如果有多个维度，不同的维度会交错排列 - 特定时间的所有数据点一起表示。
+</p>
+<p>
+数据点由单个空格（Unicode字符u20）分隔。每个数据点可以是十进制值或代码。定义了三个特殊代码：
+</p>
+<ul>
+  <li><code>E</code>：错误 - 此数据点没有有效的测量值</li>
+  <li><code>L</code>：低于检测点 - 值低于设备的检测限制（<code>lowerLimit</code>，如果使用此代码，则必须提供）</li>
+  <li><code>U</code>：高于检测点 - 值高于设备的检测限制（<code>upperLimit</code>，如果使用此代码，则必须提供）</li>
+</ul>
+<p>
+可以使用其他代码。在这种情况下，代码的含义由<code>codeMap</code>属性指定，该属性引用定义数据中使用的代码并将代码映射到<a href="conceptmap.html">ConceptMap</a>中的正确定义的概念，以及<a href="codesystem.html">CodeSystem</a>中的概念。请注意，在此情况下，ConceptMap中定义的源系统在SampledData中不使用且被忽略。ConceptMap中只能有一个组。ConceptMap不能为任何数值或代码'E'、'U'或'L'（为了安全起见，也不能为'e'、'u'或'l'）定义含义，因为它们始终具有上述定义的含义。没有转义序列；代码不能包含空格。此外，为了简化解析，代码不能以数字开头。
+</p>
+
+<p>
+SampledData在以下位置使用：[%dtusage SampledData%]
+</p>
+
+<a name="Identifier"></a>
+<a name="identifier"></a>
+<h2 style="margin-bottom: 1px">标识符</h2>
+[%dtstatus Identifier%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Identifier-->另请参阅<a no-external="true" href="datatypes-examples.html#Identifier">示例</a>，<a no-external="true" href="datatypes-definitions.html#Identifier">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Identifier">映射</a>，<a no-external="true" href="datatypes-profiles.html#Identifier">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Identifier">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Identifier">R4转换</a>
+</p>
+
+<p>
+标识符是与给定系统中的单个对象或实体相关联的字符串，通常是数字或字母数字组合。
+通常，标识符用于将资源中的内容与其他框架或协议中可用的外部内容连接起来。
+标识符与对象相关联，可能会因为人为或系统过程中的错误而被更改或废弃。
+</p>
+
+[%dt Identifier 9%]
+
+<p>
+<code>system</code>是一个绝对URI，用于定义一组标识符（即如何使<code>value</code>唯一）。
+它可以是一个特定的应用程序，也可以是一组标识符的公认标准/规范，或者是一种使标识符唯一的方式。
+FHIR直接定义了一些有用或重要的系统URI。这里是一些示例标识符命名空间：
+</p>
+<ul>
+ <li><code>http://hl7.org/fhir/sid/us-ssn</code>用于美国社会安全号码（SSN）值</li>
+ <li><code>http://ns.electronichealth.net.au/id/hi/ihi/1.0</code>用于澳大利亚个人医疗标识符（IHI）号码</li>
+ <li><code>urn:ietf:rfc:3986</code>用于标识符的值本身是全局唯一URI的情况</li>
+</ul>
+<p>
+如果系统是一个URL，它应该是可解析的。解析可能是指到一个描述标识符系统和/或支持标识符查找的网页。或者，它可以是一个NamingSystem资源实例。实现者通常更喜欢可解析的URL，而不是不可解析的URN，特别是不透明的URN，如OID（urn:oid:）或UUID（urn:uuid:）。如果使用了OID和UUID，则可以在HL7 OID注册表中注册，并且如果内容在机构边界之间共享或交换，则应该进行注册。
+</p>
+<p>
+由实施组织决定一个适当的URL或URN结构，以避免冲突，并随时间管理该空间（以及URL的可解析性）。
+</p>
+<p>
+请注意，给定标识符系统的范围可能超出单个资源可能捕获的标识符。例如，某些系统可能从单个命名空间中提取所有的“order”标识符，尽管有些可能在MedicationRequest上使用，而其他一些可能出现在ServiceRequest上。
+</p>
+<p>
+<code>value</code>在定义的<code>system</code>内必须是唯一的，并且在出现的任何地方具有一致的含义。Identifier.system始终区分大小写。除非对Identifier.system的了解使处理器能够确信非区分大小写的处理是安全的，否则应将Identifier.value视为区分大小写。
+</p>
+<p>
+如果标识符值本身自然地是全局唯一的URI（例如OID、UUID或没有尾部本地部分的URI），那么<code>system</code>应该是"<code>urn:ietf:rfc:3986</code>"，URI在<code>value</code>中（使用urn:oid:和urn:uuid:的OID和UUID-请参见V3映射的注释和示例）。
+自然全局唯一标识符是那些没有分配给其他系统的标识符系统，并且可以合理地预期标识符的值不会被重新使用的标识符。通常，这些是某种绝对URI。
+</p>
+<p>
+在某些情况下，可能不知道系统-只知道值（例如，扫描条形码的简单设备），或者系统在隐含中已知（在有限上下文中的简单交换，通常由条形码阅读器驱动）。在这种情况下，除非可以安全地推断出系统的上下文，否则无法使用值进行有用的匹配。应用程序应尽可能提供一个系统，因为在更广泛的上下文中很可能会出现信息共享，并且没有系统的值在本质上在使用中是有限的。无论是否知道正确的Identifier.system，Identifier.value的人类可读标签通常出现在Identifier.type.text中。例如，“BC省健康号码”。
+</p>
+<p>
+除了提供唯一性范围的<code>system</code>和<code>value</code>之外，标识符还可以具有一个<code>type</code>，当系统遇到具有未知系统值的标识符时，这可能是有用的。
+但是，请注意，标识符的类型不是一个受到良好控制的词汇表，在实践中有很大的变化。类型仅处理标识符的一般类别，不应用于与Identifier.system对应的1..1的代码。由于常见用法的变化，一些标识符可能属于多个类别。
+</p>
+<p>
+<code>assigner</code>用于指示分配标识符的注册表/州/设施等。作为引用，分配者可以仅在<code>display</code>中包含一个文本描述。
+</p>
+
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints Identifier%]
+[%tx Identifier%]
+</div>
+<p>
+Identifier在以下位置使用：[%dtusage Identifier%]
+</p>
+
+<a name="HumanName"></a>
+<a name="humanname"></a>
+<h2 style="margin-bottom: 1px">HumanName（人名）</h2>
+[%dtstatus HumanName%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:HumanName-->另请参阅<a no-external="true" href="datatypes-examples.html#HumanName">示例</a>，<a no-external="true" href="datatypes-definitions.html#HumanName">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#HumanName">映射</a>，<a no-external="true" href="datatypes-profiles.html#HumanName">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#HumanName">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#HumanName">R4转换</a>
+</p>
+
+<p>
+一个带有文本、部分和使用信息的人类名称。
+</p>
+<p>
+名称可以被更改或否认。在不同的上下文中，人们可能有不同的名称。名称可以被划分为不同类型的部分，这些部分在不同的上下文中具有可变的重要性，尽管划分成部分并不总是重要的。对于个人名称，不同的部分可能具有一些隐含的含义；不同的文化与名称部分相关联的重要性不同，全球范围内系统对名称部分的关注程度差异很大。
+</p>
+[%dt HumanName 10%]
+<p>
+这个表总结了人名常见部分的位置。
+</p>
+<table class="lines">
+ <tr><td><b>名称</b></td><td><b>示例</b></td><td><b>目的地/注释</b></td></tr>
+ <tr><td>姓氏</td><td>Smith</td><td>姓氏</td></tr>
+ <tr><td>名字</td><td>John</td><td>名字</td></tr>
+ <tr><td>头衔</td><td>先生</td><td>前缀</td></tr>
+ <tr><td>中间名</td><td>Samuel</td><td>后续名字</td></tr>
+ <tr><td>父称</td><td>bin Osman</td><td>姓氏</td></tr>
+ <tr><td>多个姓氏</td><td>Carreño Quiñones</td><td>姓氏。关于姓氏分解的说明，请参见下面的注释</td></tr>
+ <tr><td>首字母</td><td>Q.</td><td>名字的首字母（推荐使用“.”）</td></tr>
+ <tr><td>昵称</td><td>Jock</td><td>名字，使用=昵称</td></tr>
+ <tr><td>资格</td><td>博士</td><td>后缀</td></tr>
+ <tr><td>尊称</td><td>高级</td><td>后缀</td></tr>
+ <tr><td>Voorvoegsel / 贵族</td><td>van Beethoven</td><td>姓氏。关于姓氏分解的说明，请参见下面的注释</td></tr>
+</table>
+<p>
+有关更多信息，包括所有<a href="http://www.w3.org/International/questions/qa-personal-names">W3C国际示例</a>，请参阅<a href="datatypes-examples.html#HumanName">示例</a>。<b>注意：实施者应阅读名称示例，以全面了解名称的工作原理。</b>
+</p>
+<p>
+多个给定部分和姓氏组合成一个单一的名称。
+如果一个人有可以互换使用的替代名称（例如昵称、别名），则这些是<code>HumanName</code>的不同实例。
+</p>
+<p>
+文本元素指定整个名称的显示方式，例如在应用程序用户界面中。可以提供此元素，而不是或以及特定的部分。更新名称的应用程序应确保当文本和部分同时存在时，文本中不包含在部分中找不到的内容。部分的组装顺序是与文化相关的：给定部分类型内的部分顺序具有重要性，应予以遵守。姓氏和名字之间的适当顺序取决于文化和使用环境。请注意，有一个<a href="[%extensions-location%]StructureDefinition-humanname-assembly-order.html">扩展</a>用于那些名称组装顺序不受文化限制的情况。
+</p>
+<p>
+给定名称部分可能包含空格，尽管通常不包含。如果只记录了首字母，可以使用首字母代替全名。跨文化操作的系统通常应依赖于文本形式进行展示，并使用部分进行索引/搜索功能。因此，应用程序应为未来的健壮性填充文本元素。
+</p>
+<p>
+在某些文化中（例如德国、荷兰、西班牙、葡萄牙），姓氏是复杂的，由各种部分组成，可能需要单独管理，例如它们对于搜索具有不同的重要性。在这些情况下，完整的姓氏填充在<code>family</code>中，并且可以使用<code>family</code>扩展提供名称的分解
+<a href="[%extensions-location%]StructureDefinition-humanname-own-name.html">own-name</a>，
+<a href="[%extensions-location%]StructureDefinition-humanname-own-prefix.html">own-prefix</a>，
+<a href="[%extensions-location%]StructureDefinition-humanname-partner-name.html">partner-name</a>，
+<a href="[%extensions-location%]StructureDefinition-humanname-partner-prefix.html">partner-prefix</a>，
+<a href="[%extensions-location%]StructureDefinition-humanname-fathers-family.html">fathers-family</a>和
+<a href="[%extensions-location%]StructureDefinition-humanname-mothers-family.html">mothers-family</a>。
+</p>
+<p>
+为了进行健壮的搜索，服务器应独立搜索姓氏的各个部分。例如，搜索Carreno或Quinones应该匹配“Carreno Quinones”的姓氏。HL7附属机构和其他制定实施指南的机构可能会对特定文化或环境中的搜索方式提出更具体的建议。
+</p>
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints HumanName%]
+[%tx HumanName%]
+</div>
+<p>
+HumanName在以下位置使用：[%dtusage HumanName%]
+</p>
+
+<!--<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints HumanName%]
+</div>
+-->
+
+<a name="Address"></a>
+<a name="address"></a>
+<h2 style="margin-bottom: 1px">地址</h2>
+[%dtstatus Address%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Address-->另请参阅<a no-external="true" href="datatypes-examples.html#Address">示例</a>，<a no-external="true" href="datatypes-definitions.html#Address">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Address">映射</a>，<a no-external="true" href="datatypes-profiles.html#Address">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Address">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Address">R4转换</a>
+</p>
+
+<p>
+使用邮政约定（而不是GPS或其他位置定义格式）表示的地址。此数据类型可用于传达用于投递邮件的地址，以及用于访问可能不适用于邮件投递的位置。世界各地定义了各种邮政地址格式。
+</p>
+
+[%dt Address 11%]
+
+<p>
+text元素指定了完整的地址，例如在邮政标签上应该显示的方式。这可以作为特定部分的替代或补充提供。更新地址的应用程序应确保在text和parts同时存在时，text中不包含在任何部分中找不到的内容。
+</p>
+
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints Address%]
+[%tx Address%]
+</div>
+
+<p>
+地址在以下位置使用：[%dtusage Address%]
+</p>
+
+<a name="ContactPoint"></a>
+<a name="contactpoint"></a>
+<h2 style="margin-bottom: 1px">联系点</h2>
+[%dtstatus ContactPoint%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:ContactPoint-->另请参阅<a no-external="true" href="datatypes-examples.html#ContactPoint">示例</a>，<a no-external="true" href="datatypes-definitions.html#ContactPoint">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#ContactPoint">映射</a>，<a no-external="true" href="datatypes-profiles.html#ContactPoint">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#ContactPoint">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#ContactPoint">R4转换</a>
+</p>
+
+<p>
+针对个人或组织的各种技术介入的联系点的详细信息，包括电话、电子邮件等。
+</p>
+[%dt ContactPoint 12%]
+<p>
+如果要捕获电话、传真或类似的联系点，值应该是根据<a href="http://www.itu.int/rec/T-REC-E.123-200102-I/e">ITU-T E.123</a>格式化的电话号码。
+然而，由于遗留数据和/或记录联系方式时的文书实践，这通常是不可能的。
+因此，电话、传真、寻呼机和电子邮件地址不被视为正式的URL。
+对于其他类型的联系点，<code>system</code>是"other"，<code>value</code>应该是一个URL，以便可以自动确定其使用方式。
+在<code>value</code>中使用的典型URL方案包括http{s}：用于网址，以及各种消息系统的URL方案。
+如果值不是URL，则需要人工解释。
+</p>
+
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints ContactPoint%]
+[%tx ContactPoint%]
+</div>
+
+<p>
+ContactPoint在以下位置使用：[%dtusage ContactPoint%]
+</p>
+
+<a name="Timing"></a>
+<a name="timing"></a>
+<h2 style="margin-bottom: 1px">Timing（时间）</h2>
+[%dtstatus Timing%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Timing-->另请参阅<a no-external="true" href="datatypes-examples.html#Timing">示例</a>，<a no-external="true" href="datatypes-definitions.html#Timing">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Timing">映射</a>，<a no-external="true" href="datatypes-profiles.html#Timing">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Timing">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Timing">R4转换</a>
+</p>
+
+<p>
+描述可能发生多次的事件的发生。定时计划用于指定事件预期或请求发生的时间，并且还可以用于表示过去或正在进行事件的摘要。为简单起见，定时组件的定义被表达为“未来”事件，但是这样的组件也可以用于描述历史或正在进行的事件。
+</p>
+<p>
+定时计划可以是事件列表和/或事件发生的条件，可以以结构化形式和/或代码表示。当同时提供事件和重复规范时，事件列表应被理解为对重复结构中信息的解释。
+</p>
+<p>注意：定时数据类型允许<a href="extensibility.html#modifier">修饰符扩展</a>。</p>
+[%dt Timing 13%]
+<p>
+如果定时计划具有重复的条件，则重复可以在指定的持续时间内发生给定次数或与某个重复的现实世界事件相关。如果未指定结束条件，则计划将在其他地方表达的某些条件上终止。
+</p>
+<p>
+许多系统通过使用文本字段来避免定时结构的复杂性。这映射到<code>Timing.code.text</code>。例如，文本指令“在周末和休息日早上服药”可以表示为：
+</p>
+<pre class="json">
+  "timing": {
+    "code" : {
+      "text" : "在周末和休息日早上服药"
+    }
+  }
+</pre>
+<p>
+请注意，一些系统在“用量说明”等更广泛的范围内包含定时详细信息；这些系统不使用定时数据类型。其他系统使用一组“常见”代码 - 包括但通常不限于广为人知的缩写诸如“BID”。如果提供了<code>Timing.code</code>，则理解该代码是对结构化定时数据中指定的内容的完整陈述（除了适用于代码的<code>Timing.repeat.bounds</code>），并且可以使用代码或数据来解释<code>Timing</code>。应尽可能提供结构化定时规范，除非代码是BID、TID、QID、AM或PM，这些代码具有普遍的含义。
+</p>
+<p>
+此表总结了定时数据类型标准的一些常见用法。
+</p>
+<table class="grid">
+ <tr><td><b>描述</b></td> <td><b>持续时间</b></td> <td><b>持续时间单位</b></td> <td><b>频率</b></td> <td><b>最大频率</b></td> <td><b>周期</b></td> <td><b>周期单位</b></td> <td><b>最大周期</b></td> <td><b>星期几</b></td> <td><b>每天时间</b></td> <td><b>何时</b></td> <td><b>偏移量</b></td>  <td><b>边界[x]</b></td>  <td><b>计数</b></td></tr>
+ <tr><td>每8小时</td>      <td></td>                <td></td>                     <td>1</td>                <td></td>                    <td>8</td>             <td>h</td>                  <td></td>               <td></td>                   <td></td>                   <td></td>          <td></td>               <td></td>               <td></td></tr>
+ <tr><td>每7天</td>       <td></td>                <td></td>                     <td>1</td>                <td></td>                    <td>7</td>             <td>d</td>                  <td></td>               <td></td>                   <td></td>                   <td></td>          <td></td>               <td></td>               <td></td></tr>
+ <tr><td>每天3次</td>      <td></td>                <td></td>                     <td>3</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>               <td></td>                   <td></td>                   <td></td>          <td></td>               <td></td>               <td></td></tr>
+ <tr><td>每天3-4次</td>    <td></td>                <td></td>                     <td>3</td>                <td>4</td>                   <td>1</td>             <td>d</td>                  <td></td>               <td></td>                   <td></td>                   <td></td>          <td></td>               <td></td>               <td></td></tr>
+ <tr><td>每4-6小时</td>    <td></td>                <td></td>                     <td>1</td>                <td></td>                    <td>4</td>             <td>h</td>                  <td>6</td>              <td></td>                   <td></td>                   <td></td>          <td></td>               <td></td>               <td></td></tr>
+ <tr><td>每21天1小时</td> <td>1</td>         <td>hr</td>                   <td>1</td>                <td></td>                    <td>21</td>            <td>d</td>                  <td></td>               <td></td>                   <td></td>                   <td></td>          <td></td>               <td></td>               <td></td></tr>
+ <tr><td>每周3次半小时</td> <td>0.5</td>  <td>hr</td>                   <td>3</td>                <td></td>                    <td>1</td>             <td>wk</td>                 <td></td>               <td></td>                   <td></td>                   <td></td>          <td></td>               <td></td>               <td></td></tr>
+ <tr><td>早餐时</td>     <td></td>                <td></td>                     <td></td>                 <td></td>                    <td></td>              <td></td>                   <td></td>               <td></td>                   <td></td>                   <td>CM</td>        <td></td>               <td></td>               <td></td></tr>
+ <tr><td>持续5分钟，饭前10分钟</td> <td>5</td>     <td>min</td>        <td></td>                 <td></td>                    <td></td>              <td></td>                   <td></td>               <td></td>                   <td></td>                   <td>AC</td>        <td>10</td>             <td></td>               <td></td></tr>
+ <tr><td>每天3次，饭前30分钟服用1片</td> <td></td>  <td></td>      <td>3</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>               <td></td>                   <td></td>                   <td>AC</td>        <td>30</td>             <td></td>               <td></td></tr>
+ <tr><td>BID，饭前30分钟，持续10天</td> <td></td>  <td></td>            <td>2</td>               <td></td>                    <td>1</td>             <td>d</td>                  <td></td>               <td></td>                   <td></td>                   <td>AC</td>        <td>30</td>             <td>持续时间=10天</td>               <td></td></tr>
+ <tr><td>TID，持续14天</td>   <td></td>                <td></td>                     <td>3</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>               <td></td>                   <td></td>                   <td></td>          <td></td>               <td>持续时间=14天</td>               <td></td></tr>
+ <tr><td>BID，从2015年7月1日下午1:00开始</td> <td></td> <td></td>                     <td>2</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>               <td></td>                   <td></td>                   <td></td>          <td></td>               <td>Period.start = 2015-07-01T13:00:00</td>               <td></td></tr>
+ <tr><td>星期一、星期三、星期五早上</td> <td></td>             <td></td>                     <td>1</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>               <td>mon | wed | fri</td>    <td></td>                   <td>MORN</td>      <td></td>               <td></td>               <td></td></tr>
+ <tr><td>每天上午10点</td>  <td></td>                <td></td>                     <td>1</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>               <td></td>                   <td>10:00</td>              <td></td>          <td></td>               <td></td>               <td></td></tr>
+ <tr><td>一次，任何时间</td>  <td></td>           <td></td>                     <td></td>                 <td></td>                    <td></td>              <td></td>                   <td></td>               <td></td>                   <td></td>                   <td></td>          <td></td>               <td></td>               <td>1</td></tr>
+ <tr><td>每隔一天早上，直到服用20次</td><td></td>  <td></td>  <td>1</td>     <td></td>                    <td>2</td>             <td>d</td>                  <td></td>               <td></td>                   <td></td>                   <td>MORN</td>      <td></td>               <td></td>               <td>20</td></tr>
+</table>
+
+<p>
+这个表格展示了基本规范中提供的代码与Timing类型的结构化数据部分之间的关系：
+</p>
+<table class="grid">
+ <tr><td><b>描述</b></td> <td><b>持续时间</b></td> <td><b>持续时间单位</b></td> <td><b>频率</b></td> <td><b>最大频率</b></td> <td><b>周期</b></td> <td><b>周期单位</b></td> <td><b>最大周期</b></td> <td><b>时间点</b></td> <td><b>边界[x]</b></td></tr>
+ <tr><td>QOD</td>                <td></td>                <td></td>                     <td>1</td>                <td></td>                    <td>2</td>             <td>d</td>                  <td></td>                 <td></td>            <td></td></tr>
+ <tr><td>QD</td>                 <td></td>                <td></td>                     <td>1</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>                 <td></td>            <td></td></tr>
+ <tr><td>BID</td>                <td></td>                <td></td>                     <td>2</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>                 <td></td>            <td></td></tr>
+ <tr><td>TID</td>                <td></td>                <td></td>                     <td>3</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>                 <td></td>            <td></td></tr>
+ <tr><td>QID</td>                <td></td>                <td></td>                     <td>4</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>                 <td></td>            <td></td></tr>
+ <tr><td>Q4H</td>                <td></td>                <td></td>                     <td>1</td>                <td></td>                    <td>4</td>             <td>h</td>                  <td></td>                 <td></td>            <td></td></tr>
+ <tr><td>Q6H</td>                <td></td>                <td></td>                     <td>1</td>                <td></td>                    <td>6</td>             <td>h</td>                  <td></td>                 <td></td>            <td></td></tr>
+ <tr><td>AM</td>                 <td></td>                <td></td>                     <td>1</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>                 <td>MORN</td>        <td></td></tr>
+ <tr><td>PM</td>                 <td></td>                <td></td>                     <td>1</td>                <td></td>                    <td>1</td>             <td>d</td>                  <td></td>                 <td>AFT or EVE</td>  <td></td></tr>
+</table>
+<p>
+这些代码应被理解为在本表中所记录的正式含义。请注意，BID等代码被定义为“在机构指定的时间”。例如，一个机构可以选择BID为“始终在上午7点和下午6点”。如果这种选择不合适，不应使用BID代码。而应该使用一个独立的组织特定代码来替代HL7定义的BID代码和/或使用结构化表示（在这种情况下，<code>timeOfDay</code>）。
+</p>
+
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints Timing%]
+
+<p>
+请注意，这些约束仍然允许出现荒谬的时间规范，例如“每天一次，在2:00和4:00”或“每3天星期五”。
+实施者必须注意确保他们的配置和数据收集设计不会导致这些无法解释的时间规范。
+在这里，元素<code>dayOfWeek</code>、<code>timeOfDay</code>和<code>when</code>特别容易引起问题。
+</p>
+[%tx Timing%]
+</div>
+<p>
+Timing在以下位置使用：[%dtusage Timing%]
+</p>
+
+<a name="RelativeTime"></a>
+<a name="RelativeTime"></a>
+<h2 style="margin-bottom: 1px">相对时间</h2>
+[%dtstatus RelativeTime%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Money-->另请参阅<a no-external="true" href="datatypes-examples.html#RelativeTime">示例</a>，<a no-external="true" href="datatypes-definitions.html#RelativeTime">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#RelativeTime">映射</a>，<a no-external="true" href="datatypes-profiles.html#RelativeTime">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#RelativeTime">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#RelativeTime">R4转换</a>
+</p>
+
+<p>
+RelativeTime用于相对于除dateTime之外的数据类型定义的事件来表示时间点或时间间隔。例如，“在出院后的30天内”是一个时间间隔（从0天到30天），并且被描述为在一个事件（出院）之后发生。
+</p>
+
+[%dt RelativeTime 13%]
+
+<p>
+表达与时间相关的“事件”或“上下文”作为参考点的方法包括以下任何一种：
+  <ol>
+    <li>使用CodeableConcept完整描述事件，此时使用contextCode元素。</li>
+    <li>使用适用的FHIR资源引用来描述事件，该资源定义或暗示了一个时间点，此时使用contextReference元素，或者如果资源是ActivityDefinition、PlanDefinition或ObservationDefinition，则可以使用contextDefinition元素。</li>
+    <li>使用适用的FHIR资源引用（使用contextReference或contextDefinition），并使用附加数据来表达资源中定义或暗示的时间点所在的元素，可以使用contextPath（用于指定元素的字面路径）和/或contextCode（用于描述预期在资源中找到的属性的CodeableConcept）。</li>
+  </ol>
+</p>
+<p>表达与“事件”相关的时间点或时间间隔（“偏移量”）的方法包括以下任何一种：
+  <ol>
+    <li>描述精确的持续时间（具有数值和特定时间单位的数量），此时使用offsetDuration。</li>
+    <li>描述单侧间隔，此时使用offsetDuration，并包括具有适当代码（&gt;、&gt;=、&lt;或&lt;=）的offsetDuration.comparator。</li>
+    <li>描述双侧间隔，此时使用offsetRange，并且低值和高值内的Quantity数据类型限制为Duration数据类型（即限制为特定时间单位）。</li>
+    <li>描述精确的时间点（偏移量=0），此时offsetDuration.value = 0，单位不必要。</li>
+  </ol>
+</p>
+<p>表达RelativeTime值的自然语言描述的方法是使用text元素。</p>
+
+<a name="Signature"></a>
+<a name="signature"></a>
+<h2 style="margin-bottom: 1px">签名</h2>
+[%dtstatus Signature%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Signature-->另请参阅<a no-external="true" href="datatypes-examples.html#Signature">示例</a>，<a no-external="true" href="datatypes-definitions.html#Signature">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Signature">映射</a>，<a no-external="true" href="datatypes-profiles.html#Signature">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Signature">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Signature">R4转换</a>
+</p>
+
+<p>
+<a href="signatures.html">签名</a>以FHIR可访问的形式保存了签名及其支持上下文的电子表示。
+签名可以是加密类型（如XML DigSig或JWS），能够提供不可否认的证据，
+也可以是表示签名或数字签名过程的图形图像。
+</p>
+[%dt Signature 14%]
+<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints Signature%]
+</div>
+
+<p>
+注意：
+</p>
+<ul>
+ <li>Signature数据类型可以用于保存数字签名，也可以用于保存电子签名。</li>
+ <li>电子签名，例如墨迹签名的图像，不能保护签名内容免受更改，但可以携带有关签名者、签名时间和签名含义的详细信息。</li>
+ <li>在资源（文档）上进行数字签名的一个后果是，URL、标识符和内部引用被冻结，无法更改。这可能是一个期望的特性，但也可能破坏封闭生态系统之间的互操作性，尤其是在频繁进行<a href="managing.html">重新标识</a>的情况下。因此，建议系统仔细考虑任何签名过程的影响。对于数字签名的影响，对于<a href="documents.html">文档捆绑</a>及其相关流程是最为了解的。</li>
+<li>
+请注意，按照XML中的常见规范化程序，可以将相同的规范化文本分配给具有略有不同含义的资源，因为在markdown文本中，前导空格很重要，而XML表示使用属性序列化<a href="datatypes.html#markdown">markdown</a>数据类型。
+</li>
+</ul>
+
+<p>&nbsp;</p>
+<a name="XML"></a>
+<h3>XML签名规则</h3>
+<p>
+当签名是XML数字签名（contentType = application/signature+xml）时，应遵循以下规则：
+</p>
+<ul>
+ <li>Signature.data是base64编码的XML签名</li>
+ <li>XML签名是<a href="http://www.w3.org/TR/2002/REC-xmldsig-core-20020212/#def-SignatureDetached">分离的</a>签名（签名的内容与签名本身分离）</li>
+ <li>签名应符合<a href="https://www.w3.org/TR/XAdES/">XAdES-X-L</a>以支持<a href="https://www.w3.org/TR/XAdES/#Syntax_forXAdES-X-L_form">长期签名</a>。XAdES-X-L规范添加了签名的时间戳、签名证书的包含以及吊销声明</li>
+ <li>当对FHIR资源进行签名时，签名是对资源的<a href="xml.html#canonical">规范XML形式</a>进行的</li>
+ <li>签名应使用哈希算法SHA-256。签名验证策略将适用于签名并确定其可接受性</li>
+ <li>签名应包含一个"CommitmentTypeIndication"元素，用于签名的目的。目的可以是所证明的操作，或与签名相关联的角色。该值应来自ASTM E1762-95(2013)。Signature.type应包含与CommitmentTypeIndication元素相同的值。</li>
+</ul>
+<p>
+签名验证有三个级别：
+<ol>
+   <li>验证数字签名块本身的完整性，通过验证XML签名的签名。</li>
+   <li>确认签名者的真实性，未被吊销，并且与签名目的相符。</li>
+   <li>使用哈希算法确认感兴趣的签名内容未被修改。</li>
+</ol>
+</p>
+<p>
+对于这些指南的偏离，需要在站点策略中进行表达，并在XML签名块中列举出来。
+例如，某些环境可能选择不同的XAdES配置文件、哈希算法、策略标识符或签名目的词汇。
+</p>
+<a name="JSON"></a>
+<h3>JSON签名规则</h3>
+<p>
+当签名是JSON数字签名（contentType = application/jose）时，应遵循以下规则：
+</p>
+<ul>
+ <li>Signature.data是base64编码的JWS签名<a href="https://tools.ietf.org/html/rfc7515">RFC 7515: JSON Web Signature (JWS)</a></li>
+ <li>签名是<a href="https://tools.ietf.org/html/rfc7515#appendix-F">分离的</a>签名（签名的内容与签名本身分离）</li>
+ <li>当对FHIR资源进行签名时，签名是对资源的<a href="json.html#canonical">规范JSON形式</a>进行的</li>
+ <li>签名应使用哈希算法SHA-256。签名验证策略将适用于签名并确定其可接受性</li>
+ <li>签名应包含一个"srCms signer commitments"元素，用于签名的目的。目的可以是所证明的操作，或与签名相关联的角色。该值应来自ASTM E1762-95(2013)。Signature.type应包含与srCms元素相同的值。</li>
+ <li>签名应符合JAdES-B-LT以支持长期签名。JAdES-B-LT规范添加了签名的时间戳、签名证书的包含以及吊销声明</li>
+</ul>
+<p>
+签名验证有三个级别：
+<ol>
+   <li>验证数字签名块本身的完整性，通过验证JWS签名的签名。</li>
+   <li>确认签名者的真实性，未被吊销，并且与签名目的相符。</li>
+   <li>使用哈希算法确认感兴趣的签名内容未被修改。</li>
+</ol>
+</p>
+<p>
+对于这些指南的偏离，需要在站点策略中进行表达，并在JWS签名块中列举出来。
+例如，某些环境可能选择不同的哈希算法、策略标识符或签名目的词汇。
+</p>
+<p>
+签名在以下位置使用：[%dtusage Signature%]
+</p>
+
+<a name="Annotation"></a>
+<a name="annotation"></a>
+<h2 style="margin-bottom: 1px">注释</h2>
+[%dtstatus Annotation%]
+<p style="background-color: gainsboro; padding: 4px; margin-top: 0px; border-bottom: 1px solid #808080; border-left: 1px solid #808080; border-right: 1px solid #808080">
+<!--xlp:Annotation-->另请参阅<a no-external="true" href="datatypes-examples.html#Annotation">示例</a>，<a no-external="true" href="datatypes-definitions.html#Annotation">详细描述</a>，<a no-external="true" href="datatypes-mappings.html#Annotation">映射</a>，<a no-external="true" href="datatypes-profiles.html#Annotation">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-datatypes.html#Annotation">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-datatypes.html#Annotation">R4转换</a>
+</p>
+
+<p>
+一个文本注释，还包含有关谁发表了该声明以及何时发表的信息。
+</p>
+[%dt 注释 15%]
+
+<p>
+  注意事项：
+</p>
+<ul>
+<li>没有结构化注释的系统会传递一个没有作者或时间的单个注释。</li>
+<li>不应使用注释来传递可计算的“修改”信息（这是一个应该，因为强制用户行为几乎是不可能的）。</li>
+<li>为了将作者作为字符串值进行传递，实施者应该使用<code>Annotation.authorReference.display</code>而不是反模式<code>Annotation.authorString</code>（<code>authorString</code>不能被删除，因为这个数据类型是规范性的）。</li>
+<li>由于可能会修改信息，这个元素可能需要包含在资源的人类可读叙述中。</li>
+</ul>
+
+<!--<div class="use">
+<p><b>约束</b></p>
+[%dt.constraints 注解%]
+
+</div>
+-->
+<p>
+注释在以下位置使用：[%dtusage 注释%]
+</p>
+
+<a name="open"></a>
+<h2>开放类型元素</h2>
+<p>
+有些元素没有指定的类型。类型由通配符符号"*"表示。在这些情况下，元素类型可以是以下之一：
+</p>
+
+<!--
+  任何对此列表的更改也必须在以下文件中进行修改：
+    extensibility.html
+    TypesUtilities.java
+-->
+
+[%wildcard-type-list%]
+<p>
+元素名称以"[x]"结尾，将其替换为数据类型的标题大小写名称。
+</p>
+
+<p>
+以下地方使用了开放类型：[%dtusage *%]
+</p>
+
+<a name="other"></a>
+<h2>其他类型</h2>
+<p>
+以下类型是作为数据类型的一部分定义的，但在规范的其他地方进行了文档化：
+</p>
+[%diagram datatypes/types3.diagram 6dt%]
+
+<ul>
+ <li><b><a href="resource.html#metadata">资源</a></b> - 所有资源的概念基类</li>
+ <li><b><a href="references.html#Reference">引用</a></b> - 用于从一个资源引用到另一个资源</li>
+ <li><b><a href="extensibility.html">扩展</a></b> - 用于在资源中传递附加数据</li>
+ <li><b><a href="narrative.html#Narrative">叙述</a></b> - 传达资源内容的可读性表示</li>
+</ul>
+
+<!--[.%.onthispage 原始类型#primitive|数据类型#Types|其他类型#other.%.]-->
+
+[%file newfooter%]
+
+<script src="external/jquery/jquery.js"> </script>
+<script src="jquery-ui.min.js"> </script>
+<script>
+ try {
+   var currentTabIndex = sessionStorage.getItem('fhir-resource-tab-index');
+ } catch(exception){
+ }
+ if (!currentTabIndex)
+   currentTabIndex = '0';
+
+$( '#tabs-Attachment' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-Coding' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-CodeableConcept' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-Quantity' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-Money' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-Range' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-Ratio' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-RatioRange' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-Period' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-SampledData' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-Identifier' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-HumanName' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-Address' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-ContactPoint' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-Timing' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-RelativeTime' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-Signature' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-Annotation' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+
+function store(currentTab) {
+  try {
+    sessionStorage.setItem('fhir-resource-tab-index', currentTab);
+  } catch(exception){
+  }
+  $( '#tabs-Attachment' ).tabs('option', 'active', currentTab);
+  $( '#tabs-Coding' ).tabs('option', 'active', currentTab);
+  $( '#tabs-CodeableConcept' ).tabs('option', 'active', currentTab);
+  $( '#tabs-Quantity' ).tabs('option', 'active', currentTab);
+  $( '#tabs-Money' ).tabs('option', 'active', currentTab);
+  $( '#tabs-Range' ).tabs('option', 'active', currentTab);
+  $( '#tabs-Ratio' ).tabs('option', 'active', currentTab);
+  $( '#tabs-RatioRange' ).tabs('option', 'active', currentTab);
+  $( '#tabs-Period' ).tabs('option', 'active', currentTab);
+  $( '#tabs-SampledData' ).tabs('option', 'active', currentTab);
+  $( '#tabs-Identifier' ).tabs('option', 'active', currentTab);
+  $( '#tabs-HumanName' ).tabs('option', 'active', currentTab);
+  $( '#tabs-Address' ).tabs('option', 'active', currentTab);
+  $( '#tabs-ContactPoint' ).tabs('option', 'active', currentTab);
+  $( '#tabs-Timing' ).tabs('option', 'active', currentTab);
+  $( '#tabs-RelativeTime' ).tabs('option', 'active', currentTab);
+  $( '#tabs-Signature' ).tabs('option', 'active', currentTab);
+  $( '#tabs-Annotation' ).tabs('option', 'active', currentTab);
+  document.activeElement.blur();
+}
+</script>
+
+</body>
+</html>
+
