@@ -1,0 +1,641 @@
+<!DOCTYPE HTML>
+
+[%settitle 资源引用%]
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+[%file newheader%]
+</head>
+<body>
+[%file newnavbar%]
+
+
+
+<%refheader base%>
+
+<a name="Resource"></a>
+<a name="references"></a>
+<a name="Identification"></a>
+<h2>资源引用</h2>
+<table class="colsn"><tr><td id="wg"><a _target="blank" href="[%wg fhir%]">[%wgt fhir%]</a> 工作组</td><td id="fmm"><a href="versions.html#maturity">成熟度级别</a>: 规范</td><td id="ballot"><a href="versions.html#std-process">标准状态</a>:<!--!ns!--><a href="versions.html#std-process">规范</a></td></tr></table>
+[%normative page infrastructure%]
+
+<p>
+许多资源中定义的元素是对其他资源的引用。通过这些引用，资源组合在一起构建了关于医疗保健的信息网络。
+</p>
+<p>
+引用始终是单向定义和表示的 - 从一个资源（源）到另一个资源（目标）。从目标到源的相应反向关系在逻辑上存在，但通常不会在目标资源中明确表示。对于外部引用，导航这些反向关系需要一些外部基础设施来跟踪资源之间的关系（REST API通过提供命名搜索参数和支持反向包含的能力来提供这样的基础设施）。
+</p>
+<p>
+由于资源是独立处理的，关系被认为是非传递的。例如，如果一个Procedure资源将一个Patient作为其主题引用，并且将一个Condition资源作为其原因，那么没有自动的规则或暗示条件具有相同的患者作为其主题。相反，条件的主题必须在Condition资源本身中直接确定。另一种表述方式是，主题的上下文不是“继承”的，也不会沿着与条件的关系“传导”。唯一的例外是包含资源的情况（见下文）。请注意，在实践中，关系需要描述一个逻辑和连贯的记录，并且在此处描述的Condition和Procedure的情况下，它们通常需要具有相同的患者作为其主题。配置文件和/或实施指南可能会对此进行规定（还请参阅GraphDefinition）。
+</p>
+<p>
+本规范描述了对具有与引用源相同的FHIR版本的其他资源的引用的使用。目前未定义跨FHIR版本的引用的预期行为。
+</p>
+<p>
+引用是基于资源的标识进行的；有几种不同的标识可以引用。
+</p>
+<p>
+资源包含对其他资源的两种类型的引用：
+</p>
+<ul>
+ <li><b>资源引用</b> - 资源之间的一般引用</li>
+ <li><b>规范引用</b> - 根据其规范URL引用资源（见下文）</li>
+</ul>
+
+<p>
+对于规范引用，请参见下文。一般引用由<code>Reference</code>类型处理。
+</p>
+
+<a name="Reference"></a>
+<a name="reference"></a>
+<h3 style="margin-bottom: 1px">参考</h3>
+[%dtstatus Reference%]
+<p style="background-color: gainsboro; border-left: solid 1px #808080; border-right: solid 1px #808080; border-bottom: solid 1px #808080; padding: 4px; margin-top: 0px">
+<!--xlp:Reference-->另请参阅<a no-external="true" href="references-definitions.html#Reference">详细描述</a>，<a no-external="true" href="references-profiles.html#Reference">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-references.html#Reference">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-references.html#Reference">R4转换</a>
+</p>
+<p>参考类型至少包含一个<code>reference</code>（文字引用），一个<code>identifier</code>（逻辑引用）和一个<code>display</code>（目标的文本描述）。
+此外，它还可以包含一个目标<code>type</code>。
+</p>
+
+[%dt Reference 1%]
+
+<p>&nbsp;</p>
+
+<div class="use">
+<p><b>约束</b></p>
+<p>
+[%dt.constraints Reference%]
+</p>
+<p>
+  还要注意，在资源中，<code>Reference</code>应指向另一个资源，
+  如果存在Reference.type，则应为<a href="valueset-resource-types.html">有效的非抽象资源</a>
+  （引用和reference.type可以引用逻辑模型中的非资源内容）。
+</p>
+</div>
+
+<a name="type"></a>
+<h3>目标类型</h3>
+
+<p>
+在资源中，<code>Reference</code>总是指向另一个资源，该资源具有固定且已知的类型。如果适用，可以在引用本身中指定该类型。原则上，可以通过解析引用（使用下面描述的方法）并检查返回的内容来确定目标引用的类型；因此，指定类型几乎总是信息的重复。然而，解析引用可能是一个非常缓慢的操作，或者在实践中由于各种实际问题而不可能。因此，引用可以直接指示目标资源类型：
+</p>
+<pre class="json">
+ "subject": {
+   "reference" : "http://someserver/some-path",
+   "type" : "Patient"
+ }
+</pre>
+<p>
+当直接提供类型时，它必须与通过解析资源确定的类型一致。
+</p>
+<p>
+请注意，在实践中，通常不需要知道目标资源的类型，除非它将被解析，因此在许多情况下，指定目标资源的类型是不必要的。
+</p>
+<p>
+为了支持<a href="structuredefinition.html#logical">逻辑模型</a>，<code>type</code>元素具有"type"类型。每当<code>type</code>出现在资源中时，URI相对于基本URI<code>http://hl7.org/fhir/StructureDefinition/</code>表示。对于资源来说，该值只是一个代表资源类型的代码，例如"Patient"。
+</p>
+
+<a name="literal"></a>
+<h3>字面引用</h3>
+
+<p>
+<code>reference</code>是关键元素 - 资源通过其URL进行标识和寻址。它包含一个URL，可以是以下类型之一：
+</p>
+<ul>
+  <li>绝对URL</li>
+  <li>相对URL，相对于<a href="http.html#root">服务基本URL</a>，或者如果处理来自bundle的资源，则相对于<code>Bundle.entry.fullUrl</code>所隐含的基本URL（参见<a href="bundle.html#references">在Bundle中解析引用</a>）</li>
+  <li>内部片段引用（参见下面的“包含资源”）</li>
+</ul>
+<p>
+注意：
+</p>
+<ul>
+ <a name="regex"></a>
+ <li>使用绝对URL提供了一种稳定、可扩展的方法，适用于云端/网络环境，而使用相对/逻辑引用提供了一种灵活的方法，适用于在封闭生态系统边界进行交易时使用（有关详细讨论，请参见<a href="managing.html">“管理资源标识”</a>）</li>
+ <li>绝对URL不一定指向一个<a href="http.html">FHIR RESTful服务器</a>，尽管这是首选方法。
+   无论引用是否指向FHIR RESTful服务器，引用都应指向本规范定义的资源。
+   <br/>请注意，如果引用资源与FHIR API一致，则此正则表达式为真：
+   <pre>
+   ((http|https):\/\/([A-Za-z0-9\-\\\.\:\%\$]*\/)+)?([%piperesources%])\/[%regex id%](\/_history\/[%regex id%])?(#[A-Za-z0-9\-\.]{1,64})?
+   </pre>
+   <br/>
+   但是，请注意，符合此正则表达式并不保证终端点是FHIR服务器，并且不符合此正则表达式并不意味着引用不符合规范
+   </li>
+ <li>URL始终被视为区分大小写</li>
+ <li>URL可能包含对规范URL的引用（参见下文），应用程序可以在解析引用时使用它们支持的规范URL解析方法，尽管不支持规范引用的<code>|[version]</code>语法部分</li>
+ <li>引用应是对实际FHIR资源的引用，并且应可解析（假设访问控制正常工作，没有临时不可用等）。解析可以通过从URL检索或者在适用的情况下，通过将绝对引用视为规范URL（<a href="#canonical">见下文</a>）并在本地注册表/存储库中查找来完成</li>
+</ul>
+<div class="example">
+<p>在FHIR RESTful服务器上，对名为<code>subject</code>的元素中的<a href="patient.html">Patient</a> "034AB16"进行相对引用：</p>
+<pre class="xml" fragment="Reference">
+  &lt;subject&gt;
+    &lt;reference value="Patient/034AB16" /&gt;
+  &lt;/subject&gt;
+</pre>
+<p>在名为<code>profile</code>的元素中，对<a href="structuredefinition.html">Structure Definition</a>进行绝对引用：</p>
+<pre class="json">
+{
+  "profile" : {
+    "reference" : "http://fhir.hl7.org/svc/StructureDefinition/c8973a22-2b5b-4e76-9c66-00639c99e61b"
+  }
+}
+</pre>
+</div>
+
+<p>
+请注意，在事务期间的捆绑包中，引用URL实际上可能包含在事务内解析的逻辑URI（例如OID或UUID）。在处理事务时，服务器会将逻辑URL替换为事务完成时的正确字面URL。
+</p>
+
+<p>
+<a name="versions"></a>引用可以是特定版本的 - 也就是说，引用可以指向资源的特定版本。例如：
+</p>
+<pre class="xml" fragment="Reference">
+  &lt;target&gt;
+    &lt;reference value="http://example.org/fhir/Observation/1x2/_history/2" /&gt;
+  &lt;/target&gt;
+</pre>
+<p>
+  或者
+</p>
+<pre class="xml" fragment="Reference">
+  &lt;target&gt;
+    &lt;reference value="Observation/1x2/_history/2" /&gt;
+  &lt;/target&gt;
+</pre>
+<p>
+这通常与审计追踪或溯源信息相关，其中引用特定版本的记录非常重要，而不是最新的信息。
+</p>
+
+<a name="logical"></a>
+<h3>逻辑引用</h3>
+
+<p>
+在许多使用FHIR的情境中，构建资源的应用程序可能知道目标引用的标识符，但是应用程序无法将其转换为直接引用实际资源的文字引用。这种情况可能出现的原因有几个：
+</p>
+<ul>
+ <li>没有服务器公开任何此类资源。这在国家标识符（例如美国社会安全号码或NPI）的情况下经常发生，并且这些标识符被广泛使用</li>
+ <li>公开资源的服务器对源应用程序不可用，因此它无法将标识符解析为引用</li>
+ <li>应用程序不处于RESTful环境中-它正在创建消息或文档</li>
+</ul>
+<p>
+有关在资源上使用标识符的进一步讨论，请参阅<a href="managing.html#consistency">一致的资源标识</a>。
+在这些情况下，源应用程序可以将标识符提供为对目标资源所描述的实体的逻辑引用。
+</p>
+
+<div class="example">
+<p>一个指向具有SSN为000111111的<a href="patient.html">患者</a>的逻辑引用：</p>
+<pre class="xml" fragment="Reference">
+  &lt;patient&gt;
+    &lt;identifier&gt;
+      &lt;system value="http://hl7.org/fhir/sid/us-ssn" /&gt;
+      &lt;value value="000111111" /&gt;
+    &lt;/identifier&gt;
+  &lt;/patient&gt;
+</pre>
+</div>
+
+<p>
+并没有要求Reference.identifier指向实际暴露或存在于FHIR实例中的内容（当然，如果在FHIR上下文中需要从中获取任何信息，则需要解析引用以指向目标资源）。
+引用应指向一个预期作为FHIR实例暴露的业务概念，并且该实例需要是引用允许的FHIR资源类型。
+例如，如果类型为Reference(Observation|DiagnosticReport)，则不能将药物处方的标识符发送过去。其中一个用例是Reference.identifier的情况，即不存在FHIR表示（类型为Reference(Any)）。
+</p>
+<p>
+在处理资源时，应用程序可以直接使用标识符，因为它只需要标识符，或者可以直接解析标识符。或者，它可以使用服务器将逻辑引用解析为对资源的文字引用。
+</p>
+<p>
+无论解析发生的方式如何，只有在理解标识符使用的业务上下文的情况下，任何处理逻辑引用的系统才能将标识符解析为引用。有时这是全局的（例如，国家标识符），但通常不是。
+</p>
+<p>
+因此，对于处理引用的有用机制（例如链接、包含）是不可能的，也不应该期望服务器能够自动解析引用，也不会有聚合限制。
+服务器可以接受基于标识符的引用不变，解析它和/或拒绝它-参见CapabilityStatement.rest.resource.referencePolicy。
+</p>
+<p>
+当提供逻辑引用和文字引用时，优先使用文字引用。
+处理资源的应用程序可以选择检查标识符是否与文字引用匹配（如果它们知道如何解析逻辑引用）。
+</p>
+<p>
+将逻辑引用转换为文字引用的应用程序可以选择保留逻辑引用，也可以删除它。
+</p>
+
+<a name="display"></a>
+<h3>参考描述</h3>
+
+<p>
+无论提供了文字和/或逻辑引用，还是都没有提供，<code>display</code>元素可以用来提供目标资源的非常简短的描述。
+</p>
+<div class="example">
+<pre class="xml" fragment="Reference">
+  &lt;custodian&gt;
+    &lt;reference value="Organization/123" /&gt;
+    &lt;display value="HL7, Inc" /&gt;
+  &lt;/custodian&gt;
+</pre>
+<p>
+任何无法解析引用的应用程序都可以使用此文本来填写指向目标资源的超链接的文本部分，以节省获取目标资源和确定如何将其转换为非常简短的文本描述的时间。
+</p>
+</div>
+<p>
+一般来说，<code>display</code>如果有内容，与引用资源的Resource.text不完全相同。其目的是标识被引用的内容，而不是更详细地描述它。
+</p>
+
+<a name="canonical"></a>
+<h3>规范URL</h3>
+<p>
+许多资源类型都有一个定义的元素“url”，它是在所有使用上下文中始终标识资源的规范URL。通常，术语、一致性或知识资源具有规范URL。规范URL是引用定义了该URL的资源类型的资源实例的首选方式。有关详细信息，请参阅规范资源标识。
+</p>
+<p>
+对规范URL的引用使用canonical类型来引用一致性/知识资源上的url元素（其类型为uri）：
+</p>
+<pre>
+&lt;valueSet value="http://hl7.org/fhir/ValueSet/my-valueset"/&gt;
+</pre>
+<p>
+请注意，这个规则有一个例外：如果目标资源包含在引用它的另一个资源中，则规范URL是一个片段标识符，通过其id引用目标资源（参见下文）。
+</p>
+<p>
+canonical类型的引用可以包含版本信息，以便精确指定所引用的资源的版本。为此，使用'|'将版本附加到引用后面，如下所示：
+</p>
+<pre>
+&lt;valueSet value="http://hl7.org/fhir/ValueSet/my-valueset|0.8"/&gt;
+</pre>
+<p>
+解析这个管道（'|'）语法等同于使用带有版本参数的GET请求：
+</p>
+<pre>
+  GET fhir/ValueSet?url=http://hl7.org/fhir/ValueSet/my-valueset&amp;version=0.8
+</pre>
+<p>
+这两个示例都指定了值集的版本0.8，通过ValueSet.version（规范URL的完整格式为{{CanonicalResource.url}}|{{CanonicalResource.version}}）。
+请注意，这些示例与ValueSet.meta.versionId无关。
+</p>
+<p>
+请注意，如果规范URL引用没有版本，并且服务器找到了多个值集的版本，则使用引用的系统应选择目标资源的最新版本并使用它。服务器应支持对规范URL的版本特定搜索，通过自动检测|[version]的存在并执行适当的搜索。关于对规范URL的版本化引用进行搜索的其他注意事项：
+</p>
+<ul>
+ <li>搜索仅涉及每个不同逻辑资源id的最新版本</li>
+ <li>此搜索仅适用于作为规范URL的uri类型的特定数据元素（请参见下面的列表）</li>
+ <li>如果没有匹配（因为.version为空或不同），则实例将不会匹配，并且不会出现在结果包中</li>
+ <li>如果存在多个匹配（因为版本缺失或不完整），则解决此问题是一个策略问题（请参见下文）</li>
+ <li></li>
+</ul>
+<p>
+解析对规范URL的引用的系统应首先尝试使用规范引用解析引用（例如，在已知的术语、一致性或知识资源注册表上进行搜索），然后在无法找到规范资源的本地版本时，回退到使用URL作为字面引用的直接解析。这种方法是安全的，因为这些方法必须引用相同的构件，尽管实现将需要就其本地副本的版本和/或货币性做出适当的安排。
+</p>
+<a name="canonical-list"> </a>
+<p>
+以下资源具有规范URL，并允许引用规范URL的引用目标：
+</p>
+[%canonical-resources%]
+<p>
+一些具有对规范URL的引用的元素具有targetProfile为<code>http://hl7.org/fhir/StructureDefinition/Resource</code>的<a href="elementdefinition-definitions.html#ElementDefinition.type.targetProfile">targetProfile</a>，在本规范中显示为canonical(Any)。此类引用只能引用这些类型的资源之一。
+</p>
+
+<a name="canonical-matching"></a>
+<h3>选择正确的规范引用</h3>
+<p>
+在评估规范引用时，服务器可能会发现有多个匹配的资源。这可能是因为：
+</p>
+<ul>
+  <li>未指定版本，例如 <code>http://example.org/CodeSystem/abc</code></li>
+  <li>指定了部分版本，例如 <code>http://example.org/CodeSystem/abc|1.2</code> 同时匹配版本 <code>1.2.1</code> 和 <code>1.2.3-draft</code></li>
+  <li>指定了完整版本，例如 <code>http://example.org/CodeSystem/abc|1.2.2</code>，而服务器对版本 <code>1.2.2</code> 有两个不同的资源</li>
+</ul>
+<p>
+最后一种情况通常被视为错误 - 如果资源的内容发生了变化，版本也应该随之变化。
+但在这种情况下，错误很可能是由于编辑过程中的失误，而不是服务器处理内容的错误（尽管FHIR实施指南发布生态系统中的流程保护措施旨在防止此类情况发生，但这种特定情况已经发生了多次）。但是其他两种情况不被视为错误；它们是系统预期的工作方式，客户端有意地委托服务器来确定要使用的正确版本。通常情况下，要使用的正确版本是最新的已批准用于生产使用的版本。本规范不定义服务器用于确定最新版本的算法。原则上，服务器根据资源中的以下信息进行选择：
+</p>
+<ul>
+  <li>版本，例如基于 <a href="http://semver.org">Semver</a> 版本规范、日期时间等</li>
+  <li>发布日期</li>
+  <li>状态</li>
+</ul>
+<p>
+规范资源不要求使用 <code>Semver</code>，尽管HL7建议使用它，并且遵循SemVer用于自己的内容。然而，其他规范资源的发布者遵循其他规范，并且一些基于日期的版本控制方案并不罕见。服务器可能可以访问其他信息或策略指导，以确定要选择的默认资源，并且对所使用的版本控制方案进行推理的附加知识。
+</p>
+<p>
+由于在未知算法的情况下确定“当前”版本是有问题的，规范资源应该声明 <a href="canonicalresource-definitions.html#CanonicalResource.versionAlgorithm_x_">versionAlgorithm[x]</a> 元素，以指示服务器使用何种算法进行比较。如果没有这个元素，服务器可以选择猜测算法或使用自己的默认逻辑来确定在存在多个候选实例具有相同规范URL的情况下返回哪个资源。
+</p>
+
+<a name="canonical-fragments"></a>
+<h3>规范引用和片段</h3>
+<p>
+当引用的目标是一个包含的资源时，规范引用可以包含一个片段。
+当规范引用的目标是一个包含的资源时，规范引用将作为URL的一部分包含一个片段：
+</p>
+<pre>
+ &nbsp;&lt;valueSet value="http://fhir.acme.com/Questionnaire/example|1.0#vs1"/&gt;
+</pre>
+<p>
+这是对标识的问卷版本1.0中id为"vs1"的值集的引用。
+这种情况下的常见情况是内部引用：
+</p>
+<pre>
+ &nbsp;&lt;answerValueSet value="#vs1"/&gt;
+</pre>
+<p>
+这是对上述示例问卷中包含的值集的引用形式。
+</p>
+
+<a name="rendering"></a>
+<h3>在资源叙述中呈现引用</h3>
+<p>
+资源之间的引用在呈现资源叙述时会带来一些挑战：叙述中包含了目标资源的信息。举个例子，考虑一个带有患者引用的观察结果（Observation）：
+</p>
+<div class="json">
+<pre>
+{
+  "resourceType" : "Observation",
+  "subject" : {
+    "reference" : "Patient/example"
+  }
+}
+</pre>
+</div>
+<p>
+在XHTML中表示时，这个引用通常会变成类似这样的形式：
+</p>
+<div class="xhtml">
+<pre>
+  ...
+&nbsp;&nbsp;&lt;p&gt;患者：&lt;a href="Patient/example"&gt;Peter James CHALMERS (12345)&lt;/a&gt;&lt;/p&gt;  ...
+</pre>
+</div>
+<p>
+这意味着生成资源叙述的系统需要解析引用并生成一个摘要，或者引用本身包含了信息（由能够解析引用的应用程序生成）：
+</p>
+<div class="json">
+<pre>
+{
+  "resourceType" : "Observation",
+  "subject" : {
+    "reference" : "Patient/example",
+    "display" : "Peter James CHALMERS (12345)"
+  }
+}
+</pre>
+</div>
+<p>
+包含了从其他资源派生的信息的叙述仍然被视为“生成的”（对于<a href="narrative-definitions.html#Narrative.status">Narrative.status</a>）。
+</p>
+<p>
+并非必须以这种方式生成叙述。叙述也可以像这样生成：
+</p>
+<div class="xhtml">
+<pre>
+  ...
+&nbsp;&nbsp;&lt;p&gt;患者：&lt;a href="Patient/example"&gt;(链接)&lt;/a&gt;&lt;/p&gt;  ...
+</pre>
+</div>
+<p>
+然而，用户通常更喜欢更具信息量的叙述，所以这种方式并不总是可接受的。
+</p>
+<p>
+应用程序（以及应用程序网络）需要一种系统化的方法来解析引用和/或在引用的资源发生变化时维护叙述的实时性。具体细节超出了FHIR标准的范围。
+</p>
+<p>
+鼓励应用程序使用<code>Reference.display</code>元素来存储资源的用户可呈现表示，以便在无法解析资源时使用（例如由于网络错误）。<code>canonical</code>类型没有display元素，因为应用程序通常预期携带目标资源的缓存副本。如果仍然需要或希望使用此功能，可以使用<a href="[%extensions-location%]StructureDefinition-rendered-value.html">Rendered Value扩展</a>。
+</p>
+
+
+
+<a name="contained"></a>
+<h3>包含资源</h3>
+<p>
+在某些情况下，资源引用中的内容与包含它的资源没有独立的存在 - 它无法独立标识，也无法具有自己独立的事务范围。通常，这种情况发生在资源由源数据的次要用户（如中间件引擎）组装的情况下。如果在构建资源时可用的数据不包括记录键或绝对标识信息，则无法组装正确标识的资源，即使为其关联了任意标识，该资源也永远不能成为引用它的资源之外的事务的主题。
+</p>
+<p>
+例如，考虑这样一种情况：接口引擎从<a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=185">HL7 V2</a>消息中为患者创建一个<a href="condition.html">Condition</a>记录，而关于主刀医生的唯一信息是她的名字和姓氏（REL-7.2和REL-7.3）。在没有受控从业者目录的情况下，这不足以创建一个已标识的<a href="practitioner.html">Practitioner</a>资源，因为可能有多个从业者具有相同的姓名。
+</p>
+<p>
+在这些情况下，资源直接嵌入到资源中。当内容可以正确标识时，<b>不应该这样做，因为一旦标识丢失，再次恢复它将非常困难（并且依赖于上下文）。</b>包含资源的FHIR版本应始终与包含它的资源相同。
+</p>
+<div class="example">
+<p>
+包含资源的示例：
+</p>
+<pre class="xml" fragment="Condition">
+ &lt;Condition xmlns="http://hl7.org/fhir"&gt;
+  &lt;contained&gt;
+    &lt;Practitioner&gt;
+      &lt;id value="p1"/&gt;
+      &lt;name&gt;
+        &lt;family value="Person"/&gt;
+        &lt;given value="Patricia"/&gt;
+      &lt;/name&gt;
+    &lt;/Practitioner&gt;
+  &lt;/contained&gt;
+  &lt;!-- other attributes --&gt;
+  &lt;participant&gt;
+    &lt;function&gt;
+      &lt;text value="Asserter" /&gt;
+    &lt;/function&gt;
+    &lt;actor&gt;
+      &lt;reference value="#p1" /&gt;
+    &lt;/actor&gt;
+  &lt;/participant&gt;
+  &lt;!-- other attributes --&gt;
+ &lt;/Condition&gt;
+</pre>
+<p>
+相同示例的JSON表示：
+</p>
+<pre class="json" fragment="Condition">
+{
+  "resourceType" : "Condition",
+  "contained": [
+    {
+      "resourceType" : "Practitioner",
+      "id" : "p1",
+      "name" : [{
+        "family" : "Person",
+        "given" : ["Patricia"]
+      }]
+	  }],
+    "participant" : [{
+      "function" : {
+        "text" : "Asserter"
+      },
+      "actor" : {
+        "reference" : "#p1"
+      }
+    }]
+  }]
+}
+</pre>
+</div>
+[%impl-note%]
+包含资源仍然是引用，而不是直接嵌入到引用的元素中（例如上面的"asserter"）。这样做是为了确保可以使用单一方法解析资源引用。尽管直接包含似乎更简单，但仍需要支持内部引用，其中同一包含资源被多次引用。最终，它只会在语法上创建额外的选项。对于使用XPath处理资源的用户，以下XPath片段可解析内部引用：
+</p>
+<pre>
+  ancestor::f:[not(parent::f:*)]/f:contained/[f:id/@value=substring-after(current()/f:reference/@value, '#')]
+</pre>
+[%end-note-np%]
+
+<p>
+关于使用和解释包含资源的一些注意事项：
+</p>
+
+<ul>
+  <li><code>contained</code>元素不得具有扩展（尽管包含的资源仍然可以包含扩展）。</li>
+  <li>包含的资源可以通过出现在资源根部的子元素contained元素，放置在任何继承自DomainResource的资源中。</li>
+  <li>包含的资源与父资源共享相同的内部ID解析空间（有关id属性，请参见<a href="narrative.html#internal">叙述引用</a>）。</li>
+  <li>在解析引用时，通过查找“容器”资源（包含其他资源的资源）来解析引用。由于没有嵌套的包含资源，因此只有一个容器资源。</li>
+  <li>仅包含资源的片段URL引用永远不会在容器资源之外解析。具体而言，解析停止在元素Bundle.entry.resource和Parameters.parameter.resource处，而不是在DomainResource.contained处。要引用Parameters或Bundle中的不同条目中的包含资源（或任何其他位置），引用必须包括包含资源。例如，Observation/123#pat。</li>
+  <li><code>Reference</code>和<code>canonical</code>类型都可以引用包含的资源。</li>
+  <li>包含的资源不得包含其他包含的资源。</li>
+  <li>包含的资源不得包含<code>meta.versionId</code>、<code>meta.lastUpdated</code>或<code>meta.security</code>。</li>
+  <li>包含的资源可以包含<code>meta.tag</code>，尽管有许多标签在包含的资源上没有意义。</li>
+  <li>只有当资源中的某些内容（可能是另一个包含的资源）引用它或包含的资源引用容器资源时，才应将包含的资源包含在资源中。</li>
+  <li>关于历史记录，可以在包含资源的版本中指向包含的资源（通过<code>[type]/[id]/_history/[version]#[containedId]</code>），但无法引用包含的资源的版本（即这是无效的：<code>[type]/[id]#[containedId]/_history/[version]</code>）。</li>
+  <li>当包含的资源引用其容器或容器中的另一个包含的资源时，它必须始终是本地相对引用（即必须是或以“#”开头）。无法通过绝对或版本化引用指向容器或其中的包含的资源。</li>
+</ul>
+
+<p>
+与其他资源一样，包含的资源可以包含文本描述。然而，在呈现包含资源时，将忽略包含资源的文本描述，因此有关包含资源的相关信息应出现在包含资源的文本描述中。
+</p>
+
+<p>
+内联包含的资源不会从其父资源中“继承”上下文。例如，如果父资源包含一个“subject”元素，并且包含的资源也定义了一个“subject”元素，那么不能假设包含的资源具有与父资源相同的主题。
+</p>
+
+<p>
+如果资源与包含资源相关联，或者包含资源引用了容器资源，那么资源只能包含在其他资源中。
+这旨在确保包含资源的含义清晰，并且不会产生混淆。
+</p>
+
+<p>
+对于引用容器的资源，引用是“#”，就像这样：
+</p>
+<pre class="xml">
+&lt;Patient xmlns="http://hl7.org/fhir"&gt;
+  &lt;id value="something"/&gt;
+  &lt;contained&gt;
+    &lt;Provenance&gt;
+      &lt;!-- 不需要id（虽然仍然允许） --&gt;
+      &lt;target&gt;
+        &lt;reference value="#"/&gt;
+      &lt;/target&gt;
+    &lt;/Provenance&gt;
+  &lt;/contained&gt;
+  &lt;!-- 其他属性 --&gt;
+&lt;/Patient&gt;
+</pre>
+
+[%stu-note dstu2%]
+没有办法搜索引用其容器的包含资源。这是一个问题吗？
+</p>
+<p>
+欢迎提供反馈意见，点击<a href="http://hl7.org/fhir-issues">这里</a>。
+[%end-note%]
+
+<a name="contained-examples"></a>
+<h4>包含资源的示例</h4>
+[%contained-resource-examples%]
+
+<a name="circular"></a>
+<h3>循环资源引用</h3>
+<p>
+有些引用是循环的 - 也就是说，引用指向同一类型的另一个资源。
+资源引用其他同类型资源的原因有几个：
+</p>
+<ul>
+ <li>part-of：资源描述由部分组成的复杂层次结构，例如组织结构</li>
+ <li>builds-on：资源可以通过派生来向另一个资源添加额外内容，例如扩展类型声明</li>
+ <li>replaces：一个资源可能由于时间变化而被另一个资源替代，例如替换处方或支持患者合并</li>
+ <li>uses/re-uses：一个资源可以在模块化的安排中使用另一个资源，例如库引用或包含其他值集的值集</li>
+</ul>
+<p>
+对于关系是严格层次结构的参数（即，即使是传递性的，有循环引用也是错误的），可以使用搜索参数上的:above和:below修饰符来进行层次遍历的<a href="search.html#recursive">额外搜索支持</a>。
+</p>
+<p>
+具有搜索参数的层次引用（可以在搜索参数上使用:above和:below修饰符）：
+</p>
+<ul style="-moz-column-count: 3; -moz-column-gap: 10px; -webkit-column-count: 3; -webkit-column-gap: 10px; column-count: 3; column-gap: 10px">
+ [%circular-references true%]
+</ul>
+<p>
+可能会引用回源实例的引用：
+</p>
+<ul style="-moz-column-count: 3; -moz-column-gap: 10px; -webkit-column-count: 3; -webkit-column-gap: 10px; column-count: 3; column-gap: 10px">
+ [%circular-references false%]
+</ul>
+<p>
+未指定层次行为的引用：
+</p>
+<ul style="-moz-column-count: 3; -moz-column-gap: 10px; -webkit-column-count: 3; -webkit-column-gap: 10px; column-count: 3; column-gap: 10px">
+ [%circular-references null%]
+</ul>
+
+<div class="draft-content">
+<a name="CodeableReference"></a>
+<a name="codeablereference"></a>
+<h2>CodeableReference - 按实例或按类引用</h2>
+[%dtstatus CodeableReference%]
+<p style="background-color: gainsboro; border-left: solid 1px #808080; border-right: solid 1px #808080; border-bottom: solid 1px #808080; padding: 4px; margin-top: 0px">
+<!--xlp:CodeableReference-->详细描述请参见<a no-external="true" href="references-definitions.html#CodeableReference">详细描述</a>，<a no-external="true" href="references-profiles.html#CodeableReference">配置文件</a>，<a no-external="true" href="[%extensions-location%]extensions-references.html#CodeableReference">扩展</a>和<a no-external="true" href="[%extensions-location%]conversions-references.html#CodeableReference">R4转换</a>
+</p>
+
+<p>
+医疗记录中的一个常见模式是，单个元素可以既指代原则上的概念，也可以指代实践中的特定实例。例如，药物可能被开具是因为患者头痛 - 例如，通过使用SNOMED CT代码来指代一种头痛。另外，记录可能会引用问题清单中的特定观察结果或问题作为患者头痛的证据，这传达了特定于患者的详细信息。这是一个更一般模式的特定示例；例如，它也适用于位置（某事发生在“医院”中，还是发生在特定的已识别医院中）。
+</p>
+<p>
+<code>CodeableReference</code>数据类型表示了这种模式，并且可以绑定到值集以允许概念表示。在这种情况下，<a href="terminologies.html#binding">值集绑定</a>实际上适用于<code>concept</code>元素，就像对于<a href="datatypes.html#CodeableConcept">CodeableConcept</a>一样。或者，<code>CodeableReference</code>数据类型可以引用另一个资源，而CodeableReference资源的有效目标类型列表适用于上述描述的<code>Reference</code>。
+</p>
+<p>
+原则上，此数据类型允许引用或概念，或者两者都有。如果两者都存在，则预期它们彼此一致 - 例如，概念是指代头痛的代码，而资源引用描述了头痛。请注意，通常无法计算地证明这是否为真。
+</p>
+<p>
+CodeableReference上的targetProfile和binding约束分别适用于CodeableReference.reference或CodeableReference.concept，不应直接在<code>.reference</code>或<code>.concept</code>元素上指定。<!-- 如果它们在CodeableConcept和<code>.reference</code>或<code>.concept</code>上都指定，则它们应该是相同的。 -->
+</p>
+<p>
+当我们在实施实践中有经验后，我们将评估将SHOULD NOT更改为SHALL NOT。
+</p>
+<p>
+此数据类型可以在配置文件中进行约束，以仅允许概念或引用，并且配置文件可以限制绑定的值集和允许的目标资源类型。
+</p>
+<p>
+此数据类型主要用于行动的原因。
+</p>
+[%dt CodeableReference 1%]
+
+<p>&nbsp;</p>
+
+<div class="use">
+<p><b>约束</b></p>
+
+<p>
+[%dt.constraints CodeableReference%]
+</p>
+</div>
+
+</div>
+
+[%file newfooter%]
+
+  <script src="external/jquery/jquery.js"> </script>
+<script src="jquery-ui.min.js"> </script>
+<script>
+ try {
+   var currentTabIndex = sessionStorage.getItem('fhir-resource-tab-index');
+ } catch(exception){
+ }
+ if (!currentTabIndex)
+   currentTabIndex = '0';
+
+$( '#tabs-Reference' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+$( '#tabs-CodeableReference' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+
+function store(currentTab) {
+  document.activeElement.blur();
+  try {
+    sessionStorage.setItem('fhir-resource-tab-index', currentTab);
+  } catch(exception){
+  }
+  $( '#tabs-Reference' ).tabs('option', 'active', currentTab);
+  $( '#tabs-CodeableReference' ).tabs('option', 'active', currentTab);
+}
+</script>
+
+</body>
+</html>
+

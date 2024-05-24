@@ -1,0 +1,506 @@
+<!DOCTYPE HTML>
+
+
+
+[%settitle 可扩展性%]
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+[%file newheader%]
+</head>
+<body>
+[%file newnavbar%]
+
+
+
+<%extheader base%>
+
+<a name="root"></a>
+<h1>可扩展性</h1>
+<table class="colsn"><tr><td id="wg"><a _target="blank" href="[%wg fhir%]">[%wgt fhir%]</a> 工作组</td><td id="fmm"><a href="versions.html#maturity">成熟度级别</a>：规范</td><td id="ballot"><a href="versions.html#std-process">标准状态</a>：<!--!ns!--><a href="versions.html#std-process">规范</a></td></tr></table>
+[%normative page infrastructure%]
+
+<p>
+该交换规范基于医疗保健领域的普遍共识的共同要求，涵盖了许多司法管辖区、领域和不同的功能方法。特定的实现可能具有不属于这些共同要求的有效要求。将所有有效要求纳入规范将使规范变得非常繁琐和难以实现。相反，该规范期望额外的有效要求将作为扩展来实现。
+</p>
+<p>
+因此，可扩展性是该规范设计的基本部分。资源中的每个元素都可以有扩展子元素，以表示不属于资源基本定义的附加信息。应用程序不应仅因为资源包含扩展而拒绝它们，尽管它们可能需要拒绝资源，因为扩展的具体内容。
+</p>
+<p>
+请注意，与许多其他规范不同，任何应用程序、项目或标准使用或定义扩展时都不会有任何污名。使用扩展是使FHIR规范对所有人保持核心简洁性的原因。
+</p>
+<p>
+为了使扩展的使用安全和可管理，对扩展的定义和使用进行了严格的管理。尽管任何实施者都可以定义和使用扩展，但在使用和定义过程中必须满足一组要求。
+</p>
+<a name="Extension"></a>
+<a name="extension"></a>
+<h2>扩展元素</h2>
+<p>
+每个资源或数据类型元素都可以包含一个或多个“扩展”子元素。扩展可以是<i>简单扩展</i>或<i>复杂扩展</i>。简单扩展只有一个值，没有嵌套扩展。复杂扩展包含一个或多个嵌套扩展，没有值。扩展不能同时具有值和嵌套扩展。
+</p>
+<p>扩展的定义如下：</p>
+<%dt Extension 1%>
+<p>
+注：
+</p>
+<ul>
+ <li><code>url</code>是一个强制属性/属性，用于标识可检索的<a href="defining-extensions.html">扩展定义</a>，定义扩展的内容和含义</li>
+ <li>不允许在<code>Extension.url</code>或<code>Element.id</code>上使用扩展；有关背景，请参见<a href="elementdefinition-definitions.html#ElementDefinition.representation">ElementDefinition.representation</a></li>
+ <li><code>url</code>应为URL，而不是URN（例如，不是OID或UUID），并且应为引用定义扩展的StructureDefinition的规范URL。除了在复杂扩展内定义的子扩展之外，URL应为绝对URL。</li>
+ <li>扩展的结构定义应对实例的使用者可用。实现此可用性的首选机制是直接解析扩展的规范URL和/或在已知将使用包含扩展的实例的系统上发布扩展定义的注册表上发布扩展定义</li>
+ <li>扩展应具有值（即value[x]元素）或子扩展，但不能同时具有两者。如果存在，value[x]元素应具有内容（值属性或其他元素）</li>
+ <li>如果处理资源内容时忽略扩展是不安全的，应使用<a href="#isModifier">修改器扩展</a>而不是<code>extension</code>元素来表示扩展。'不安全'意味着扩展导致资源中的其他元素的信息被解释为与其基本定义不一致。请参见下面的示例<a href="#modifierExtension">。</a></li>
+ <li>有一些资源（不专门化<a href="domainresource.html">DomainResource</a>的资源）不允许在根元素上使用扩展，但扩展可以出现在资源的其他位置</li>
+ <li>如果扩展的含义由代码明确定义，该代码应在扩展的根代码（<code>StructureDefinition.differential.element[0].code</code>）上声明</li>
+ <li>在FHIR XML和JSON中，<i>value[x]</i>元素的实际名称为"value"，然后是这些定义类型的TitleCased名称，其内容为该类型定义的内容：<a name="list"> </a>
+  <ul class="dense">
+   [%extension-type-list%]
+  </ul>
+     在FHIR RDF（Turtle）中，<i>value[x]</i>元素（例如<code>valueCode</code>）的属性名称为<code>fhir:value</code>，类型（<code>Code</code>）在附加断言中指示，例如<code>... a fhir:Code</code>。有关详细说明，请参见<a href="rdf.html#propertyNames">FHIR RDF属性名称</a>。
+ </li>
+</ul>
+<div class="example">
+<p>
+以下是XML中扩展的示例（<a href="[%extensions-location%]StructureDefinition-iso21090-EN-use.html">请参见定义</a>）：
+</p>
+<pre class="xml" fragment="HumanName">
+&lt;name&gt;
+  &lt;extension url="http://hl7.org/fhir/StructureDefinition/iso-21090-EN-use" &gt;
+    &lt;valueCode value="I" /&gt;
+  &lt;/extension&gt;
+  &lt;text value="Chief Red Cloud"/&gt;
+&lt;/name&gt;
+</pre>
+<p>
+在此示例中，具有text = "Chief Red Cloud"的名称被扩展为具有“Indigenous”（在ISO 21090中定义，但在实践中很少使用）的名称使用代码。
+</p>
+<p>
+在JSON中，扩展的表示方式类似：
+</p>
+<pre class="json" fragment="HumanName">
+{
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/iso-21090-EN-use",
+      "valueCode": "I"
+    }
+  ],
+  "text": "Chief Red Cloud"
+}
+</pre>
+<p>
+在RDF（Turtle）中，相同的扩展如下所示：
+</p>
+<pre class="rdf" fragment="HumanName">
+...
+  fhir:extension (
+    [
+      fhir:url [
+        fhir:v "http://hl7.org/fhir/StructureDefinition/iso-21090-EN-use"^^xsd:anyURI
+      ] ;
+      fhir:value [
+        a fhir:code ;
+        fhir:v "I"
+      ]
+    ]
+  ) ;
+  fhir:text [ fhir:v "Chief Red Cloud" ] ;
+</pre>  
+</div>
+<p>
+通过在表示中明确指定类型，所有系统都可以正确读取和写入（因此存储和/或交换）扩展，而无需访问扩展的定义。
+</p>
+<p>
+请注意，对于原始数据类型上的扩展，JSON表示方式有所不同。有关详细信息，请参见<a href="json.html#primitive">在JSON中表示原始类型</a>。
+</p>
+<p>
+扩展还可以包含扩展，原因可能是扩展定义本身定义了复杂内容-即扩展中的嵌套值树-或者扩展通过单独定义的附加扩展进行扩展。
+</p>
+<p>
+在扩展定义复杂内容的情况下，扩展的各个部分的标识是相对于对扩展定义的引用的本地/相对的。
+</p>
+
+<div class="example">
+
+<p>
+例如，考虑对患者进行扩展，添加关于国籍的信息（<a href="[%extensions-location%]StructureDefinition-patient-citizenship.html">查看定义</a>），包含两个字段：code和period。在XML中：
+</p>
+<pre class="xml" fragment="Patient">
+&lt;Patient&gt;
+  &lt;extension url="http://hl7.org/fhir/StructureDefinition/patient-citizenship" &gt;
+    &lt;extension url="code" &gt;
+      &lt;valueCodeableConcept&gt;
+        &lt;coding&gt;
+          &lt;system value="urn:iso:std:iso:3166" /&gt;
+          &lt;code value="DE" /&gt;
+        &lt;/coding&gt;
+      &lt;/valueCodeableConcept&gt;
+    &lt;/extension&gt;
+    &lt;extension url="period" &gt;
+      &lt;valuePeriod&gt;
+        &lt;start value="2009-03-14" /&gt;
+      &lt;/valuePeriod&gt;
+    &lt;/extension&gt;
+  &lt;/extension&gt;
+  &lt;!-- 患者的其他数据 --&gt;
+&lt;/Patient&gt;
+</pre>
+<p>
+或者在JSON中：
+</p>
+<pre class="json" fragment="Patient">
+{
+  "resourceType": "Patient",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-citizenship",
+      "extension": [
+        {
+          "url": "code",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "urn:iso:std:iso:3166",
+                "code": "DE"
+              }
+            ]
+          }
+        },
+        {
+          "url": "period",
+          "valuePeriod": {
+            "start": "2009-03-14"
+          }
+        }
+      ]
+    }
+  ]
+}
+</pre>
+</div>
+<p>
+此扩展可以再次进行扩展，通过添加"passport-number"扩展：
+</p>
+<div class="example">
+<p>
+护照号码被定义为一个单独的扩展（例如由实施组织定义，而不是在本规范中），而不是官方国籍扩展的一部分。
+因此，扩展的URL是不同的。在XML中：
+</p>
+<pre class="xml" fragment="Patient">
+
+&lt;Patient&gt;
+  &lt;extension url="http://hl7.org/fhir/StructureDefinition/patient-citizenship" &gt;
+    &lt;extension url="code" &gt;
+      &lt;valueCodeableConcept&gt;
+        &lt;coding&gt;
+          &lt;system value="urn:iso:std:iso:3166" /&gt;
+          &lt;code value="DE" /&gt;
+        &lt;/coding&gt;
+      &lt;/valueCodeableConcept&gt;
+    &lt;/extension&gt;
+    &lt;extension url="period" &gt;
+      &lt;valuePeriod&gt;
+        &lt;start value="2009-03-14" /&gt;
+      &lt;/valuePeriod&gt;
+    &lt;/extension&gt;
+    &lt;extension url="http://acme.org/fhir/StructureDefinition/passport-number" &gt;
+        &lt;valueString value="12345ABC" /&gt;
+      &lt;/extension&gt;
+    &lt;!-- 其他患者数据 --&gt;
+  &lt;/extension&gt;
+&lt;/Patient&gt;
+</pre>
+<p>
+或者以JSON格式表示：
+</p>
+<pre class="json" fragment="Patient">
+{
+  "resourceType": "Patient",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/patient-citizenship",
+      "extension": [
+        {
+          "url": "code",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "urn:iso:std:iso:3166",
+                "code": "DE"
+              }
+            ]
+          }
+        },
+        {
+          "url": "period",
+          "valuePeriod": {
+            "start": "2009-03-14"
+          }
+        },
+        {
+          "url": "http://acme.org/fhir/StructureDefinition/passport-number",
+          "valueString": "12345ABC"
+        }
+      ]
+    }
+  ]
+}
+</pre>
+<p>
+请注意，这里显示的护照号码扩展仅作为一个示例，由一个虚构的组织定义，并不适合供实施者重用。
+</p>
+</div>
+
+<a name="primitives"></a>
+<h3>基本数据类型的扩展</h3>
+
+<p>
+原始数据类型可以携带扩展。这些扩展可以出现在原始数据类型的值的位置上。
+<a href="xml.html#primitive">XML</a>、<a href="json.html#primitive">JSON</a>和<a href="rdf.html#primitiveExtension">RDF</a>页面描述了这在相应格式中的外观。
+实施者应该意识到，强制性的原始数据类型（即最小基数=1）可能存在扩展，但没有值。类型用例是扩展，例如
+<a href="[%extensions-location%]StructureDefinition-data-absent-reason.html">DataAbsentReason</a>，
+<a href="[%extensions-location%]StructureDefinition-iso21090-nullFlavor.html">nullFlavor</a>和
+<a href="[%extensions-location%]StructureDefinition-cqf-expression.html">expression</a>。
+</p>
+<p>
+然而，使用<a href="[%extensions-location%]StructureDefinition-data-absent-reason.html">DataAbsentReason</a>等扩展不能绕过必需的绑定要求。
+</p>
+<p>
+请注意，此限制也适用于Coding和CodeableConcept数据类型上的可扩展绑定。
+使用<a href="[%extensions-location%]StructureDefinition-data-absent-reason.html">DataAbsentReason</a>等扩展不能绕过必需或可扩展的绑定要求。例如，如果值集包括“未知”的概念，则不能发送一个值为“未知”的<a href="[%extensions-location%]StructureDefinition-data-absent-reason.html">DataAbsentReason</a>而不发送一个具有“未知”概念的Coding。（在这种情况下，发送一个“未知”代码也是不合适和不必要的。）
+</p>
+<a name="mustUnderstand"></a>
+<a name="isModifier"></a>
+<a name="modifierExtension"></a>
+<h2>修饰扩展</h2>
+<p>
+在某些情况下，扩展中提供的信息会修改包含它的元素的含义。通常，这意味着限定或否定包含它的元素的主要含义。一些例子包括：
+</p>
+<ul>
+ <li>在[Patient.contact]上标记一个标志，表示他们<b>不</b>应该被联系 - 即仅用于记录亲属关系</li>
+ <li>使用<a href="condition.html">Condition</a>资源记录患者有该疾病的家族史而不是疾病本身</li>
+ <li>断言一个执行者实际上<b>没有</b>参与<a href="procedure.html">Procedure</a></li>
+ <li>在<a href="valueset.html">value set</a>中对概念进行额外的包含关系断言</li>
+</ul>
+<p>
+这些扩展被称为“修饰扩展”。有关更多信息，请参见<a href="conformance-rules.html#modifier">什么使一个元素 - 或一个扩展 - 成为修饰符的定义</a>。
+如果存在修饰扩展，除非应用程序知道扩展对其自身数据使用的含义，否则应用程序在安全处理资源的能力上受到限制。
+</p>
+<p>
+实施者应尽量避免使用修饰扩展。任何使用都应仔细考虑其可能的下游后果。在实例中包含修饰扩展预计会显著限制其他系统处理实例的能力。然而，实施者通常被业务安排迫使进入这些情况，因此本规范为处理此类情况创建了一个框架。
+引入扩展并且不确定该扩展是否应标记为修饰符的实施者被鼓励在<a href="http://chat.fhir.org">chat.fhir.org</a>上提出问题。
+</p>
+<p>
+本规范允许将这些修饰元素包含在域资源的基础部分中，包含在没有数据类型的元素中（例如与资源UML图中的类对应的元素），以及在<a href="datatypes.html#modifiers">少数特别选择的数据类型</a>上。
+其他数据类型和数据类型内部的元素不得具有修饰扩展，扩展内部不得具有修饰扩展（除了允许出现在扩展中的可重用结构，如上所列）。
+</p>
+<p>
+扩展是否被视为修饰符取决于扩展定义中根元素（在生成的快照中路径为“Extension”的元素定义）上的<a href="elementdefinition-definitions.html#ElementDefinition.isModifier">isModifier</a>标志。
+如果为true，则扩展只能包含在<code>modifierExtension</code>元素中。
+如果为false，则扩展只能包含在<code>extension</code>元素中。
+</p>
+<p>
+请注意，复杂扩展允许在复杂扩展中具有标记为<a href="conformance-rules.html#isModifier">Is-Modifier = true</a>的元素，这意味着这些元素修改扩展值本身。
+标记为“Is-Modifier”的内部扩展仍然使用<code>extension</code>元素表示，而不是<code>modifierExtension</code>，因为期望了解包含扩展的应用程序的修饰元素的影响。
+</p>
+<p>
+修饰扩展不得更改资源或域资源上的任何元素的含义（包括不能更改modifierExtension本身的含义）。
+未定义为扩展定义的修饰符元素不能传达（例如，扩展中不能有修饰扩展）。
+</p>
+<p>
+在定义新的修饰扩展时，通过将<code>StructureDefinition</code>的根“元素”的<a href="elementdefinition-definitions.html#ElementDefinition.isModifier">isModifier</a>元素设置为“true”，将其指定为“修饰符”而不是“常规”扩展。只有被定义为修饰符的扩展才能出现在modifierExtension中。常规扩展不能“约束”为修饰符。
+</p>
+<p>
+在XML中，这些修饰元素使用名为<code>modifierExtension</code>的元素表示，其内容与上面文档中记录的<code>extension</code>元素相同：
+</p>
+<div class="example">
+<p>
+  示例：在<a href="medicationrequest.html">MedicationRequest</a>上没有元素可以编写“反处方” - 不要在特定时间段内服用药物的指示。
+经典的临床记录系统不将此记录为处方 - 但是某个特定的系统会这样做，并且这些“反处方”记录需要在发生这种情况的机构内共享，因为它们是工作流程的重要部分。因此，允许应用程序使用以下数据扩展资源：
+</p>
+<pre class="xml">
+&lt;MedicationRequest&gt;
+  &lt;modifierExtension url="http://example.org/fhir/StructureDefinition/anti-prescription"&gt;
+    &lt;valueBoolean value="true"/&gt;
+  &lt;/modifierExtension&gt;
+  &lt;!-- ... other content ... --&gt;
+&lt;/MedicationRequest&gt;
+</pre>
+<p>
+或者在JSON中：
+</p>
+<pre class="json">
+{
+  "resourceType": "MedicationRequest",
+  "modifierExtension": [
+    {
+      "url": "http://example.org/fhir/StructureDefinition/anti-prescription",
+      "valueBoolean": true
+    }
+  ],
+  .. other content ...
+}
+</pre>
+<p>有关RDF（Turtle）中的示例，请参见<a href="rdf.html#modifierExtension">RDF页面</a>。
+</p>
+</div>
+
+<p>
+实现对资源中的数据进行处理时，应检查可能出现修饰符的任何位置。如果数据元素上存在修饰符扩展，并且应用程序“处理”该数据，则应执行以下操作之一：
+</p>
+<ol>
+ <li>识别修饰符扩展，并理解在使用数据时扩展的影响</li>
+ <li>拒绝包含修饰符扩展的实例</li>
+ <li>将此类实例视为“仅用于呈现目的” - 即检查叙述状态 = <code>extensions</code> 或 <code>generated</code>，显示叙述并不处理离散数据</li>
+ <li>在继续处理数据之前，要求人工检查修饰符扩展</li>
+ <li>在处理数据产生的任何操作或输出中携带有关数据的警告，以通知用户尚未完全理解源信息</li>
+</ol>
+<a name="processing"> </a>
+<p>
+在本页面中，处理资源数据是指将数据从资源中复制或过滤出来，以在另一个上下文中使用（向人类显示、决策支持、以另一种格式交换其中不包含所有信息，或将其存储以供此类用途）。仅仅将整个资源移动到其他位置的服务器和后台进程不属于“处理资源数据”，因此这些应用程序不需要检查未知的修饰符扩展。
+</p>
+<p>
+<b>#1</b>：当应用程序理解此扩展时，意味着某个开发人员已经提供了适当的指示，说明由于修饰符扩展的存在而对其中包含的数据应采取何种操作，或者已经确定修饰符不会影响系统的计算功能。请注意，每当系统的计算行为发生变化时，需要重新进行此评估。
+</p>
+<p><b>#2</b>：
+这意味着实现不必以任何有意义的方式“支持”修饰符扩展 - 它们可以通过拒绝包含此扩展的实例来实现此理解（例如，如果客户端PUT或POST包含其不知道的修饰符扩展，则服务器可以返回带有<a href="operationoutcome.html">OperationOutcome</a>的HTTP 422状态代码）。如果应用程序知道在其自身上下文中忽略修饰符扩展是安全的，它们也可以忽略修饰符扩展，尽管这通常不是情况。
+</p>
+<p>
+  实现应确保不处理包含未识别修饰符扩展的数据。
+  如果修饰符出现在资源的子元素上而不是整个资源上，系统可以选择处理资源但排除包含修饰符的元素的处理。即将带有修饰符的元素视为缺失。只有在处理可以安全地使用不完整数据时，此方法才能起作用。如果对具有“缺失时有意义”的元素进行此操作时，需要小心。
+</p>
+<p>
+  请注意，由于实施环境（例如特定的交易伙伴协议）可能能够确保永远不会出现修饰符扩展，因此可以在设计阶段满足检查修饰符的要求。然而，由于集成和部署选项经常发生变化，应用程序在处理资源时应始终检查修饰符扩展。
+</p>
+
+<p><b>#3</b>:
+警告用户的一种方法是从给定的URL下载扩展定义，然后使用定义的显示名称来呈现扩展给用户。错误消息可能如下所示：
+</p>
+<img src="modifier-extension-warning.png"/>
+<p>
+请注意，资源的叙述应包含修改信息，因此将其作为资源内容的表达形式展示给用户是安全的。警告对话框可以扩展以提供用户选择查看原始叙述的选项。
+</p>
+<p>
+应用程序只需要关注它处理的元素上的修饰扩展。例如，考虑一个过程资源，其中一个<code>performer</code>元素上有一个修饰扩展，指示他们没有参与该过程。如果应用程序根本不使用执行者的详细信息，那么执行者中有一个修饰扩展的事实是无关紧要的，应用程序可以忽略它。如果应用程序处理执行者，并且看到修饰扩展，它必须按照上述方式之一进行操作。
+</p>
+  
+<div class="example">
+<p>
+以下是带有叙述的处方示例：
+</p>
+<pre class="xml">
+&lt;MedicationRequest xmlns="http://hl7.org/fhir"&gt;
+  &lt;text&gt;
+    &lt;status value="generated"/&gt;
+    &lt;div xmlns="http://www.w3.org/1999/xhtml"&gt;
+      &lt;p&gt;&lt;b&gt;注意：此处方是一项不要服用药物的指示&lt;/b&gt;&lt;/p&gt;
+      &lt;!-- 省略实际叙述 --&gt;
+    &lt;/div&gt;
+  &lt;/text&gt;
+  &lt;!-- ...数据... --&gt;
+  &lt;modifierExtension url="http://example.org/fhir/StructureDefinition/anti-prescription"&gt;
+    &lt;valueBoolean value="true"/&gt;
+  &lt;/modifierExtension&gt;
+  &lt;!-- ...数据... --&gt;
+&lt;/MedicationRequest&gt;
+</pre>
+</div>
+
+<p>
+<a href="implementationguide.html">实施指南</a>可能对符合实施指南的实例中的修饰扩展的外观设置限制。
+</p>
+
+<a name="Summary"></a>
+<h3>摘要：修饰扩展的一致性规则</h3>
+<ul>
+ <li>修饰扩展只能修改包含它的元素和/或该元素的子元素</li>
+ <li>向人类显示摘要始终是安全的；任何修饰扩展都必须在摘要中表示</li>
+ <li>应用程序在处理可能携带修饰扩展的任何元素的数据时，必须始终确保不存在无法识别的修饰扩展</li>
+ <li>如果在资源的根部或元素上存在应用程序无法理解的修饰扩展，则应用程序必须拒绝处理资源/受影响元素的数据，或向其用户提供适当的警告</li>
+</ul>
+
+<a name="Special-Case"></a>
+<h3>特殊情况：数据缺失</h3>
+<p>
+在某些情况下，实施者可能发现对于具有最小基数为1的元素，他们没有合适的数据。在这种情况下，该元素必须存在，但是除非资源或其配置文件已经将原始数据类型的实际值设为强制性，否则可以提供一个扩展来解释为什么原始值不存在：
+</p>
+<pre class="xml">
+&lt;uri&gt;
+  &lt;extension url="http://hl7.org/fhir/StructureDefinition/data-absent-reason"&gt;
+    &lt;valueCode value="unknown"/&gt;
+  &lt;/extension&gt;
+&lt;/uri&gt;
+</pre>
+<p>
+在这个例子中，提供了一个<a href="general-extensions.html">数据缺失代码</a>，而不是一个值。请注意，不要求使用这个特定的扩展。这个扩展<b>不是</b>一个修饰扩展，因为原始数据类型没有值。
+</p>
+<p>
+创建一个虚构的原始值数据，并添加一个扩展来指示数据已经被构造以满足数据规则是无效的。这不仅是一个坏主意，而且是一个修饰扩展，在简单数据类型上是不允许的。
+</p>
+
+<a name="exchange"></a>
+<h2>交换扩展</h2>
+
+<p><i>注意：本节描述了“非修饰符扩展”的使用，除非明确提到“修饰符扩展”（有关详细信息，请参见上面的<a href="#isModifier">修饰符扩展</a>）。</i></p>
+
+<p>
+扩展是一种允许本地需求以通用的信息化方法反映在资源中的方式，以便所有系统可以自信地使用相同的工具处理它们。然而，当涉及到处理这些信息时，应用程序在处理扩展的能力上会受到限制，取决于它们对扩展的了解程度。
+</p>
+<p>
+虽然扩展的结构化定义应始终可用（详见下文），但仅有定义的可用性并不意味着应用程序自动知道如何正确处理它们 - 通常需要人为决策来确定如何处理扩展中的数据，以及围绕这些信息的隐含义务。
+</p>
+<p>
+因此，作为扩展体现的本地需求是集成和互操作性的障碍。需求越是共享（即区域或国家范围），扩展（以及它们所代表的需求）所带来的障碍就越小。本规范定义的扩展的一致表示、定义和注册无法解决这个问题 - 它只提供了一个框架，使得处理这些本地变化更加容易。
+</p>
+<p>
+在部署支持本地需求的应用程序时，很可能会出现不同应用程序之间交换信息的情况，它们支持不同的扩展集。本规范定义了一些基本规则，旨在使这些情况的管理更容易，但无法解决这些问题。
+</p>
+<ul>
+ <li>在交换资源时，系统应在能够做到的情况下保留未知扩展（就像应该保留核心元素一样）</li>
+ <li>如果系统修改了资源，应从修改的元素及其后代中删除任何不理解的扩展，因为它无法知道自己所做的修改是否会使未知扩展的值无效</li>
+ <li>删除现有元素的系统被认为是“处理包含元素”</li>
+ <li>如果系统整体或正在修改的资源元素具有其不理解的子“修饰符”扩展，或者是包含此类修饰符扩展的元素的后代，则系统不得修改资源或元素</li>
+ <li>如果应用程序不识别扩展，应用程序不应拒绝包含非“修饰符”扩展的实例。相反，应在处理资源时保留未识别的非修饰符扩展。如果无法保留，应忽略它们。</li>
+</ul>
+<p>
+系统能够保留未知扩展的程度取决于系统的类型：通用的FHIR服务器或中间件引擎应能够保留所有扩展，而通过用户界面管理患者注册的应用程序只能在用户管理的范围内保留扩展。其他应用程序将处于这两个极端之间。
+</p>
+
+<a name="Summary2"></a>
+<h3>摘要：处理扩展</h3>
+<p>
+按照以下规则处理资源：
+</p>
+<ul>
+ <li>在编写扩展时，请确保其已定义并发布</li>
+ <li>在读取、导航或搜索可能具有修饰扩展的元素时，请检查是否存在任何修饰扩展</li>
+ <li>在读取元素时，请读取和处理您知道和使用的扩展，并忽略其他扩展，<b>除了修饰扩展</b></li>
+ <li>尽可能保留扩展</li>
+</ul>
+
+[%file newfooter%]
+
+<script src="external/jquery/jquery.js"> </script>
+<script src="jquery-ui.min.js"> </script>
+<script>
+ try {
+   var currentTabIndex = sessionStorage.getItem('fhir-resource-tab-index');
+ } catch(exception){
+ }
+ if (!currentTabIndex)
+   currentTabIndex = '0';
+
+$( '#tabs-Extension' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+
+function store(currentTab) {
+  document.activeElement.blur();
+  try {
+    sessionStorage.setItem('fhir-resource-tab-index', currentTab);
+  } catch(exception){
+  }
+  $( '#tabs-Extension' ).tabs('option', 'active', currentTab);
+}
+</script>
+
+</body>
+</html>
+
