@@ -1,0 +1,57 @@
+<div xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/1999/xhtml ../../schema/fhir-xhtml.xsd" xmlns="http://www.w3.org/1999/xhtml">
+
+<div>
+<a name="scope"></a>
+<h2>范围和用途</h2>
+<p>
+本规范定义了一系列不同类型的资源，可用于交换和/或存储数据，以解决各种与医疗保健相关的问题，包括临床和行政问题。此外，本规范还定义了多种不同的资源交换方式。
+</p>
+<p>
+资源是一个实体，具有以下特点：
+</p>
+<ul>
+ <li>通过已知的标识可以进行寻址</li>
+ <li>自我识别为本规范中定义的资源类型之一</li>
+ <li>包含一组由资源类型定义的结构化数据项</li>
+ <li>具有标识的版本，如果资源内容发生变化，则版本会发生变化</li>
+</ul>
+<p>
+资源有<a href="resource-formats.html">多种表示形式</a>。
+</p>
+<!-- 
+<p>
+基本定义：
+</p>
+<table class="grid">
+ <tr> <td>资源</td> <td>存储或交换的数据实例</td> </tr>
+ <tr> <td>资源定义</td> <td>定义资源的数据元素</td> </tr>
+ <tr> <td>配置文件</td> <td>特定使用环境下的数据元素的附加规则。有一种特定类型的资源 - <a href="structuredefinition.html">StructureDefinition资源</a>，用于表示配置文件</td> </tr>
+</table>
+-->
+
+</div>
+
+<div>
+<a name="bnr"></a>
+<h2>边界和关系</h2>
+
+<p>
+以下是所有资源定义的可选元素和属性：
+</p>
+<ul>
+ <li>标识</li>
+ <li>元数据</li>
+ <li>基本语言</li>
+ <li>对“隐式规则”的引用</li>
+</ul>
+<p>
+Resource是大多数资源派生自的<a href="domainresource.html">DomainResource</a>的祖先。 <a href="bundle.html">Bundle</a>，<a href="parameters.html">Parameters</a>和<a href="binary.html">Binary</a>直接扩展Resource。
+</p>
+<p>
+注意：有关资源结构的<a href="formats.html">结构</a>，<a href="formats.html#uml">UML</a>，<a href="xml.html">XML</a>和<a href="json.html">JSON</a>表示的文档。
+</p>
+
+</div>
+
+</div>
+

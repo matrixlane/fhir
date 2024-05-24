@@ -1,0 +1,753 @@
+<div xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/1999/xhtml ../../schema/fhir-xhtml.xsd" xmlns="http://www.w3.org/1999/xhtml">﻿<div xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.w3.org/1999/xhtml ../../schema/fhir-xhtml.xsd" xmlns="http://www.w3.org/1999/xhtml">
+
+<a name="identification"></a>
+<h3>资源标识</h3>
+
+<p>
+有两种不同的方法来标识一个资源：
+</p>
+<ul>
+ <li>通过一个“位置”URL来标识资源的访问位置（基于“逻辑ID”）。这个位置会在资源被复制/移动时发生变化。</li>
+ <li>通过一些固定的内在标识符（“业务标识符”或“规范URL”）来标识资源，这些标识符是资源的一部分，即使在复制/移动时也保持不变。</li>
+</ul>
+
+<a name="id"></a>
+<h3>逻辑标识符</h3>
+
+<p>
+每个资源都有一个<code>id</code>元素，其中包含由负责存储资源的服务器分配的资源的“逻辑id”。资源始终具有已知的逻辑id，除了一些特殊情况（例如，在将新资源发送到服务器以在“创建交互”中分配逻辑id时）。逻辑id在同一服务器上的相同类型的所有资源空间内是唯一的。一旦由服务器分配，id就不会改变。
+</p>
+<p>
+资源实例的位置是由找到实例的服务器的服务器基本地址、资源类型和逻辑ID构成的绝对URI，例如http://test.fhir.org/r5/rest/Patient/123（其中<code>123</code>是<a href="patient.html">Patient</a>资源的逻辑ID）。当位置是一个HTTP地址时，该地址通常可以用于检索或操作资源。请注意，实现应该不要假设资源的位置总是可解析为可访问的服务器 - 它可能暂时不可用，或者由于策略（例如防火墙）而不可用，或者在某些情况下，它可能实际上不存在（例如在RESTful环境之外使用资源）。资源通过其位置引用彼此。这些引用可以是绝对的或相对的（有关详细讨论，请参见<a href="references.html">资源引用</a>）。
+</p>
+<p>
+当将资源从一个服务器复制到另一个服务器时，复制品在新服务器上可能会保留相同的逻辑id，也可能不保留。这取决于复制和服务器策略。有关详细信息，请参见<a href="managing.html">管理资源标识</a>（包括“一致的资源标识”）。
+</p>
+<p>
+逻辑id（因此位置）区分大小写。逻辑id始终是不透明的，外部系统不需要也不应该尝试确定其内部结构。逻辑id在资源引用和URL中始终以相同的方式表示。id的长度可以达到64个字符，并且可以包含任何组合的大写和小写ASCII字母、数字、“-”和“.”。
+</p>
+<p>
+在某些情况下，资源与RESTful服务器上的位置无关联，要么是因为它们只是在系统之间临时创建进行传输，要么是系统不使用RESTful服务器。在这些情况下，为了保持一致性，资源可能会被分配某种位置，或者它们可能没有分配的逻辑id，并且根据其他类型的标识符进行标识。有关使用与RESTful服务器不相关的资源的一种方法，请参见<a href="bundle.html#references">在Bundle中解析引用</a>。
+</p>
+
+<a name="identifier-categories"></a>
+<h4>标识符类别</h4>
+<p>
+一般来说，标识符有时被分为三个类别：业务标识符、信息标识符和实例标识符。
+</p>
+<ul>
+ <li>一个<b>业务标识符</b>，用于唯一标识现实世界中的单个事物，例如患者Jane Dupont、药物Amoxycillin等，如果系统中有关于这个事物的记录，这样的标识符就是搜索这些记录的一种方式</li>
+ <li>一个<b>信息标识符</b>，对于系统中已知的每个信息实体都保证唯一，包括看起来与现实世界中的单个实体不直接相关的实体（例如某个患者处方清单上的每个医疗记录事件），也就是那些没有业务标识符的东西，也就是“只是信息”的东西</li>
+ <li>一个<b>实例标识符</b>，对于每个逻辑信息实体的可区分实例都保证唯一（即对于完全相同的副本不会改变，但一旦进行更改就会改变）</li>
+</ul>
+<p>
+在这些术语中，<code>逻辑ID</code>是一个实例标识符，而其他所有标识符都宽泛地称为“业务”标识符。请注意，由于实际世界中的实践，业务标识符经常被用作通过代理来标识事物，例如通过相同的驾驶执照号码来标识同一个人的多个不同患者记录。
+</p>
+
+<a name="identifiers"></a>
+<h4>"业务"标识符</h4>
+<p>
+尽管资源的逻辑ID在从服务器到服务器的移动过程中会发生变化，但所有副本都指向同一概念，并且该概念也可以用其他格式表示（例如，<a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=185">HL7 V2</a>，<a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=7">CDA</a>，XDS等）。每个表示都带有用于在所有使用上下文中一致标识底层概念（也称为“真实世界实体”）的公共标识符。这被称为“业务标识符”，并且可以在<i>identifier</i>元素中找到，该元素具有类型<a href="datatypes.html#Identifier">Identifier</a>。
+</p>
+<p>
+所有具有<code>identifier</code>元素的资源都支持通过标识符进行搜索，以便可以通过该方法定位记录。因此，如果一个<a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=185">HL7 V2</a>消息具有以下OBR：
+</p>
+<pre>
+OBR|1|845439^GHH OE|1045813^GHH LAB|1554-5^GLUCOSE^LN|||200202150730|...
+</pre>
+<p>
+那么，可以使用以下查询定位所表示的DiagnosticReport：
+</p>
+<pre>
+GET [base]/DiagnosticReport?identifier=1045813
+</pre>
+<p>
+大多数资源都有一个逻辑主服务器，即首次创建记录并直接管理记录的系统。在主系统中，逻辑ID可能与业务标识符中的相同值相匹配，因为主服务器可以执行确保稳定标识符的业务实践。这通常不是在无法强制执行所需标识符一致性的辅助系统上的安全做法。
+</p>
+
+<a name="canonical"></a>
+<h4>规范URL</h4>
+<p>
+一些资源类型具有定义的元素<code>url</code>，它是始终标识资源的“规范URL”。这是一种特殊类型的业务标识符。
+请注意，该元素实际上包含一个URI，但由于历史原因被命名为<code>url</code>。
+</p>
+<p>
+规范URL作为资源的稳定逻辑标识符，并且<b>是引用符合性或知识资源的首选方式</b>。规范URL还应该解析到存储主要副本的位置，
+尽管这并不总是可能的。规范URL不应该引用其他资源（尽管它可以解析到同一资源的不同版本）。
+</p>
+<p>
+有关规范引用和<a href="datatypes.html#canonical">规范数据类型</a>的进一步讨论，请参见<a href="references.html#canonical">规范引用</a>。
+以下资源具有规范URL：
+</p>
+
+<ul style="column-count: 3">
+<li><a href="activitydefinition.html">活动定义</a></li>
+<li><a href="actordefinition.html">参与者定义</a></li>
+<li><a href="capabilitystatement.html">能力声明</a></li>
+<li><a href="chargeitemdefinition.html">费用项目定义</a></li>
+<li><a href="citation.html">引用</a></li>
+<li><a href="codesystem.html">代码系统</a></li>
+<li><a href="compartmentdefinition.html">隔室定义</a></li>
+<li><a href="conceptmap.html">概念映射</a></li>
+<li><a href="conditiondefinition.html">条件定义</a></li>
+<li><a href="eventdefinition.html">事件定义</a></li>
+<li><a href="evidence.html">证据</a></li>
+<li><a href="evidencereport.html">证据报告</a></li>
+<li><a href="evidencevariable.html">证据变量</a></li>
+<li><a href="examplescenario.html">示例场景</a></li>
+<li><a href="graphdefinition.html">图形定义</a></li>
+<li><a href="implementationguide.html">实施指南</a></li>
+<li><a href="library.html">库</a></li>
+<li><a href="measure.html">度量</a></li>
+<li><a href="messagedefinition.html">消息定义</a></li>
+<li><a href="namingsystem.html">命名系统</a></li>
+<li><a href="observationdefinition.html">观察定义</a></li>
+<li><a href="operationdefinition.html">操作定义</a></li>
+<li><a href="plandefinition.html">计划定义</a></li>
+<li><a href="questionnaire.html">问卷</a></li>
+<li><a href="requirements.html">需求</a></li>
+<li><a href="searchparameter.html">搜索参数</a></li>
+<li><a href="specimendefinition.html">样本定义</a></li>
+<li><a href="structuredefinition.html">结构定义</a></li>
+<li><a href="structuremap.html">结构映射</a></li>
+<li><a href="subscriptiontopic.html">订阅主题</a></li>
+<li><a href="terminologycapabilities.html">术语能力</a></li>
+<li><a href="testplan.html">测试计划</a></li>
+<li><a href="testscript.html">测试脚本</a></li>
+<li><a href="valueset.html">值集</a></li>
+</ul>
+
+
+
+<a name="consistency"></a>
+<h3>一致的资源标识</h3>
+<p>
+业务标识符是在不同系统上识别相同内容的首选依据。例如：
+</p>
+<pre>
+  GET http://a.company.example.com/Patient/23
+  
+  &lt;Patient xmlns=&quot;http://hl7.org/fhir&quot;&gt;
+    &lt;id value=&quot;23&quot;/&gt;
+    &lt;identifier&gt;  
+      &lt;system value=&quot;http://a.particular.system/identifier&quot;/&gt;
+      &lt;value value=&quot;123456&quot;/&gt;
+    &lt;/identifier&gt;
+  &lt;/Patient&gt;
+
+  GET http://other.company.example.com/fhir/Patient/5860200e-0ee3-42f5-8095-506e18dc9ca2
+  
+  &lt;Patient xmlns=&quot;http://hl7.org/fhir&quot;&gt;
+    &lt;id value=&quot;5860200e-0ee3-42f5-8095-506e18dc9ca2&quot;/&gt;
+    &lt;identifier&gt;  
+      &lt;system value=&quot;http://a.particular.system/identifier&quot;/&gt;
+      &lt;value value=&quot;123456&quot;/&gt;
+    &lt;/identifier&gt;
+  &lt;/Patient&gt;
+</pre>
+
+<p>
+鉴于标识符相同，患者资源被理解为描述同一患者。因此，系统应该：
+</p>
+<ul>
+ <li>仅在资源能够唯一标识与之匹配的现实世界实体时，为资源分配标识符（例如，当多个不同的患者共享相同的账号号码时，不要将账号号码用作患者标识符）</li>
+ <li>尽可能保留标识符，不要丢弃它们。即使标识符对系统本身没有用处，它们对下游消费者可能仍然有用</li>
+ <li>在提供资源时，尽可能使用来自主要持久存储的一致标识符（例如，当从主记录创建资源时，填充标识符，并将标识符存储在某个地方，以便下次使用相同的标识符）</li>
+</ul>
+
+<p>
+遵循这些实践将确保在医疗生态系统中对概念和现实世界实体的一致标识。例如，药物医嘱可以表示为<a href="medicationrequest.html">药物请求</a>和<a href="medicationstatement.html">药物声明</a>。一些系统 - 主要来源 - 将提供药物医嘱作为药物请求，而其他次要系统将提供它们作为药物声明。任何处理这些资源的系统都需要协调这些资源，并且一致标识符的存在将大大简化协调过程。
+</p>
+
+<p>
+请注意，该规范提供了另外两种相关方法来指示常见源派生：
+</p>
+<ul>
+ <li><a href="provenance.html">来源</a> - 具有来源声明的资源，其中<a href="provenance-definitions.html#Provenance.entity.what_x_">Provenance.entity.what[x]</a>指向相同的源，并且.entity.role为<code>derivation</code></li>
+ <li><a href="resource-definitions.html#Meta.source">Resource.meta.source</a> - 具有相同源的两个资源</li>
+</ul>
+<p>
+<a href="provenance-definitions.html#Provenance.entity.what_x_">Provenance.entity.what[x]</a> / <a href="resource-definitions.html#Meta.source">Resource.meta.source</a>的粒度不固定为单个资源 - 多个资源可以从单个源实体（例如单个CDA文档）派生出来，因此应用程序在假设匹配的实体源信息意味着资源标识相同的现实世界概念时需要小心。
+</p>
+
+<a name="implicitRules"></a>  
+<h3>隐式规则</h3>
+<p>
+对描述资源使用方式的自定义协议的引用（例如，一个<a href="profiling.html#glossary">实施指南</a>），在构建资源时遵循该协议，必须了解该实施指南以安全地处理内容。
+</p>
+<p>
+断言此规则集将内容限制为仅能被有限的一组交易伙伴理解。这从根本上限制了数据的长期有用性，应尽量避免使用。然而，现有的健康生态系统非常分散，并且尚未准备好以一种普遍可交换的方式定义、收集和交换数据。
+</p>
+<p>
+请注意，几乎总是根据某些自定义协议构建资源。最佳实践 - 在符合性资源中推荐使用 - 是这些协议在资源的内容中明确地表达有关资源内容的所有知识；如果自定义协议遵循此建议，并将其扩展声明为必需的，则不需要理解协议即可安全地处理资源内容。因此，很少使用<code>implicitRules</code>。
+</p>
+
+<a name="lang"></a>
+<a name="language"></a>
+<h3>语言</h3>
+
+<p>
+每个资源可能具有一个语言元素，该元素使用在BCP 47中定义的代码指定内容的基本语言。
+语言元素用于支持索引和可访问性（例如，文本转语音使用语言标签）。
+</p>
+<p>
+如果指定了语言，则还应在<a href="narrative.html#Narrative">叙述文本</a>上指定该语言。
+叙述中的html语言标签用于处理叙述。资源上的语言标签提供了从数据生成的任何备选展示的语言。
+</p>
+<p>
+没有默认语言，但可以从使用环境中推断出一个语言。
+资源的所有内容都不必使用指定的语言。
+<a href="languages.html">支持多种语言</a>。
+</p>
+<p>
+任何在BCP 47中定义的有效语言代码都是有效的。
+语言代码系统很复杂，包括主要语言、脚本、地区和其他变体和扩展部分。
+为了简化实现，语言元素具有对常见语言代码的枚举列表的<a href="terminologies.html#preferred">首选绑定</a>，并提供了翻译，
+以及对任何语言的<a href="terminologies.html#binding">最大绑定</a>；这样大多数应用程序可以简单地使用查找表，而不会阻止使用任何语言代码。
+</p>
+
+<a name="metadata"></a>
+<a name="meta"></a>
+<a name="Meta"></a>
+
+<h3 style="margin-bottom: 1px">
+资源元数据
+</h3>
+
+<p>
+每个资源都包含一个名为"meta"的元素，类型为"Meta"，它是一组元数据，为资源提供技术和工作流上下文。元数据项都是可选的，尽管在特定的实现或使用环境中可能需要其中的一些或全部。
+</p>
+
+<table class="grid">
+  <tr>
+    <th>元数据项</th>
+    <th>类型</th>
+    <th>使用情况</th>
+  </tr>
+  <tr>
+    <td>versionId (0..1)</td>
+    <td><a href="datatypes.html#id">id</a></td>
+    <td>每当资源内容发生变化时，此值会发生变化。可以在<a href="references.html#Resource">资源引用</a>中引用。可用于确保更新基于资源的最新版本。
+      <br/>版本可以是全局唯一的，也可以由资源的逻辑标识范围确定。版本标识符通常是逐渐递增的id，由逻辑id确定范围，或者是uuid，但这些方法都不是必需的。版本id没有固定的顺序 - 客户端不能假设一个在另一个之后的版本id无论是按数字还是按字母顺序都代表一个较新的版本。同一个versionId永远不能用于同一个资源的多个版本。
+      <br/>在RESTful API上：在接收到影响元数据的<a href="http.html#update">更新</a>、<a href="http.html#patch">补丁</a>或其他FHIR操作时，服务器应将此项更新为当前值，或将其删除。注意，服务器应支持版本，但有些服务器可能无法支持</td>
+  </tr>
+  
+  <tr>
+   <td>lastUpdated (0..1)</td>
+   <td><a href="datatypes.html#instant">instant</a></td>
+   <td>如果填充了此值，每当资源内容发生变化时，此值会发生变化。它可以被系统或人类用来判断资源内容的时效性。
+    注意，<a href="http.html#update">版本感知的更新</a>不依赖于此元素。注意，<a href="http://hl7.org/fhir/extensions/StructureDefinition-timezone.html">时区代码</a>扩展可能存在于Meta.lastUpdated上。
+    如果存在，时区代码适用于服务器上的资源副本，而不一定适用于资源内的其他与时间相关的元素，即使时区偏移相同。
+    <br/>在RESTful API上：在接收到影响元数据的<a href="http.html#create">创建</a>、<a href="http.html#update">更新</a>、<a href="http.html#patch">补丁</a>或其他FHIR操作时，服务器应将此项更新为服务器上的当前时间</td>
+  </tr>
+  
+  <tr>
+   <td>source (0..1)</td>
+   <td><a href="datatypes.html#uri">uri</a></td>
+   <td>标识资源的源系统的URI。这提供了一定量的<a href="provenance.html">溯源</a>信息，可用于跟踪或区分资源中信息的来源。源可以是另一个资源，也可以是更抽象或通用的标识符，或者标识另一个FHIR服务器、端点、文档、消息、数据库等。源的确切使用（以及隐含的Provenance.entity.role）由实施者自行决定。
+    只允许一个指定的源；对于更多的溯源细节，应使用完整的Provenance资源。
+    <br/>在RESTful API上：在接收到影响元数据的<a href="http.html#create">创建</a>、<a href="http.html#update">更新</a>、<a href="http.html#patch">补丁</a>或其他FHIR操作时，服务器通常应保持此项不变，除非适用的业务规则以及可用的溯源要求另外</td>
+  </tr>
+  
+  <tr>
+   <td>profile (0..*)</td>
+   <td><a href="datatypes.html#canonical">canonical</a></td>
+   <td>断言内容符合资源配置文件（<a href="structuredefinition.html">StructureDefinition</a>）。有关进一步讨论，请参见<a href="profiling.html#resources">扩展和限制资源</a>。
+    可以根据配置文件和值集的更改或系统重新检查一致性来更改。配置文件可用于<a href="versioning.html#mp-version">指示资源符合的FHIR版本</a>。
+    <br/>在RESTful API上：在接收到影响元数据的<a href="http.html#create">创建</a>、<a href="http.html#update">更新</a>、<a href="http.html#patch">补丁</a>或其他FHIR操作时，服务器可以选择删除无效的声明，应保留正确或未经测试的声明，并可以添加它认为有效的其他声明</td>
+  </tr>
+  
+  <tr>
+   <td>security (0..*)</td>
+   <td><a href="datatypes.html#Coding">Coding</a></td>
+   <td>应用于此资源的<a href="security-labels.html">安全标签</a>。这些标签以特定方式将资源与整体安全策略和基础设施相连接。安全标签可以在资源更改时更新，或者在安全子系统选择时更新。
+    <br/>在RESTful API上：在接收到影响元数据的<a href="http.html#create">创建</a>、<a href="http.html#update">更新</a>、<a href="http.html#patch">补丁</a>或其他FHIR操作时，服务器应保留标签，除非适用的业务规则另外规定</td>
+  </tr>
+  
+  <tr>
+   <td>tag (0..*)</td>
+   <td><a href="datatypes.html#Coding">Coding</a></td>
+   <td>应用于此资源的<a href="resource-definitions.html#Meta.tag">标签</a>。标签用于将资源与流程和工作流程相关联。应用程序在解释资源的含义时不需要考虑这些标签。
+    <br/>在RESTful API上：在接收到影响元数据的<a href="http.html#create">创建</a>、<a href="http.html#update">更新</a>、<a href="http.html#patch">补丁</a>或其他FHIR操作时，服务器应保留标签，除非适用的业务规则另外规定</td>
+  </tr>
+    
+</table>
+
+<a name="Meta"></a>
+<a name="meta"></a>
+<h3 style="margin-bottom: 1px">元数据（Meta）</h3>
+<table class="colsn" style="margin-bottom: 0px"><tr><td><a href="http://www.hl7.org/Special/committees/fiwg/index.cfm">FHIR基础设施</a>工作组</td><td><a href="versions.html#maturity">成熟级别</a>：5</td><td><a href="versions.html#std-process">标准状态</a>：<a href="versions.html#std-process" title="标准状态">规范</a></td></tr></table>
+<p style="background-color: gainsboro; border-left: solid 1px #808080; border-right: solid 1px #808080; border-bottom: solid 1px #808080; padding: 4px; margin-top: 0px">
+<!--xlp:Meta-->另请参见<a no-external="true" href="resource.html#Meta">基本定义</a>、<a no-external="true" href="resource-definitions.html#Meta">详细描述</a>、<a no-external="true" href="resource-mappings.html#Meta">映射</a>、<a no-external="true" href="resource-profiles.html#Meta">配置文件</a>、<a no-external="true" href="http://hl7.org/fhir/extensions/extensions-resource.html#Meta">扩展</a>和<a no-external="true" href="http://hl7.org/fhir/extensions/conversions-resource.html#Meta">R4转换</a>
+</p>
+
+<div id="tabs-Meta">
+ <ul>
+  <li><a href="#tabs-Meta-struc">结构</a></li>
+  <li><a href="#tabs-Meta-uml">UML</a></li>
+  <li><a href="#tabs-Meta-xml">XML</a></li>
+  <li><a href="#tabs-Meta-json">JSON</a></li>
+  <li><a href="#tabs-Meta-ttl">Turtle</a></li>
+  <li><a href="#tabs-Meta-diff">R4差异</a></li>
+  <li><a href="#tabs-Meta-all">全部</a></li>
+ </ul>
+ <div id="tabs-Meta-struc">
+  <div id="tbl">
+   <p><b>结构</b></p>
+   <div id="tbl-inner">
+    <table border="0" cellpadding="0" cellspacing="0" style="border: 0px #F0F0F0 solid; font-size: 11px; font-family: verdana; vertical-align: top;" id="Meta"><tr style="border: 1px #F0F0F0 solid; font-size: 11px; font-family: verdana; vertical-align: top"><th style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="元素的逻辑名称">名称</a></th><th style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="关于元素使用的信息">标志</a></th><th style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="元素在实例中出现的最小和最大次数">基数</a></th><th style="width: 100px" class="hierarchy"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="元素的类型引用">类型</a></th><th style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="关于元素的附加信息">描述和约束</a><span style="float: right"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="此格式的图例"><img src="help16.png" alt="doco" onLoad="fhirTableInit(this)" style="background-color: inherit"/></a></span></th></tr><tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white" id="a"><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck1.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_element.gif" alt="." style="background-color: white; background-color: inherit" title="元素" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta" title="Meta：关于资源的元数据。这是由基础设施维护的资源中的内容。对内容的更改可能不总是与资源的版本更改相关联。">Meta</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a><a style="padding-left: 3px; padding-right: 3px; border: 1px grey solid; font-weight: bold; color: black; background-color: #e6ffe6" href="versions.html#std-process" title="标准状态=规范">N</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="types.html#Element">Element</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">关于资源的元数据<br/><br/>在祖先中定义的元素：<a href="types.html#Element" title="资源内元素的唯一标识符（用于内部引用）。这可以是不包含空格的任何字符串值。">id</a>，<a href="types.html#Element" title="可用于表示不属于元素基本定义的附加信息。为了使扩展的使用安全和可管理，对扩展的定义和使用应用了严格的治理。尽管任何实施者都可以定义扩展，但在扩展的定义中必须满足一组要求。">extension</a></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7" id="aa"><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_primitive.png" alt="." style="background-color: #F7F7F7; background-color: inherit" title="原始数据类型" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta.versionId" title="Meta.versionId：特定版本的标识符，如URL的版本部分中所示。当创建、更新或删除资源时，此值会发生变化。">versionId</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">0..1</td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#id">id</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">特定版本的标识符<br/></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white" id="ab"><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_primitive.png" alt="." style="background-color: white; background-color: inherit" title="原始数据类型" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta.lastUpdated" title="Meta.lastUpdated：资源上次更改的时间，例如版本更改时。">lastUpdated</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">0..1</td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#instant">instant</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">资源版本上次更改的时间<br/></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7" id="ac"><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_primitive.png" alt="." style="background-color: #F7F7F7; background-color: inherit" title="原始数据类型" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta.source" title="Meta.source：标识资源的源系统的URI。这提供了一定数量的[[[Provenance]]]信息，可用于跟踪或区分资源中信息的来源。源可以标识另一个FHIR服务器、文档、消息、数据库等。">source</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">0..1</td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#uri">uri</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">标识资源的来源<br/></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white" id="ad"><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_reference.png" alt="." style="background-color: white; background-color: inherit" title="对另一个资源的引用" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta.profile" title="Meta.profile：此资源声称符合的配置文件列表（对[[[StructureDefinition]]]资源的引用）。URL是对[[[StructureDefinition.url]]]的引用。">profile</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">0..*</td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#canonical">canonical</a>(<a href="structuredefinition.html">StructureDefinition</a>)</td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">此资源声称符合的配置文件<br/><br/></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7" id="ae"><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_datatype.gif" alt="." style="background-color: #F7F7F7; background-color: inherit" title="数据类型" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta.security" title="Meta.security：应用于此资源的安全标签。这些标签将特定资源与整体安全策略和基础设施相关联。">security</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">0..*</td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#Coding">Coding</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">应用于此资源的安全标签<br/>绑定：<a href="valueset-security-labels.html" title="来自医疗保健隐私和安全分类系统的安全标签。">所有安全标签</a>（<a href="terminologies.html#extensible" title="为了符合规范，此元素中的概念应来自指定的值集，如果值集中的任何代码都可以应用于所传达的概念。如果值集不涵盖概念（基于人工审查），则可以包括替代编码（或允许的数据类型中的文本）。">可扩展</a>）<br/><br/></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white" id="af"><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck00.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin_end.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_datatype.gif" alt="." style="background-color: white; background-color: inherit" title="数据类型" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta.tag" title="Meta.tag：应用于此资源的标签。标签旨在用于标识和关联资源与流程和工作流程，应用程序在解释资源的含义时不需要考虑标签。">tag</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0
+
+<div id="tabs-Meta-uml">
+  <div id="uml">
+   <p><b>UML图</b> (<a href="formats.html#uml">图例</a>)</p>
+   <div id="uml-inner">
+    <svg id="n24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="583.36" height="140.0">  <defs>
+    <filter id="shadow1" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceGraphic" dx="3" dy="3" />
+      <feColorMatrix result="matrixOut" in="offOut" type="matrix" values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0" />
+      <feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="2" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+    </filter>
+  </defs><g id="n25"><rect id="n26" x="80.0" y="0.0" rx="4" ry="4" width="220.00000000000003" height="120.0" filter="url(#shadow1)" style="fill:#ecffec;stroke:black;stroke-width:1"/><line id="n27" x1="80.0" y1="28.0" x2="300.0" y2="28.0" style="stroke:dimgrey;stroke-width:1"/><text id="n28" x="190.0" y="20.0" fill="black" class="diagram-class-title"><a id="n29" xlink:href="resource.html#Meta">元数据</a></text><text id="n30" x="86.0" y="42.0" fill="black" class="diagram-class-detail"><a id="n31" xlink:href="resource-definitions.html#Meta.versionId"><title>版本特定的标识符，如出现在URL的版本部分。当资源创建、更新或删除时，此值会发生变化</title>versionId</a> : <a id="n32" xlink:href="datatypes.html#id">id</a> [0..1]</text><text id="n36" x="86.0" y="56.0" fill="black" class="diagram-class-detail"><a id="n37" xlink:href="resource-definitions.html#Meta.lastUpdated"><title>资源上次更改的时间 - 例如，版本更改时</title>lastUpdated</a> : <a id="n38" xlink:href="datatypes.html#instant">instant</a> [0..1]</text><text id="n42" x="86.0" y="70.0" fill="black" class="diagram-class-detail"><a id="n43" xlink:href="resource-definitions.html#Meta.source"><title>标识资源的源系统的URI。这提供了一定数量的[[[Provenance]]]信息，可用于跟踪或区分资源中信息的来源。源可以标识另一个FHIR服务器、文档、消息、数据库等</title>source</a> : <a id="n44" xlink:href="datatypes.html#uri">uri</a> [0..1]</text><text id="n48" x="86.0" y="84.0" fill="black" class="diagram-class-detail"><a id="n49" xlink:href="resource-definitions.html#Meta.profile"><title>此资源声称符合的配置文件列表（对[[[StructureDefinition]]]资源的引用）。URL是对[[[StructureDefinition.url]]]的引用</title>profile</a> : <a id="n50" xlink:href="datatypes.html#canonical">canonical</a> [0..*] « <a id="n51" xlink:href="structuredefinition.html#StructureDefinition">StructureDefinition</a> »</text><text id="n56" x="86.0" y="98.0" fill="black" class="diagram-class-detail"><a id="n57" xlink:href="resource-definitions.html#Meta.security"><title>应用于此资源的安全标签。这些标签将特定资源连接到整体安全策略和基础设施</title>security</a> : <a id="n58" xlink:href="datatypes.html#Coding">Coding</a> [0..*] « <a id="n59" xlink:href="valueset-security-labels.html"><title id="n60">来自医疗隐私和安全分类系统的安全标签。 (Strength=可扩展)</title>AllSecurityLabels</a>+ »</text><text id="n66" x="86.0" y="112.0" fill="black" class="diagram-class-detail"><a id="n67" xlink:href="resource-definitions.html#Meta.tag"><title>应用于此资源的标签。标签旨在用于标识和关联资源到流程和工作流程，应用程序在解释资源的含义时不需要考虑标签</title>tag</a> : <a id="n68" xlink:href="datatypes.html#Coding">Coding</a> [0..*] « <a id="n69" xlink:href="valueset-common-tags.html"><title id="n70">代表各种类型的标签的代码，通常与工作流程相关；例如“需要Jones医生审核”。 (Strength=示例)</title>CommonTags</a>?? »</text></g><g id="n76"><rect id="n77" x="320.0" y="0.0" rx="4" ry="4" width="63.36000000000001" height="36.0" filter="url(#shadow1)" style="fill:#ecffec;stroke:black;stroke-width:1"/><line id="n78" x1="320.0" y1="28.0" x2="383.36" y2="28.0" style="stroke:dimgrey;stroke-width:1"/><text id="n79" x="351.68" y="20.0" fill="black" class="diagram-class-title" style="font-style: italic"><a id="n80" xlink:href="types.html#DataType">数据类型</a></text></g><line id="n81" x1="320.0" y1="26.229589312221663" x2="300.0" y2="31.425037110341407" style="stroke:navy;stroke-width:1"/><polygon id="n82" points="320.0,26.229589312221663 328.0,32.22958931222166 328.0,20.229589312221663 320.0,26.229589312221663" style="fill:white;stroke:navy;stroke-width:1" transform="rotate(165.4379998196561 320.0 26.229589312221663)"/></svg>
+   </div>
+  </div>
+ </div>
+
+<div id="tabs-Meta-xml">
+  <div id="xml">
+   <p><b>XML模板</b></p>
+   <div id="xml-inner">
+    <pre class="spec">
+&lt;<a href="resource-definitions.html#Meta" title="关于资源的元数据。这是由基础设施维护的资源内容。对内容的更改可能不总是与资源的版本更改相关联。" class="dict"><b>meta</b></a> xmlns="http://hl7.org/fhir"&gt;
+ &lt;!-- from Element: <a href="extensibility.html">extension</a> -->
+ &lt;<a href="resource-definitions.html#Meta.versionId" title="特定版本的标识符，如URL的版本部分中显示的。当创建、更新或删除资源时，此值会发生变化。" class="dict"><b>versionId</b></a> value="[<span style="color: darkgreen"><a href="datatypes.html#id">id</a></span>]"/&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..1</b></span> <span style="color: navy"><a href="terminologies.html#unbound" style="color: navy">特定版本的标识符</a></span><span style="color: Gray"> --&gt;</span>
+ &lt;<a href="resource-definitions.html#Meta.lastUpdated" title="资源上次更改的时间 - 例如，版本更改时。" class="dict"><b>lastUpdated</b></a> value="[<span style="color: darkgreen"><a href="datatypes.html#instant">instant</a></span>]"/&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..1</b></span> <span style="color: navy"><a href="terminologies.html#unbound" style="color: navy">资源版本上次更改的时间</a></span><span style="color: Gray"> --&gt;</span>
+ &lt;<a href="resource-definitions.html#Meta.source" title="标识资源的源系统的URI。这提供了一定数量的[[[Provenance]]]信息，可用于跟踪或区分资源中信息的来源。源可以标识另一个FHIR服务器、文档、消息、数据库等。" class="dict"><b>source</b></a> value="[<span style="color: darkgreen"><a href="datatypes.html#uri">uri</a></span>]"/&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..1</b></span> <span style="color: navy"><a href="terminologies.html#unbound" style="color: navy">标识资源的来源</a></span><span style="color: Gray"> --&gt;</span>
+ &lt;<a href="resource-definitions.html#Meta.profile" title="一个包含资源声称符合的配置文件（对[[[StructureDefinition]]]资源的引用）的列表。URL是对[[[StructureDefinition.url]]]的引用。" class="dict"><b>profile</b></a>&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..*</b></span> <span style="color: darkgreen"><a href="datatypes.html#canonical">canonical</a>(<a href="structuredefinition.html#StructureDefinition">StructureDefinition</a>)</span> <span style="color: navy"><a href="terminologies.html#unbound" style="color: navy">资源声称符合的配置文件</a></span><span style="color: Gray"> --&gt;</span>&lt;/profile&gt;
+ &lt;<a href="resource-definitions.html#Meta.security" title="应用于此资源的安全标签。这些标签将特定资源连接到整体安全策略和基础设施。" class="dict"><b>security</b></a>&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..*</b></span> <span style="color: darkgreen"><a href="datatypes.html#Coding">Coding</a></span> <span style="color: navy"><a href="valueset-security-labels.html" style="color: navy">应用于此资源的安全标签</a></span><span style="color: Gray"> --&gt;</span>&lt;/security&gt;
+ &lt;<a href="resource-definitions.html#Meta.tag" title="应用于此资源的标签。标签用于标识和关联资源与流程和工作流程，应用程序在解释资源的含义时不需要考虑这些标签。" class="dict"><b>tag</b></a>&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..*</b></span> <span style="color: darkgreen"><a href="datatypes.html#Coding">Coding</a></span> <span style="color: navy"><a href="valueset-common-tags.html" style="color: navy">应用于此资源的标签</a></span><span style="color: Gray"> --&gt;</span>&lt;/tag&gt;
+&lt;/meta&gt;
+</pre>
+
+   </div>
+  </div>
+ </div>
+
+<div id="tabs-Meta-json">
+  <div id="json">
+   <p><b>JSON模板</b></p>
+   <div id="json-inner">
+    <pre class="spec">
+{<span style="float: right"><a title="该格式的文档" href="json.html"><img src="help.png" alt="doco"/></a></span>
+  // 来自Element: <a href="extensibility.html">extension</a>
+  "<a href="resource-definitions.html#Meta.versionId" title="版本特定的标识符，如在URL的版本部分中显示。当资源创建、更新或删除时，此值会发生变化。" class="dict">versionId</a>" : "&lt;<span style="color: darkgreen"><a href="datatypes.html#id">id</a></span>&gt;", <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="terminologies.html#unbound" style="color: navy; opacity: 0.8">版本特定的标识符</a></span>
+  "<a href="resource-definitions.html#Meta.lastUpdated" title="资源上次更改的时间 - 例如，版本更改时。" class="dict">lastUpdated</a>" : "&lt;<span style="color: darkgreen"><a href="datatypes.html#instant">instant</a></span>&gt;", <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="terminologies.html#unbound" style="color: navy; opacity: 0.8">资源版本上次更改的时间</a></span>
+  "<a href="resource-definitions.html#Meta.source" title="标识资源的源系统的URI。这提供了一定数量的[[[Provenance]]]信息，可用于跟踪或区分资源中信息的来源。源可以标识另一个FHIR服务器、文档、消息、数据库等。" class="dict">source</a>" : "&lt;<span style="color: darkgreen"><a href="datatypes.html#uri">uri</a></span>&gt;", <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="terminologies.html#unbound" style="color: navy; opacity: 0.8">标识资源的来源</a></span>
+  "<a href="resource-definitions.html#Meta.profile" title="此资源声称符合的配置文件列表（对[[[StructureDefinition]]]资源的引用）。URL是对[[[StructureDefinition.url]]]的引用。" class="dict">profile</a>" : ["&lt;<span style="color: darkgreen"><a href="datatypes.html#canonical">canonical</a></span>(<a href="structuredefinition.html#StructureDefinition">StructureDefinition</a>)&gt;"], <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="terminologies.html#unbound" style="color: navy; opacity: 0.8">此资源声称符合的配置文件</a></span>
+  "<a href="resource-definitions.html#Meta.security" title="应用于此资源的安全标签。这些标签将特定资源连接到整体安全策略和基础设施。" class="dict">security</a>" : [{ <span style="color: darkgreen"><a href="datatypes.html#Coding">Coding</a></span> }], <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="valueset-security-labels.html" style="color: navy; opacity: 0.8">应用于此资源的安全标签</a></span>
+  "<a href="resource-definitions.html#Meta.tag" title="应用于此资源的标签。标签用于标识和关联资源与流程和工作流程，应用程序在解释资源的含义时不需要考虑这些标签。" class="dict">tag</a>" : [{ <span style="color: darkgreen"><a href="datatypes.html#Coding">Coding</a></span> }] <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="valueset-common-tags.html" style="color: navy; opacity: 0.8">应用于此资源的标签</a></span>
+}
+</pre>
+
+   </div>
+  </div>
+ </div>
+
+<div id="tabs-Meta-ttl">
+  <div id="ttl">
+    <p><b>Turtle模板</b></p>
+    <div id="ttl-inner">
+      <pre class="spec">
+@prefix fhir: &lt;http://hl7.org/fhir/&gt; .
+
+[
+ # from Element: <a href="extensibility.html">Element.extension</a>
+  fhir:<a href="resource-definitions.html#Meta.versionId" title="The version specific identifier, as it appears in the version portion of the URL. This value changes when the resource is created, updated, or deleted." class="dict">versionId</a><a name="ttl-versionId"> </a>[ <a href="datatypes.html#id">id</a> ] ; # 0..1 <span style="color: navy">版本特定标识符</span>
+  fhir:<a href="resource-definitions.html#Meta.lastUpdated" title="When the resource last changed - e.g. when the version changed." class="dict">lastUpdated</a><a name="ttl-lastUpdated"> </a>[ <a href="datatypes.html#instant">instant</a> ] ; # 0..1 <span style="color: navy">资源版本最后更改时间</span>
+  fhir:<a href="resource-definitions.html#Meta.source" title="A uri that identifies the source system of the resource. This provides a minimal amount of [[[Provenance]]] information that can be used to track or differentiate the source of information in the resource. The source may identify another FHIR server, document, message, database, etc." class="dict">source</a><a name="ttl-source"> </a>[ <a href="datatypes.html#uri">uri</a> ] ; # 0..1 <span style="color: navy">标识资源的来源</span>
+  fhir:<a href="resource-definitions.html#Meta.profile" title="A list of profiles (references to [[[StructureDefinition]]] resources) that this resource claims to conform to. The URL is a reference to [[[StructureDefinition.url]]]." class="dict">profile</a><a name="ttl-profile"> </a> ( [ <a href="datatypes.html#canonical">canonical</a>(<a href="structuredefinition.html#StructureDefinition">StructureDefinition</a>) ] ... ) ; # 0..* <span style="color: navy">资源声明符合的配置文件</span>
+  fhir:<a href="resource-definitions.html#Meta.security" title="Security labels applied to this resource. These tags connect specific resources to the overall security policy and infrastructure." class="dict">security</a><a name="ttl-security"> </a> ( [ <a href="datatypes.html#Coding">Coding</a> ] ... ) ; # 0..* <span style="color: navy">应用于此资源的安全标签</span>
+  fhir:<a href="resource-definitions.html#Meta.tag" title="Tags applied to this resource. Tags are intended to be used to identify and relate resources to process and workflow, and applications are not required to consider the tags when interpreting the meaning of a resource." class="dict">tag</a><a name="ttl-tag"> </a> ( [ <a href="datatypes.html#Coding">Coding</a> ] ... ) ; # 0..* <span style="color: navy">应用于此资源的标签</span>
+]
+</pre>
+
+   </div>
+  </div>
+ </div>
+
+<div id="tabs-Meta-diff">
+  <div id="diff">
+   <p><b>自发布3版以来的变化</b></p>
+   <div id="diff-inner">
+    <p><b>来自R4和R4B的变化</b></p>
+<table class="grid"><tr class="diff-item"><td class="diff-left"><a href="resource.html#Meta">元数据</a></td><td class="diff-right"><ul><li>无变化</li></ul></td></tr></table>
+<p>请参阅<a href="diff.html">完整差异</a>以获取更多信息</p>
+
+   </div>
+  </div>
+ </div>
+
+<div id="tabs-Meta-all">
+  <div id="tbla">
+   <a name="tbl-Meta"> </a>
+   <p><b>结构</b></p>
+   <div id="tbl-inner">
+    <table border="0" cellpadding="0" cellspacing="0" style="border: 0px #F0F0F0 solid; font-size: 11px; font-family: verdana; vertical-align: top;" id="Meta"><tr style="border: 1px #F0F0F0 solid; font-size: 11px; font-family: verdana; vertical-align: top"><th style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="元素的逻辑名称">名称</a></th><th style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="关于元素使用的信息">标志</a></th><th style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="元素在实例中出现的最小和最大次数">基数</a></th><th style="width: 100px" class="hierarchy"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="元素的类型引用">类型</a></th><th style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="关于元素的描述和约束">描述和约束</a><span style="float: right"><a no-external="true" href="https://build.fhir.org/ig/FHIR/ig-guidance/readingIgs.html#table-views" title="此格式的图例"><img src="help16.png" alt="doco" onLoad="fhirTableInit(this)" style="background-color: inherit"/></a></span></th></tr><tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white" id="a"><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck1.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_element.gif" alt="." style="background-color: white; background-color: inherit" title="元素" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta" title="Meta：关于资源的元数据。这是由基础设施维护的资源中的内容。对内容的更改可能不总是与资源的版本更改相关联。">Meta</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a><a style="padding-left: 3px; padding-right: 3px; border: 1px grey solid; font-weight: bold; color: black; background-color: #e6ffe6" href="versions.html#std-process" title="标准状态 = 规范">N</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="types.html#Element">Element</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">关于资源的元数据<br/><br/>在祖先中定义的元素：<a href="types.html#Element" title="资源内元素的唯一标识符（用于内部引用）。这可以是不包含空格的任何字符串值。">id</a>，<a href="types.html#Element" title="可用于表示不属于元素基本定义的附加信息。为了使扩展的使用安全和可管理，对扩展的定义和使用应用了严格的治理规定。尽管任何实施者都可以定义扩展，但在扩展的定义中必须满足一组要求。">extension</a></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7" id="aa"><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_primitive.png" alt="." style="background-color: #F7F7F7; background-color: inherit" title="原始数据类型" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta.versionId" title="Meta.versionId：特定版本的标识符，如出现在URL的版本部分。当创建、更新或删除资源时，此值会发生变化。">versionId</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">0..1</td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#id">id</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">特定版本的标识符<br/></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white" id="ab"><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_primitive.png" alt="." style="background-color: white; background-color: inherit" title="原始数据类型" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta.lastUpdated" title="Meta.lastUpdated：资源上次更改的时间 - 例如，版本更改时。">lastUpdated</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">0..1</td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#instant">instant</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">资源版本上次更改的时间<br/></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7" id="ac"><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_primitive.png" alt="." style="background-color: #F7F7F7; background-color: inherit" title="原始数据类型" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta.source" title="Meta.source：标识资源的源系统的URI。这提供了一定数量的[[[Provenance]]]信息，可用于跟踪或区分资源中信息的来源。源可以标识另一个FHIR服务器、文档、消息、数据库等。">source</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">0..1</td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#uri">uri</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">标识资源的来源<br/></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white" id="ad"><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_reference.png" alt="." style="background-color: white; background-color: inherit" title="对另一个资源的引用" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta.profile" title="Meta.profile：此资源声称符合的配置文件列表（对[[[StructureDefinition]]]资源的引用）。URL是对[[[StructureDefinition.url]]]的引用。">profile</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a></td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">0..*</td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#canonical">canonical</a>(<a href="structuredefinition.html">StructureDefinition</a>)</td><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">此资源声称符合的配置文件<br/><br/></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: #F7F7F7" id="ae"><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px; white-space: nowrap; background-image: url(tbl_bck10.png)" class="hierarchy"><img src="tbl_spacer.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="tbl_vjoin.png" alt="." style="background-color: inherit" class="hierarchy"/><img src="icon_datatype.gif" alt="." style="background-color: #F7F7F7; background-color: inherit" title="数据类型" class="hierarchy"/> <a no-external="true" href="resource-definitions.html#Meta.security" title="Meta.security：应用于此资源的安全标签。这些标签将特定资源与整体安全策略和基础设施相关联。">security</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a style="padding-left: 3px; padding-right: 3px; color: black; null" href="elementdefinition-definitions.html#ElementDefinition.isSummary" title="此元素包含在摘要中">Σ</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">0..*</td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy"><a href="datatypes.html#Coding">Coding</a></td><td style="vertical-align: top; text-align : left; background-color: #F7F7F7; border: 0px #F0F0F0 solid; padding:0px 4px 0px 4px" class="hierarchy">应用于此资源的安全标签<br/>绑定： <a href="valueset-security-labels.html" title="来自医疗保健隐私和安全分类系统的安全标签。">所有安全标签</a>（<a href="terminologies.html#extensible" title="为了符合规范，此元素中的概念应来自指定的值集，如果值集中的任何代码都可以应用于所传达的概念。如果值集不涵盖概念（基于人工审查），则可以包括替代编码（或允许的数据类型中的文本）。">可扩展</a>）<br/><br/></td></tr>
+<tr style="border: 0px #F0F0F0 solid; padding:0px; vertical-align: top; background-color: white" id="af"><td style="vertical-align: top; text-align : left; background-color: white; border: 0px #F0F0
+
+<div id="umla">
+   <a name="uml-Meta"> </a>
+   <p><b>UML图</b> (<a href="formats.html#uml">图例</a>)</p>
+   <div id="uml-inner">
+    <svg id="n24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="583.36" height="140.0">  <defs>
+    <filter id="shadow1b" x="0" y="0" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceGraphic" dx="3" dy="3" />
+      <feColorMatrix result="matrixOut" in="offOut" type="matrix" values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0" />
+      <feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="2" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+    </filter>
+  </defs><g id="n25"><rect id="n26" x="80.0" y="0.0" rx="4" ry="4" width="220.00000000000003" height="120.0" filter="url(#shadow1b)" style="fill:#ecffec;stroke:black;stroke-width:1"/><line id="n27" x1="80.0" y1="28.0" x2="300.0" y2="28.0" style="stroke:dimgrey;stroke-width:1"/><text id="n28" x="190.0" y="20.0" fill="black" class="diagram-class-title"><a id="n29" xlink:href="resource.html#Meta">元数据</a></text><text id="n30" x="86.0" y="42.0" fill="black" class="diagram-class-detail"><a id="n31" xlink:href="resource-definitions.html#Meta.versionId"><title>版本特定的标识符，如出现在URL的版本部分。当资源创建、更新或删除时，此值会发生变化</title>versionId</a> : <a id="n32" xlink:href="datatypes.html#id">id</a> [0..1]</text><text id="n36" x="86.0" y="56.0" fill="black" class="diagram-class-detail"><a id="n37" xlink:href="resource-definitions.html#Meta.lastUpdated"><title>资源上次更改的时间 - 例如，版本更改时</title>lastUpdated</a> : <a id="n38" xlink:href="datatypes.html#instant">instant</a> [0..1]</text><text id="n42" x="86.0" y="70.0" fill="black" class="diagram-class-detail"><a id="n43" xlink:href="resource-definitions.html#Meta.source"><title>标识资源的源系统的URI。这提供了一定数量的[[[Provenance]]]信息，可用于跟踪或区分资源中信息的来源。源可以标识另一个FHIR服务器、文档、消息、数据库等</title>source</a> : <a id="n44" xlink:href="datatypes.html#uri">uri</a> [0..1]</text><text id="n48" x="86.0" y="84.0" fill="black" class="diagram-class-detail"><a id="n49" xlink:href="resource-definitions.html#Meta.profile"><title>此资源声称符合的配置文件列表（对[[[StructureDefinition]]]资源的引用）。URL是对[[[StructureDefinition.url]]]的引用</title>profile</a> : <a id="n50" xlink:href="datatypes.html#canonical">canonical</a> [0..*] « <a id="n51" xlink:href="structuredefinition.html#StructureDefinition">StructureDefinition</a> »</text><text id="n56" x="86.0" y="98.0" fill="black" class="diagram-class-detail"><a id="n57" xlink:href="resource-definitions.html#Meta.security"><title>应用于此资源的安全标签。这些标签将特定资源连接到整体安全策略和基础设施</title>security</a> : <a id="n58" xlink:href="datatypes.html#Coding">Coding</a> [0..*] « <a id="n59" xlink:href="valueset-security-labels.html"><title id="n60">来自医疗隐私和安全分类系统的安全标签。 (Strength=可扩展)</title>AllSecurityLabels</a>+ »</text><text id="n66" x="86.0" y="112.0" fill="black" class="diagram-class-detail"><a id="n67" xlink:href="resource-definitions.html#Meta.tag"><title>应用于此资源的标签。标签旨在用于标识和关联资源到流程和工作流程，应用程序在解释资源的含义时不需要考虑标签</title>tag</a> : <a id="n68" xlink:href="datatypes.html#Coding">Coding</a> [0..*] « <a id="n69" xlink:href="valueset-common-tags.html"><title id="n70">代表各种类型的标签，通常与工作流程相关；例如“需要Jones医生审核”。 (Strength=示例)</title>CommonTags</a>?? »</text></g><g id="n76"><rect id="n77" x="320.0" y="0.0" rx="4" ry="4" width="63.36000000000001" height="36.0" filter="url(#shadow1b)" style="fill:#ecffec;stroke:black;stroke-width:1"/><line id="n78" x1="320.0" y1="28.0" x2="383.36" y2="28.0" style="stroke:dimgrey;stroke-width:1"/><text id="n79" x="351.68" y="20.0" fill="black" class="diagram-class-title" style="font-style: italic"><a id="n80" xlink:href="types.html#DataType">数据类型</a></text></g><line id="n81" x1="320.0" y1="26.229589312221663" x2="300.0" y2="31.425037110341407" style="stroke:navy;stroke-width:1"/><polygon id="n82" points="320.0,26.229589312221663 328.0,32.22958931222166 328.0,20.229589312221663 320.0,26.229589312221663" style="fill:white;stroke:navy;stroke-width:1" transform="rotate(165.4379998196561 320.0 26.229589312221663)"/></svg>
+   </div>
+  </div>
+
+<div id="xmla">
+   <a name="xml-Meta"> </a>
+   <p><b>XML模板</b></p>
+   <div id="xml-inner">
+     <pre class="spec">
+&lt;<a href="resource-definitions.html#Meta" title="关于资源的元数据。这是由基础设施维护的资源内容。对内容的更改可能不总是与资源的版本更改相关联。" class="dict"><b>meta</b></a> xmlns="http://hl7.org/fhir"&gt;
+ &lt;!-- from Element: <a href="extensibility.html">extension</a> -->
+ &lt;<a href="resource-definitions.html#Meta.versionId" title="特定版本的标识符，如出现在URL的版本部分。当创建、更新或删除资源时，此值会发生变化。" class="dict"><b>versionId</b></a> value="[<span style="color: darkgreen"><a href="datatypes.html#id">id</a></span>]"/&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..1</b></span> <span style="color: navy"><a href="terminologies.html#unbound" style="color: navy">特定版本的标识符</a></span><span style="color: Gray"> --&gt;</span>
+ &lt;<a href="resource-definitions.html#Meta.lastUpdated" title="资源上次更改的时间 - 例如，版本更改时。" class="dict"><b>lastUpdated</b></a> value="[<span style="color: darkgreen"><a href="datatypes.html#instant">instant</a></span>]"/&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..1</b></span> <span style="color: navy"><a href="terminologies.html#unbound" style="color: navy">资源版本上次更改的时间</a></span><span style="color: Gray"> --&gt;</span>
+ &lt;<a href="resource-definitions.html#Meta.source" title="标识资源的源系统的URI。这提供了一定数量的[[[Provenance]]]信息，可用于跟踪或区分资源中信息的来源。源可以标识另一个FHIR服务器、文档、消息、数据库等。" class="dict"><b>source</b></a> value="[<span style="color: darkgreen"><a href="datatypes.html#uri">uri</a></span>]"/&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..1</b></span> <span style="color: navy"><a href="terminologies.html#unbound" style="color: navy">标识资源的来源</a></span><span style="color: Gray"> --&gt;</span>
+ &lt;<a href="resource-definitions.html#Meta.profile" title="资源声称符合的配置文件列表（对[[[StructureDefinition]]]资源的引用）。URL是对[[[StructureDefinition.url]]]的引用。" class="dict"><b>profile</b></a>&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..*</b></span> <span style="color: darkgreen"><a href="datatypes.html#canonical">canonical</a>(<a href="structuredefinition.html#StructureDefinition">StructureDefinition</a>)</span> <span style="color: navy"><a href="terminologies.html#unbound" style="color: navy">资源声称符合的配置文件</a></span><span style="color: Gray"> --&gt;</span>&lt;/profile&gt;
+ &lt;<a href="resource-definitions.html#Meta.security" title="应用于此资源的安全标签。这些标签将特定资源连接到整体安全策略和基础设施。" class="dict"><b>security</b></a>&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..*</b></span> <span style="color: darkgreen"><a href="datatypes.html#Coding">Coding</a></span> <span style="color: navy"><a href="valueset-security-labels.html" style="color: navy">应用于此资源的安全标签</a></span><span style="color: Gray"> --&gt;</span>&lt;/security&gt;
+ &lt;<a href="resource-definitions.html#Meta.tag" title="应用于此资源的标签。标签用于标识和关联资源与流程和工作流程，应用程序在解释资源的含义时不需要考虑这些标签。" class="dict"><b>tag</b></a>&gt;<span style="color: Gray">&lt;!--</span> <span style="color: brown"><b>0..*</b></span> <span style="color: darkgreen"><a href="datatypes.html#Coding">Coding</a></span> <span style="color: navy"><a href="valueset-common-tags.html" style="color: navy">应用于此资源的标签</a></span><span style="color: Gray"> --&gt;</span>&lt;/tag&gt;
+&lt;/meta&gt;
+</pre>
+
+</div>
+  </div>
+
+<div id="jsona">
+   <a name="json-Meta"> </a>
+   <p><b>JSON模板</b></p>
+   <div id="json-inner">
+     <pre class="spec">
+{<span style="float: right"><a title="此格式的文档" href="json.html"><img src="help.png" alt="doco"/></a></span>
+  // 来自Element: <a href="extensibility.html">extension</a>
+  "<a href="resource-definitions.html#Meta.versionId" title="版本特定的标识符，出现在URL的版本部分。当资源创建、更新或删除时，此值会发生变化。" class="dict">versionId</a>" : "&lt;<span style="color: darkgreen"><a href="datatypes.html#id">id</a></span>&gt;", <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="terminologies.html#unbound" style="color: navy; opacity: 0.8">版本特定的标识符</a></span>
+  "<a href="resource-definitions.html#Meta.lastUpdated" title="资源最后更改的时间 - 例如，版本更改时。" class="dict">lastUpdated</a>" : "&lt;<span style="color: darkgreen"><a href="datatypes.html#instant">instant</a></span>&gt;", <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="terminologies.html#unbound" style="color: navy; opacity: 0.8">资源版本最后更改的时间</a></span>
+  "<a href="resource-definitions.html#Meta.source" title="标识资源的源系统的URI。这提供了一定数量的[[[Provenance]]]信息，可用于跟踪或区分资源中信息的来源。源可以标识另一个FHIR服务器、文档、消息、数据库等。" class="dict">source</a>" : "&lt;<span style="color: darkgreen"><a href="datatypes.html#uri">uri</a></span>&gt;", <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="terminologies.html#unbound" style="color: navy; opacity: 0.8">标识资源的来源</a></span>
+  "<a href="resource-definitions.html#Meta.profile" title="此资源声称符合的配置文件列表（对[[[StructureDefinition]]]资源的引用）。URL是对[[[StructureDefinition.url]]]的引用。" class="dict">profile</a>" : ["&lt;<span style="color: darkgreen"><a href="datatypes.html#canonical">canonical</a></span>(<a href="structuredefinition.html#StructureDefinition">StructureDefinition</a>)&gt;"], <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="terminologies.html#unbound" style="color: navy; opacity: 0.8">此资源声称符合的配置文件</a></span>
+  "<a href="resource-definitions.html#Meta.security" title="应用于此资源的安全标签。这些标签将特定资源连接到整体安全策略和基础设施。" class="dict">security</a>" : [{ <span style="color: darkgreen"><a href="datatypes.html#Coding">Coding</a></span> }], <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="valueset-security-labels.html" style="color: navy; opacity: 0.8">应用于此资源的安全标签</a></span>
+  "<a href="resource-definitions.html#Meta.tag" title="应用于此资源的标签。标签用于标识和关联资源与流程和工作流程，应用程序在解释资源的含义时不需要考虑这些标签。" class="dict">tag</a>" : [{ <span style="color: darkgreen"><a href="datatypes.html#Coding">Coding</a></span> }] <span style="color: Gray">//</span> <span style="color: navy; opacity: 0.8"><a href="valueset-common-tags.html" style="color: navy; opacity: 0.8">应用于此资源的标签</a></span>
+}
+</pre>
+
+</div>
+  </div>
+  <div id="ttla">
+   <a name="ttl-Meta"> </a>
+   <p><b>Turtle模板</b></p>
+   <div id="ttl-inner">
+     <pre class="spec">
+@prefix fhir: &lt;http://hl7.org/fhir/&gt; .
+
+[
+ # from Element: <a href="extensibility.html">Element.extension</a>
+  fhir:<a href="resource-definitions.html#Meta.versionId" title="The version specific identifier, as it appears in the version portion of the URL. This value changes when the resource is created, updated, or deleted." class="dict">versionId</a><a name="ttl-versionId"> </a>[ <a href="datatypes.html#id">id</a> ] ; # 0..1 <span style="color: navy">版本特定标识符</span>
+  fhir:<a href="resource-definitions.html#Meta.lastUpdated" title="When the resource last changed - e.g. when the version changed." class="dict">lastUpdated</a><a name="ttl-lastUpdated"> </a>[ <a href="datatypes.html#instant">instant</a> ] ; # 0..1 <span style="color: navy">资源版本最后更改时间</span>
+  fhir:<a href="resource-definitions.html#Meta.source" title="A uri that identifies the source system of the resource. This provides a minimal amount of [[[Provenance]]] information that can be used to track or differentiate the source of information in the resource. The source may identify another FHIR server, document, message, database, etc." class="dict">source</a><a name="ttl-source"> </a>[ <a href="datatypes.html#uri">uri</a> ] ; # 0..1 <span style="color: navy">标识资源来源的URI</span>
+  fhir:<a href="resource-definitions.html#Meta.profile" title="A list of profiles (references to [[[StructureDefinition]]] resources) that this resource claims to conform to. The URL is a reference to [[[StructureDefinition.url]]]." class="dict">profile</a><a name="ttl-profile"> </a> ( [ <a href="datatypes.html#canonical">canonical</a>(<a href="structuredefinition.html#StructureDefinition">StructureDefinition</a>) ] ... ) ; # 0..* <span style="color: navy">资源声明符合的配置文件</span>
+  fhir:<a href="resource-definitions.html#Meta.security" title="Security labels applied to this resource. These tags connect specific resources to the overall security policy and infrastructure." class="dict">security</a><a name="ttl-security"> </a> ( [ <a href="datatypes.html#Coding">Coding</a> ] ... ) ; # 0..* <span style="color: navy">应用于此资源的安全标签</span>
+  fhir:<a href="resource-definitions.html#Meta.tag" title="Tags applied to this resource. Tags are intended to be used to identify and relate resources to process and workflow, and applications are not required to consider the tags when interpreting the meaning of a resource." class="dict">tag</a><a name="ttl-tag"> </a> ( [ <a href="datatypes.html#Coding">Coding</a> ] ... ) ; # 0..* <span style="color: navy">应用于此资源的标签</span>
+]
+</pre>
+
+</div>
+  </div>
+  <div id="diffa">
+   <a name="diff-Meta"> </a>
+   <p><b>自发布3版以来的变化</b></p>
+   <div id="diff-inner">
+     <p><b>来自R4和R4B的变化</b></p>
+<table class="grid"><tr class="diff-item"><td class="diff-left"><a href="resource.html#Meta">元数据</a></td><td class="diff-right"><ul><li>无变化</li></ul></td></tr></table>
+<p>详细信息请参见<a href="diff.html">完整差异</a></p>
+
+   </div>
+  </div>
+ </div>
+</div>
+
+<p>
+请注意，RESTful API定义了一些<a href="operations.html">操作</a>，提供对<i>meta</i>元素的<a href="resource-operation-meta.html">直接读写访问</a>。
+</p>
+
+<a name="versions"></a>
+<h4>记录版本 vs 业务版本 vs FHIR版本</h4>
+<p>
+一个资源有三个不同的版本：
+</p>
+<ol>
+  <li>记录版本：每次资源发生变化时都会更改（通常由服务器管理）</li>
+  <li>业务版本：每次资源内容发生变化时都会更改（由人工作者或业务策略管理）</li>
+  <li>FHIR版本：资源所表示的FHIR版本（由资源的作者控制）</li>
+</ol>
+<p><b>记录（资源）版本</b></p>
+<p>
+所有资源在概念上都有版本，并且每个资源都位于过去版本的线性列表的开头。
+过去的版本被当前版本取代，并且仅用于审计/完整性目的。
+当前版本为例如 http://acme.org/fhir/ResourceType/id123，而过去的版本将是
+http://acme.org/fhir/ResourceType/id123/_history/v2。
+</p>
+<p>
+请注意，服务器没有保留历史记录的要求。提供了
+<a href="http.html#history">history交互</a>用于
+提供适当的服务。但是，无论服务器是否保留它们，
+过去的版本都已经消失。资源的当前版本在 <i>Resource.meta.versionId</i> 中。对于值集，它将是：
+</p>
+<pre>
+&lt;ValueSet&gt;
+  &lt;meta&gt;
+    &lt;versionId value=&quot;v2&quot;/&gt;
+  &lt;/meta&gt;
+&lt;/ValueSet&gt;
+</pre>
+<p>
+versionId 每次服务器更新资源并覆盖现有资源时都会更改。
+</p>
+<p><b>业务版本</b></p>
+<p>
+某些资源中还有另一个版本标记。例如，值集中还有另一个版本：
+</p>
+<pre>
+&lt;ValueSet&gt;
+  &lt;url value=&quot;http://acme.com/fhir/ValueSet/example&quot;/&gt;
+  &lt;version value=&quot;2.0&quot;/&gt;
+&lt;/ValueSet&gt;
+</pre>
+<p>
+这表示这是“example”值集的2.0版本。这是值集的业务版本，人类参与其中。
+这两个版本元素具有完全不同的生命周期。为了说明，考虑以下情况：
+</p>
+<ol>
+ <li>
+  将值集发布到服务器（POST [base]/ValueSet），其中 ValueSet.url = "http://acme.com/valuesets/example"。这被标识为值集的第一个版本（ValueSet.version = 1）。
+  当服务器接收到它时，它分配一个标识，例如 ValueSet.id = x1，ValueSet.meta.versionId = 1。
+  稍后，另一个用户创建了值集的修订版本，称为版本2。它作为更新提交给服务器（PUT [base]/ValueSet/x1）。
+  <br/>
+  现在，ValueSet.url = http://acme.com/valuesets/example，ValueSet.id = x1，ValueSet.version = 2，ValueSet.meta.versionId = 2
+ </li>
+ <li>
+  将值集发布到服务器（POST [base]/ValueSet），其中 ValueSet.url = "http://acme.com/valuesets/example"。这被标识为值集的第一个版本（ValueSet.version = 1）。
+  当服务器接收到它时，它分配一个标识，例如 ValueSet.id = x1，ValueSet.meta.versionId = 1。
+  然后发现定义中有一个拼写错误，但它仍然是值集的v1。这是通过 PUT [base]/ValueSet/x1 进行修正。
+  现在，ValueSet.url = http://acme.com/valuesets/example，ValueSet.id = x1，ValueSet.version = 1，ValueSet.meta.versionId = 2。
+  <br/>
+  稍后，另一个用户创建了值集的修订版本，称为版本2。它作为更新提交给服务器（PUT [base]/ValueSet/x1）。现在，ValueSet.url = http://acme.com/valuesets/example，ValueSet.id = x1，ValueSet.version = 2，ValueSet.meta.versionId = 3
+ </li> 
+ <li>
+  将值集发布到服务器（POST [base]/ValueSet），其中 ValueSet.url = "http://acme.com/valuesets/example"。这被标识为值集的第一个版本（ValueSet.version = 1）。
+  当服务器接收到它时，它分配一个标识，例如 ValueSet.id = x1，ValueSet.meta.versionId = 1。
+  稍后，另一个用户创建了值集的修订版本，称为版本2。
+  这次，除了支持这个新的版本2之外，仍然有使用版本1的生产系统，两者都需要在值集服务器上有效。
+  因此，在服务器上创建了一个新的值集（POST [base]/ValueSet），并分配了标识 'x2'。
+  <br/>
+  现在，有两个不同的值集，都具有 URL "http://acme.com/valuesets/example"。一个具有 ValueSet.id = x1，ValueSet.version = 1 和
+  ValueSet.meta.versionId = 1，另一个具有 ValueSet.id = x2，ValueSet.version = 2 和 ValueSet.meta.versionId = 1。
+ </li>
+</ol>
+<p>
+资源的版本应在每次进行非重大更改时更改。什么样的更改构成“重大”取决于上下文，并未在此处指定。但是，请注意，可以更改诸如 <code>status</code> 和 <code>date</code> 等元素而不更改版本，例如将过去版本标记为 <code>retired</code>。一般来说，任何其他更改都应与版本的更改相关联。
+</p>
+<p>
+<a href="https://semver.org/">语义化版本</a>规范建议使用 MAJOR.MINOR.PATCH 的形式表示版本，其中对于本规范中描述的类型的工件：
+</p>
+<ul>
+ <li>当对工件进行不兼容的更改时，MAJOR 版本递增</li>
+ <li>当以向后兼容的方式向工件添加功能时，MINOR 版本递增</li>
+ <li>当进行不影响工件实现的次要更改时，PATCH 版本递增（例如，文档澄清）</li>
+</ul>
+<p>
+对于具有<a href="#canonical">规范URL</a>的资源，本规范建议实施者遵循语义化版本原则，但不要求如此。
+然而，实施者应该考虑将 MAJOR 版本部分放在<a href="#canonical">规范URL</a>中，而不是放在 <code>[Resource].version</code> 中。所以，而不是这样：
+</p>
+<pre class="json">
+{ 
+  "resourceType" : "ValueSet",
+  "url" : "http://example.org/fhir/ValueSet/blah",
+  "version" : "2.1.1"
+ }
+</pre>
+<p>
+实施者应该考虑这样：
+</p>
+<pre class="json">
+{ 
+  "resourceType" : "ValueSet",
+  "url" : "http://example.org/fhir/ValueSet/blah2",
+  "version" : "1.1"
+ }
+</pre>
+<p>
+主要优点是引用第一个工件的其他工件可以通过主要版本进行引用：
+</p>
+
+<pre class="json">
+  "binding" : { 
+     "valueSet" : "http://example.org/fhir/ValueSet/blah2"
+  }
+</pre>
+<p>
+另一种选择是在URL中不包含主要版本号，这意味着版本依赖关系必须通过其他方法进行管理（例如，通过<a href="implementationguide.html">实施指南</a>管理一组具有特定版本引用的资源）。
+</p>
+<p>
+在这里没有单一的最佳实践；正确的选择取决于许多超出本规范范围的因素。
+</p>
+
+<a name="bv-format"></a>
+<p>
+对于规范资源中的业务版本，业务版本<strong>不应该</strong>包含<code>#</code>字符，因为版本号出现在URL中，而<code>#</code>在URL中具有特殊含义。
+如果版本号包含<code>#</code>，则在使用URL时<strong>必须</strong>按照<a href="references.html#canonical">规范引用</a>中指定的方式进行正确转义。
+</p>
+
+<p><b>FHIR版本</b></p>
+<p>
+所有资源都有一个针对其编写的FHIR版本。然而，请注意，资源可能针对多个不同的FHIR版本有效，并且随着资源的成熟度的提高，这种情况越来越可能发生。
+</p>
+<p>
+通常情况下，资源中并没有明确说明版本；版本由上下文控制。有关更多信息，请参阅<a href="versioning.html">管理多个FHIR版本</a>。
+</p>
+
+<a name="tags"></a>
+<h3>标签、配置文件和安全标签</h3>
+<p>
+这3个元数据属性是资源的一部分，但从不用于保存需要在解释资源内容时理解的信息；它们的功能仅限于查找和控制对资源的访问，并将资源连接到技术或临床工作流程。
+</p>
+
+<a name="simple-tags"></a>
+<h4>标签</h4>
+<p>
+标签用于将额外的操作信息与资源关联起来，例如工作流管理。标签的典型用途是维护一个非正式的资源审核列表。
+</p>
+<p>
+在通用标签中，<a href="datatypes.html#coding">编码概念</a>可以是对医疗词汇的引用，包括本规范中定义的词汇，或者HL7为其他目的（例如<a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=185">HL7 V2</a>和<a href="https://www.hl7.org/implement/standards/product_brief.cfm?product_id=186">HL7 v3</a>/<a href="http://www.hl7.org/implement/standards/product_brief.cfm?product_id=7">CDA</a>）、LOINC或SNOMED CT等定义的词汇。另外，该概念也可以是由实施方在本地上下文中定义的。
+</p>
+<p>
+资源上的标签列表是一个集合，其中每个标签基于<code>system</code>+<code>code</code>的组合是唯一的。
+</p>
+
+<a name="profile-tags"></a>
+<h4>配置文件标签</h4>
+<p>
+配置文件断言表示资源符合<a href="structuredefinition.html">指定的结构定义</a>，
+该结构定义规定了资源中允许包含的内容。在配置文件标签中，术语
+是一个URL，引用了一个已识别的<a href="structuredefinition.html">结构定义</a>资源。
+</p>
+<p>
+通过将资源与配置文件进行测试（验证工具提供了在各种上下文中执行此测试的功能），
+可以始终确定资源是否符合任何配置文件。
+然而，在以下几种情况下，仅仅检查资源是否符合特定配置文件是不切实际的：
+</p>
+<ul>
+ <li>服务器在一组资源中搜索符合特定配置文件的资源</li>
+ <li>接收方在验证资源时有多个配置文件可供选择</li>
+</ul>
+<p>
+配置文件标签用于满足这些用例 - 资源的客户端/创建者可以使用断言将资源标记为符合特定的结构定义。
+资源的服务器/接收方可以选择接受这个断言，或者帮助定位正确的<a href="structuredefinition.html">结构定义</a>来验证资源。
+</p>
+<p>
+注意：资源可以同时符合多个配置文件。资源可以符合配置文件，而无需标记其符合性，或者资源可能错误地声称符合配置文件。
+因此，处理资源的应用程序应始终依赖于处理资源时的内容和/或直接检查资源与<a href="structuredefinition.html">结构定义</a>的一致性，而不是依赖于配置文件标签的存在来确定含义。
+配置文件标签提供了一种查找符合特定<a href="structuredefinition.html">结构定义</a>的资源的方法，而不是关于资源含义的陈述。
+</p>
+<p>
+许多交易伙伴协议将规定可以提出什么样的声明以及何时必须进行测试，这将使配置文件断言更可靠。
+</p>
+<p>
+资源上的配置文件列表是一个集合，其中每个配置文件基于URI的<code>value</code>是唯一的。
+</p>
+
+<a name="security-labels"></a>
+<h4>安全标签</h4>
+<p>
+安全标签被附加到资源上，以提供有关资源中信息的特定安全元数据。有关更多信息，请参见<a href="security-labels.html">安全标签</a>。
+</p>
+<p>
+请注意，可以创建具有相同(<code>system</code>+<code>code</code>)但不同<code>.display</code>或<code>.version</code>的两个安全标签。此外，在评估安全标签时，不考虑<code>.display</code>或<code>.version</code>。
+</p>
+
+<a name="tag-updates"></a>
+<h3>标签、配置文件和安全标签的更新</h3>
+<p>
+当资源被更新（例如在RESTful接口上），服务器通常遵循以下模式：
+</p>
+<ul>
+ <li>合并现有标签和新标签</li>
+ <li>用新的配置文件标签替换现有的配置文件标签</li>
+ <li>合并现有的安全标签和新的安全标签</li>
+</ul>
+<p>
+然而，在某些情况下，更新可能会使现有的标签无效。如果已知这是合适的，服务器可以更新或删除先前存在的已识别标签。客户端可以使用<a href="resource-operation-meta.html">$meta</a>操作检索当前的标签。
+</p>
+
+<a name="furtherinfo"></a>
+<h3>更多信息</h3>
+<ul>
+  <li><a href="conformance-rules.html">一致性规则</a></li>
+  <li><a href="resourcelist.html">资源定义</a></li>
+  <li><a href="references.html">资源之间的引用</a></li>
+  <li><a href="narrative.html">叙述</a></li>
+  <li><a href="resource-formats.html">格式：</a> <a href="xml.html">XML</a>，<a href="json.html">JSON</a> </li>
+  <li><a href="extensibility.html">可扩展性</a>（<a href="extensibility-examples.html">示例</a>）</li>
+  <li><a href="resource-definitions.html">详细描述</a></li>
+  <li><a href="versions.html">版本间兼容性</a></li>
+</ul>
+
+
+
+<a name="maturity"></a>
+<h3>成熟度级别</h3>
+<p>
+<a href="versions.html#maturity">成熟度级别文档已移动</a>。
+</p>
+
+<script src="external/jquery/jquery.js"> </script>
+<script src="jquery-ui.min.js"> </script>
+<script>
+ try {
+   var currentTabIndex = sessionStorage.getItem('fhir-resource-tab-index');
+ } catch(exception){ 
+ }
+ if (!currentTabIndex)
+   currentTabIndex = '0';</script>
+
+$( '#tabs-Meta' ).tabs({ active: currentTabIndex, activate: function( event, ui ) { store(ui.newTab.index()); } });
+    
+     
+function store(currentTab) {
+  document.activeElement.blur();
+  try {
+    sessionStorage.setItem('fhir-resource-tab-index', currentTab);
+  } catch(exception){ 
+  }
+  $( '#tabs-Meta' ).tabs('option', 'active', currentTab);
+}     
+</script>
+
+</div>
+</div>
+
